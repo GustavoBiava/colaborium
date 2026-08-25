@@ -1,4 +1,4 @@
-# 🏢 Colaborium — ERP para Coworkings
+# 🏢 Colaborium - ERP para Coworkings
 
 > 🚧 **Projeto em desenvolvimento**
 
