@@ -6,8 +6,8 @@ import path from "path";
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"), // Points to your frontend src folder
-      "@server": path.resolve(__dirname, "../server/src"),
+      "@": path.resolve(import.meta.dirname, "./src"), // Points to your frontend src folder
+      "@server": path.resolve(import.meta.dirname, "../server/src"),
     },
   },
   plugins: [react()],
