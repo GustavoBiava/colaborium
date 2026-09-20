@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: ./colaborium-back-end
+    ports:
+      - "3333:3333"
+    env_file:
+      - ./colaborium-back-end/.env
+    volumes:
+      - ./colaborium-back-end:/app
+      - /app/node_modules
+  frontend:
+    build: ./colaborium-front-end
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./colaborium-front-end:/app
+      - /app/node_modules

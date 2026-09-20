@@ -1,6 +1,7 @@
-FROM node:20-slim
+FROM oven/bun:1
 WORKDIR /app
-COPY package*.json ./
+EXPOSE 5173
+COPY package.json bun.lock ./
 RUN bun install
 COPY . .
 CMD ["bun", "dev"]
