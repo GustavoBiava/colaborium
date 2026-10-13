@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import path from "path";
 
@@ -10,5 +11,5 @@ export default defineConfig({
       "@server": path.resolve(import.meta.dirname, "../server/src"),
     },
   },
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
 });
