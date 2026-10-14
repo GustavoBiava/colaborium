@@ -1,4 +1,4 @@
-import LoginForm from "@/components/LoginForm";
+import LoginForm from "@/shared/components/LoginForm";
 import Logo from "@/assets/logo-placeholder.png";
 import PlaceholderOffice from "@/assets/placeholder-office.jpg";
 
