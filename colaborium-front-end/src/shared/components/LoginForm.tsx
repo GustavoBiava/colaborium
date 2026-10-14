@@ -21,7 +21,7 @@ export default function LoginForm() {
             {/* Header */}
             <div className="space-y-2">
                 <h2 className="text-4xl"> LOGIN </h2>
-                <p> Bem-vindo de volta. </p>
+                <p className="text-gray-500"> Bem-vindo de volta. </p>
             </div>
 
             {/* Formulário */}
@@ -38,7 +38,7 @@ export default function LoginForm() {
                     placeholder="exemplo@gmail.com"
                     autoComplete="email"
                     required
-                    className="border-[#383838] bg-[#222222] text-white placeholder:text-gray-500"
+                    className="border-[#383838] bg-[#222222] text-white placeholder:text-gray-500 p-1"
                     />
                 </div>
 
@@ -54,7 +54,7 @@ export default function LoginForm() {
                             placeholder="Digite sua senha"
                             autoComplete="current-password"
                             required
-                            className="border-[#383838] bg-[#222222] text-white placeholder:text-gray-500"
+                            className="border-[#383838] bg-[#222222] text-white placeholder:text-gray-500 p-1"
                         />
 
                         {/* Esconder senha */}
