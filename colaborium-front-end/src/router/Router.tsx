@@ -1,5 +1,6 @@
+import Login from "@/features/login/page";
 import { Users } from "@/features/users/page";
-import { Login } from "@/pages/Login"
+
 import { Layout } from "@/shared/components/layout/Layout";
 
 import { BrowserRouter, Route, Routes } from "react-router";
