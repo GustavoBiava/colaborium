@@ -1,11 +1,11 @@
-import { Home, Inbox, Settings, Square, Users } from "lucide-react";
+import { cn } from "cn";
+import { Home, Settings, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -13,7 +13,6 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "../ui/sidebar";
-import { cn } from "cn";
 
 const mainItems = [
   { title: "Home", url: "/", icon: Home },
@@ -25,7 +24,7 @@ const settingsItems = [{ title: "Settings", url: "/settings", icon: Settings }];
 export function SidebarLayout() {
   const { open } = useSidebar();
   return (
-    <Sidebar collapsible="icon" className="text-neutral-400">
+    <Sidebar collapsible="icon" className="text-neutral-400 border-neutral-900">
       <SidebarHeader className="bg-neutral-900 h-2/12 ">
         <div className="flex flex-row w-full justify-end">
           <SidebarTrigger />
