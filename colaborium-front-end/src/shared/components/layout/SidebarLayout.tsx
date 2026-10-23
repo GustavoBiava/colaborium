@@ -1,5 +1,5 @@
 import { cn } from "cn";
-import { Home, Settings, Users } from "lucide-react";
+import { Home, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,8 +18,6 @@ const mainItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Users", url: "/usuarios", icon: Users },
 ];
-
-const settingsItems = [{ title: "Settings", url: "/settings", icon: Settings }];
 
 export function SidebarLayout() {
   const { open } = useSidebar();
