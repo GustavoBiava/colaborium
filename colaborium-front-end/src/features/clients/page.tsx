@@ -1,5 +1,6 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { PageLayout } from "@/shared/components/layout/PageLayout";
+import { Button } from "@/shared/components/ui/button";
 
 import {
   createColumnHelper,
@@ -10,7 +11,11 @@ import {
   useTable,
   type SortingState,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { Plus, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ClientDialog } from "./components/ClientDialog";
+import { useSearchParams } from "react-router";
+import { DialogTrigger } from "@/shared/components/ui/dialog";
 
 // here we are using tanstack table, beacuse we already plan to use tanstack query. Basically the advantage of using tanstack table is that it already has some data tables logics built in, like sorting, pagination, global filters, etc. And its headless, so we can use our own UI
 // here is a video about it https://www.youtube.com/watch?v=GtT3mRjQ7Eo
@@ -38,8 +43,10 @@ const columns = helper.columns([
   helper.accessor("email", { header: "E-mail" }),
 ]);
 
-export function Users() {
+export function Clients() {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [upsertCard, setUpsertCard] = useState<boolean>(false);
+  const [params, setParams] = useSearchParams();
 
   // here you basically join the whole things, the features, the columns, the data and the state
   const table = useTable({
@@ -50,9 +57,31 @@ export function Users() {
     onSortingChange: setSorting,
   });
 
+  useEffect(() => {
+    console.log(upsertCard);
+  }, [upsertCard]);
+
   return (
-    <PageLayout pageTitle="Usuários">
-      <DataTable table={table} />
+    <PageLayout
+      pageTitle="Clientes"
+      Icon={User}
+      subtitle="Gerencie seus clientes"
+    >
+      <div className="flex flex-col gap-5 ">
+        <div className="flex flex-col gap-5 w-full items-end">
+          <Button
+            onClick={() => setUpsertCard(true)}
+            className="rounded-md w-36"
+          >
+            <Plus size={18} />
+            <p>Cliente</p>
+          </Button>
+        </div>
+        <DataTable table={table} />
+      </div>
+      <p>{upsertCard}</p>
+
+      {upsertCard && <ClientDialog open={upsertCard} setOpen={setUpsertCard} />}
     </PageLayout>
   );
 }
