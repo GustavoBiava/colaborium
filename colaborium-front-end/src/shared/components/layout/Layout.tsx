@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "../ui/sidebar";
+import { SidebarInset, SidebarProvider } from "../ui/sidebar";
 import { SidebarLayout } from "./SidebarLayout";
 
 /**
