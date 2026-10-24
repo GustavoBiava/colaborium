@@ -46,7 +46,7 @@ const columns = helper.columns([
 export function Clients() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
-  const [params, setParams] = useSearchParams();
+  const [_params, setParams] = useSearchParams();
 
   // here you basically join the whole things, the features, the columns, the data and the state
   const table = useTable({
@@ -70,11 +70,24 @@ export function Clients() {
       <div className="flex flex-col gap-5 ">
         <div className="flex flex-col gap-5 w-full items-end">
           <Button
-            onClick={() => setUpsertCard(true)}
-            className="rounded-md w-36"
+            onClick={() => {
+              setUpsertCard(true);
+              setParams({ mode: "create" });
+            }}
+            className="w-36"
           >
             <Plus size={18} />
             <p>Cliente</p>
+          </Button>
+          <Button
+            onClick={() => {
+              setUpsertCard(true);
+              setParams({ mode: "update" });
+            }}
+            className="w-36"
+          >
+            <Plus size={18} />
+            <p>edit</p>
           </Button>
         </div>
         <DataTable table={table} />

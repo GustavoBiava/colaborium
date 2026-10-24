@@ -7,6 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { cn } from "cn";
+import { useSearchParams } from "react-router";
 
 interface DialogProps {
   open: boolean;
@@ -14,20 +16,36 @@ interface DialogProps {
 }
 
 export function ClientDialog({ setOpen, open }: DialogProps) {
+  const [params] = useSearchParams();
+  const dialogText =
+    params.get("mode") === "update"
+      ? {
+          title: "Editar cliente",
+          description: "Atualize os dados do cliente.",
+          button: "Salvar",
+        }
+      : {
+          title: "Novo cliente",
+          description: "Preencha os dados do novo cliente.",
+          button: "Criar",
+        };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
+      <DialogContent className={cn("rounded-xs")}>
         <DialogHeader>
-          <DialogTitle>Card com fundo borrado</DialogTitle>
-          <DialogDescription>Descricao</DialogDescription>
+          <DialogTitle>{dialogText.title}</DialogTitle>
+          <DialogDescription>{dialogText.description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            {dialogText.button}
+          </Button>
           <Button variant="outline" onClick={() => setOpen(false)}>
             Fechar
           </Button>
         </DialogFooter>
       </DialogContent>
-      <p>asdmklasdksakdj</p>
     </Dialog>
   );
 }
