@@ -19,7 +19,7 @@ export function PageLayout({
         {pageTitle && (
           <span className="flex flex-wrap justify-start items-center gap-2">
             {Icon && (
-              <div className="place-content-center place-items-center rounded-md w-10 h-10 bg-neutral-200">
+              <div className="place-content-center place-items-center rounded-xs w-10 h-10 bg-neutral-200">
                 <Icon size={24} />
               </div>
             )}
