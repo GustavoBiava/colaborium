@@ -1,6 +1,7 @@
 import { fastify } from "fastify";
 import { db } from "./config/database";
 import { roomsRoutes } from "./features/rooms/rooms.routes";
+import { usersRoutes } from "./features/users/users.routes";
 
 import {
   serializerCompiler,
@@ -48,6 +49,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 app.register(roomsRoutes);
+app.register(usersRoutes);
 
 // Rota para testar o funcionamento da API
 app.get("/health", {
