@@ -1,10 +1,29 @@
 import { db } from "../../config/database";
+import type { createUserDTO } from "./users.schemas";
 
 class UserRepository {
 
     async getUsersPaginated(limit: number, offset: number) {
         const query = 'SELECT * FROM usuario ORDER BY id ASC LIMIT $1 OFFSET $2';
         const result = await db.query(query, [limit, offset]);
+        return result.rows;
+    }
+
+    async createUser(user: createUserDTO) {
+        const result = await db.query(
+            `INSERT INTO usuario(
+                nome, email, senha_hash, perfil, ativo)
+                VALUES ($1, $2, $3, $4, $5)
+            RETURNING id`,
+            [
+                user.nome,
+                user.email,
+                user.senha,
+                user.perfil,
+                true
+            ]
+        );
+        
         return result.rows;
     }
 

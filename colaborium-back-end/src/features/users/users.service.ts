@@ -1,4 +1,5 @@
 import usersRepository from "./users.repository";
+import type { createUserDTO } from "./users.schemas";
 
 class UserService {
 
@@ -22,6 +23,12 @@ class UserService {
                 has_next: page < totalPages,
             }
         };
+    }
+
+    async createUser(user: createUserDTO) {
+        const result = usersRepository.createUser(user);
+
+        return result;
     }
 
 }
