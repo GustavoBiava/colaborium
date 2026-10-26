@@ -27,11 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { formatCpfCnpj } from "@/shared/utils/formatCpfCnpj";
 import { formatPhone } from "@/shared/utils/formatPhone";
 import { formatCep } from "@/shared/utils/formatCep";
-
-interface DialogProps {
-  open: boolean;
-  setOpen: (value: React.SetStateAction<boolean>) => void;
-}
+import type { DialogProps } from "@/shared/interfaces/DialogProps";
 
 export function ClientDialog({ setOpen, open }: DialogProps) {
   const [params, _setParams] = useSearchParams();
@@ -236,6 +232,7 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
                 <Controller
                   control={control}
                   name="isento"
+                  defaultValue={false}
                   render={({ field }) => (
                     <Checkbox
                       checked={field.value}
