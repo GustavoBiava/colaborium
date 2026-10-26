@@ -42,7 +42,9 @@ export function DataTable<TData extends RowData>({
               <TableHead
                 key={header.id}
                 onClick={header.column.getToggleSortingHandler?.()}
-                className="cursor-pointer"
+                className={`cursor-pointer select-none ${
+                  header.column.id === "actions" ? "text-right pr-5" : ""
+                }`}
               >
                 {header.isPlaceholder
                   ? null
@@ -57,9 +59,13 @@ export function DataTable<TData extends RowData>({
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows.map((row) => (
-          <TableRow>
+          <TableRow key={row.id}>
             {row.getAllCells().map((cell) => (
-              <TableCell>
+              <TableCell
+                className={
+                  cell.column.id === "actions" ? "text-right" : "text-left"
+                }
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
             ))}
