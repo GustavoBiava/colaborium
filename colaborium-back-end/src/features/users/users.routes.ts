@@ -20,7 +20,6 @@ export async function usersRoutes(app: FastifyInstance) {
     },
   }, userController.getUsersHandler.bind(userController));
 
-
   // CADASTRAR USUÁRIO
   app.post("/usuarios", {
     schema: {
@@ -29,6 +28,17 @@ export async function usersRoutes(app: FastifyInstance) {
       body: createUserSchema
     },
   }, userController.createUserHandler.bind(userController));
+
+  // EDITAR USUÁRIO
+  app.get("/usuarios/:id", {
+    schema: {
+      tags: ["Usuários"],
+      summary: "Listar um usuário por ID",
+      params: z.object({
+        id: z.coerce.number().int().positive(),
+      })
+    },
+  }, userController.getUserHandler.bind(userController));
 
   // EDITAR USUÁRIO
   app.put("/usuarios/:id", {

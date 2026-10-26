@@ -27,6 +27,12 @@ class UserRepository {
         return result.rows;
     }
 
+    async getUser(id: number) {
+        const query = 'SELECT * FROM usuario WHERE id = $1';
+        const result = await db.query(query, [ id ]);
+        return result.rows;
+    }
+
     async updateUser(id: number, user: updateUserDTO) {
         const result = await db.query(
             `UPDATE usuario SET

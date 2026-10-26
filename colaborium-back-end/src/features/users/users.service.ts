@@ -30,6 +30,11 @@ class UserService {
         return result;
     }
 
+    async getUser(id: number) {
+        const result = usersRepository.getUser(id);
+        return result;
+    }
+
     async updateUser(id: number, user: updateUserDTO) {
         const result = usersRepository.updateUser(id, user);
         return result;

@@ -36,6 +36,22 @@ class UsersController {
         }
     }
     
+    async getUserHandler(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ) {
+        try {
+            const { id } = request.params;
+            const result = await userService.getUser(id);
+
+            return reply.status(200).send(result[0]);
+        } 
+        catch (error) {
+            request.log.error(error);
+            return reply.status(500).send({ error });
+        }
+    }
+    
     async updateUserHandler(
         request: FastifyRequest,
         reply: FastifyReply
