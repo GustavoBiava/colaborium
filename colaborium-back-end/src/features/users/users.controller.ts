@@ -52,6 +52,22 @@ class UsersController {
         }
     }
 
+    async deleteUserHandler(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ) {
+        try {
+            const { id } = request.params;
+            await userService.deleteUser(id);
+
+            return reply.status(204).send();
+        } 
+        catch (error) {
+            request.log.error(error);
+            return reply.status(500).send({ error });
+        }
+    }
+
 }
 
 export default new UsersController(); 

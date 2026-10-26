@@ -50,6 +50,10 @@ class UserRepository {
         return result.rows;
     }
 
+    async deleteUser(id: number) {
+        await db.query( `DELETE FROM usuario WHERE id = $1`, [ id ]);
+    }
+
     async countTotal() {
         const query = 'SELECT COUNT(*) FROM usuario';
         const result = await db.query(query);

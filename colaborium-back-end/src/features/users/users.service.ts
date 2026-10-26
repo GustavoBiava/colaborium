@@ -35,6 +35,10 @@ class UserService {
         return result;
     }
 
+    async deleteUser(id: number) {
+        usersRepository.deleteUser(id);
+    }
+
 }
 
 export default new UserService();

@@ -41,4 +41,15 @@ export async function usersRoutes(app: FastifyInstance) {
       body: updateUserSchema
     },
   }, userController.updateUserHandler.bind(userController));
+
+  // EXCLUIR USUÁRIO
+  app.delete("/usuarios/:id", {
+    schema: {
+      tags: ["Usuários"],
+      summary: "Excluir um usuário",
+      params: z.object({
+        id: z.coerce.number().int().positive(),
+      }),
+    },
+  }, userController.deleteUserHandler.bind(userController));
 }
