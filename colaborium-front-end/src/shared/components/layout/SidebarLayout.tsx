@@ -1,5 +1,5 @@
 import { cn } from "cn";
-import { Home, Users } from "lucide-react";
+import { Home, Users, DoorClosed } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ import {
 const mainItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Users", url: "/usuarios", icon: Users },
+  { title: "Rooms", url: "/salas", icon: DoorClosed },
 ];
 
 export function SidebarLayout() {
