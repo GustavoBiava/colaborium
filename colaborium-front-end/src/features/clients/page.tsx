@@ -36,7 +36,7 @@ const features = tableFeatures({
 const helper = createColumnHelper<typeof features, User>();
 // From what I understand, this is to avoid typing error. You kind of merge the data and the functions, so typescript knows what columns and features are available .
 
-export function Clients() {
+export function ClientsPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
   const [_params, setParams] = useSearchParams();

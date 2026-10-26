@@ -59,7 +59,7 @@ export function DataTable<TData extends RowData>({
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows.map((row) => (
-          <TableRow>
+          <TableRow key={row.id}>
             {row.getAllCells().map((cell) => (
               <TableCell
                 className={
