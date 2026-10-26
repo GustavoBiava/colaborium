@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { db } from "../../config/database";
 import userController from "./users.controller";
-import { createUserSchema } from "./users.schemas";
+import { createUserSchema, updateUserSchema } from "./users.schemas";
 
 export async function usersRoutes(app: FastifyInstance) {
 
@@ -29,4 +29,16 @@ export async function usersRoutes(app: FastifyInstance) {
       body: createUserSchema
     },
   }, userController.createUserHandler.bind(userController));
+
+  // EDITAR USUÁRIO
+  app.put("/usuarios/:id", {
+    schema: {
+      tags: ["Usuários"],
+      summary: "Editar um usuário",
+      params: z.object({
+        id: z.coerce.number().int().positive(),
+      }),
+      body: updateUserSchema
+    },
+  }, userController.updateUserHandler.bind(userController));
 }

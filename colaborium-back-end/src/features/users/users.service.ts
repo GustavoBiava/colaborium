@@ -1,5 +1,5 @@
 import usersRepository from "./users.repository";
-import type { createUserDTO } from "./users.schemas";
+import type { createUserDTO, updateUserDTO } from "./users.schemas";
 
 class UserService {
 
@@ -27,7 +27,11 @@ class UserService {
 
     async createUser(user: createUserDTO) {
         const result = usersRepository.createUser(user);
+        return result;
+    }
 
+    async updateUser(id: number, user: updateUserDTO) {
+        const result = usersRepository.updateUser(id, user);
         return result;
     }
 

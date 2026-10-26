@@ -1,5 +1,5 @@
 import { db } from "../../config/database";
-import type { createUserDTO } from "./users.schemas";
+import type { createUserDTO, updateUserDTO } from "./users.schemas";
 
 class UserRepository {
 
@@ -21,6 +21,29 @@ class UserRepository {
                 user.senha,
                 user.perfil,
                 true
+            ]
+        );
+        
+        return result.rows;
+    }
+
+    async updateUser(id: number, user: updateUserDTO) {
+        const result = await db.query(
+            `UPDATE usuario SET
+                nome = $1,
+                email = $2,
+                senha_hash = $3,
+                perfil = $4,
+                ativo = $5
+            WHERE id = $6
+            RETURNING id`,
+            [
+                user.nome,
+                user.email,
+                user.senha,
+                user.perfil,
+                user.ativo,
+                id
             ]
         );
         
