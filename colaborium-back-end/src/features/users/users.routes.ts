@@ -40,7 +40,7 @@ export async function usersRoutes(app: FastifyInstance) {
     },
   }, userController.getUserHandler.bind(userController));
 
-  // EDITAR USUÁRIO
+  // CONSULTAR USUÁRIO POR ID
   app.put("/usuarios/:id", {
     schema: {
       tags: ["Usuários"],

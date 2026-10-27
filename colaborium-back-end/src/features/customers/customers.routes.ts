@@ -29,7 +29,7 @@ export async function customerRoutes(app: FastifyInstance) {
     },
   }, customerController.createCustomerHandler.bind(customerController));
 
-  // EDITAR CLIENTE
+  // CONSULTAR CLIENTE POR ID
   app.get("/clientes/:id", {
     schema: {
       tags: ["Clientes"],
@@ -50,7 +50,7 @@ export async function customerRoutes(app: FastifyInstance) {
       }),
       body: updateCustomerSchema
     },
-  }, customerController.updateUserHandler.bind(customerController));
+  }, customerController.updateCustomerHandler.bind(customerController));
 
   // EXCLUIR USUÁRIO
   app.delete("/clientes/:id", {
@@ -61,5 +61,5 @@ export async function customerRoutes(app: FastifyInstance) {
         id: z.coerce.number().int().positive(),
       }),
     },
-  }, customerController.deleteUserHandler.bind(customerController));
+  }, customerController.deleteCustomerHandler.bind(customerController));
 }

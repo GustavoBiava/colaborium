@@ -39,22 +39,34 @@ class CustomerRepository {
         return result.rows;
     }
 
-    async updateUser(id: number, user: updateCustomerDTO) {
+    async updateUser(id: number, customer: updateCustomerDTO) {
         const result = await db.query(
-            `UPDATE usuario SET
-                nome = $1,
-                email = $2,
-                senha_hash = $3,
-                perfil = $4,
-                ativo = $5
-            WHERE id = $6
+            `UPDATE cliente
+                SET nome=$1,
+                    cnpj_cpf=$2,
+                    email=$3,
+                    telefone=$4,
+                    endereco=$5,
+                    bairro=$6,
+                    cidade=$7,
+                    estado=$8,
+                    cep=$9,
+                    ativo=$10,
+                    ie=$11
+                WHERE id = $12;
             RETURNING id`,
             [
-                user.nome,
-                user.email,
-                user.senha,
-                user.perfil,
-                user.ativo,
+                customer.nome,
+                customer.cnpj_cpf,
+                customer.email,
+                customer.telefone,
+                customer.endereco,
+                customer.bairro,
+                customer.cidade,
+                customer.estado,
+                customer.cep,
+                customer.ativo,
+                customer.ie,
                 id
             ]
         );
@@ -62,8 +74,8 @@ class CustomerRepository {
         return result.rows;
     }
 
-    async deleteUser(id: number) {
-        await db.query( `DELETE FROM usuario WHERE id = $1`, [ id ]);
+    async deleteCustomer(id: number) {
+        await db.query( `DELETE FROM cliente WHERE id = $1`, [ id ]);
     }
 
     async countTotal() {

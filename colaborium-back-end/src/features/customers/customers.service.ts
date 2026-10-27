@@ -35,13 +35,13 @@ class CustomerService {
         return result;
     }
 
-    async updateUser(id: number, user: updateCustomerDTO) {
+    async updateCustomer(id: number, user: updateCustomerDTO) {
         const result = customerRepository.updateUser(id, user);
         return result;
     }
 
-    async deleteUser(id: number) {
-        customerRepository.deleteUser(id);
+    async deleteCustomer(id: number) {
+        customerRepository.deleteCustomer(id);
     }
 
 }

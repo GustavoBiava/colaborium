@@ -52,13 +52,13 @@ class CustomerController {
         }
     }
     
-    async updateUserHandler(
+    async updateCustomerHandler(
         request: FastifyRequest,
         reply: FastifyReply
     ) {
         try {
             const { id } = request.params;
-            const result = await customerService.updateUser(id, request.body);
+            const result = await customerService.updateCustomer(id, request.body);
 
             return reply.status(200).send(result[0]);
         } 
@@ -68,13 +68,13 @@ class CustomerController {
         }
     }
 
-    async deleteUserHandler(
+    async deleteCustomerHandler(
         request: FastifyRequest,
         reply: FastifyReply
     ) {
         try {
             const { id } = request.params;
-            await customerService.deleteUser(id);
+            await customerService.deleteCustomer(id);
 
             return reply.status(204).send();
         } 
