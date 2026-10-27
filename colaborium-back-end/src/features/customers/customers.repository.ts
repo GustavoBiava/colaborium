@@ -53,7 +53,7 @@ class CustomerRepository {
                     cep=$9,
                     ativo=$10,
                     ie=$11
-                WHERE id = $12;
+                WHERE id = $12
             RETURNING id`,
             [
                 customer.nome,
