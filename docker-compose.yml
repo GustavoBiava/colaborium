@@ -1,13 +1,27 @@
+
 services:
   backend:
     build: ./colaborium-back-end
     ports:
       - "3333:3333"
-    env_file:
-      - ./colaborium-back-end/.env
+    # env_file:
+    #   - ./colaborium-back-end/.env
+    environment:
+      NODE_ENV: "development"
+      PORT: "3333"
+      DB_HOST: postgres_container
+      DB_PORT: "5432"
+      DB_NAME: colaborium_db
+      DB_USER: colaborium_teste
+      DB_PASSWORD: colaborium123
     volumes:
       - ./colaborium-back-end:/app
       - /app/node_modules
+    networks:
+      - pg-network
+    depends_on:
+      - db
+
   frontend:
     build: ./colaborium-front-end
     ports:
@@ -17,3 +31,42 @@ services:
     volumes:
       - ./colaborium-front-end:/app
       - /app/node_modules
+      
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: colaborium_teste
+      POSTGRES_PASSWORD: colaborium123
+      POSTGRES_DB: colaborium_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - pg-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_gui
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: 123
+    ports:
+      - "5050:80"
+    volumes:
+      - ./pgadmin_data:/var/lib/pgadmin
+    networks:
+      - pg-network
+    depends_on:
+      - db
+
+networks:
+  pg-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
