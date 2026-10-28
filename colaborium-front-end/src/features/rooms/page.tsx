@@ -1,15 +1,12 @@
-import { DataTable } from "@/shared/components/DataTable";
 import { PageLayout } from "@/shared/components/layout/PageLayout";
 import { Button } from "@/shared/components/ui/button";
 import { Plus, DoorClosed } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useState } from "react";
 import { RoomDialog } from "./components/RoomCreationDialog";
 import { RoomCard } from "./components/RoomCard";
 
 export function Rooms() {
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
-  const [params, setParams] = useSearchParams();
 
   const rooms = [
     {
@@ -41,18 +38,14 @@ export function Rooms() {
     },
     {
       id: 4,
-      name: "Room3",
-      description: "descrição 3.",
+      name: "Room4",
+      description: "descrição 4.",
       capacity: 5,
       occupied: "Ocupado",
       active: true,
       imageUrl: "awfasfawd",
     },
   ];
-
-  useEffect(() => {
-    console.log(upsertCard);
-  }, [upsertCard]);
 
   return (
     <PageLayout
@@ -70,7 +63,6 @@ export function Rooms() {
             <p>Sala</p>
           </Button>
         </div>
-
       </div>
 
       <div className="flex flex-col gap-3 overflow-y-auto">

@@ -14,7 +14,7 @@ export function RoomCard({ room }: RoomCardProps) {
   return (
     <div className="flex h-[120px] w-full items-center gap-2 rounded-xl border border-[#888888] bg-[transparent] p-1 text-black">
 
-      <div className="bg-[#888888] rounded-lg object-cover h-full w-[220px]"/>
+      <div className="bg-[#888888] rounded-lg h-full w-[220px]"/>
 
       <div className="flex flex-col justify-left gap-1 text-left">
         <h2 className="text-xl font-medium leading-tight">
