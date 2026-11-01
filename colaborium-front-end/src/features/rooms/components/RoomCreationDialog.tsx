@@ -1,5 +1,5 @@
 import { Button } from "@/shared/components/ui/button";
-import RoomCreationForm from "./RoomCreationForm";
+import RoomCreationForm from "./RoomEditForm";
 import { type Dispatch, type SetStateAction } from "react";
 
 import {
@@ -16,7 +16,7 @@ interface DialogProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function RoomDialog({ setOpen, open }: DialogProps) {
+export function RoomCreationDialog({ setOpen, open }: DialogProps) {
 
   function handleSubmit(data: FormData) {
     console.log(Object.fromEntries(data.entries()));
@@ -35,7 +35,7 @@ export function RoomDialog({ setOpen, open }: DialogProps) {
         <RoomCreationForm onSubmit={handleSubmit} />
 
         <DialogFooter>
-          <Button type="submit" form="room-creation-form">
+          <Button type="submit" form="room-edit-form">
             Criar
           </Button>
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>

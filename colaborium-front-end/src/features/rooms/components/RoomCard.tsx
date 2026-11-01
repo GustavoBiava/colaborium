@@ -1,12 +1,4 @@
-type Room = {
-  id: number;
-  name: string;
-  description: string;
-  capacity: number;
-  occupied: string;
-  active: boolean;
-  imageUrl: string;
-};
+import { type Room } from "../types";
 
 type RoomCardProps = { room: Room; };
 

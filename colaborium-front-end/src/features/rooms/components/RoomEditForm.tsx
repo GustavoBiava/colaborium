@@ -1,20 +1,20 @@
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-
 import { useState } from "react";
-
 import { RoomFurnitureSelector } from "./RoomFurnitureSelector";
+import type { Room } from "../types";
 
 const DESCRIPTION_LIMIT = 500;
 
-type RoomCreationFormProps = {
+type RoomFormProps = {
     onSubmit: (data: FormData) => void;
+    room?: Room;
 };
 
-export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [description, setDescription] = useState("");
+export default function RoomEditForm({ onSubmit, room }: RoomFormProps) {
+    const [imagePreview, setImagePreview] = useState<string | null>(room?.imageUrl || null);
+    const [description, setDescription] = useState(room?.description ?? "");
 
     function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
         const file = event.target.files?.[0];
@@ -36,7 +36,7 @@ export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} id="room-creation-form" className="grid grid-cols-[2fr_2fr] gap-10">
+        <form onSubmit={handleSubmit} id="room-edit-form" className="grid grid-cols-[2fr_2fr] gap-10">
             <div className="grid grid-cols-2 gap-4 content-start items-start">
                 <div className="col-span-2 flex flex-col gap-2">
                     <Label htmlFor="nome" className="mt-2">
@@ -47,6 +47,7 @@ export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
                         name="nome"
                         type="text"
                         placeholder="Nome da sala"
+                        defaultValue={room?.name ?? ""}
                         autoComplete="name"
                         required
                         className="bg-[transparent] text-black placeholder:text-gray-600 p-1"
@@ -62,6 +63,7 @@ export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
                         name="localizacao"
                         type="text"
                         placeholder="Localização"
+                        defaultValue={room?.location ?? ""}
                         required
                         className="bg-[transparent] text-black placeholder:text-gray-600 p-1"
                     />
@@ -76,6 +78,7 @@ export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
                         name="capacidade"
                         type="number"
                         placeholder="0"
+                        defaultValue={room?.capacity ?? ""}
                         required
                         min={0}
                         className="bg-[transparent] text-black placeholder:text-gray-500 p-1"
@@ -91,6 +94,7 @@ export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
                         name="valor"
                         type="number"
                         placeholder="0"
+                        defaultValue={room?.value ?? ""}
                         required
                         min={0}
                         step="0.01"
@@ -105,15 +109,13 @@ export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
                     <Textarea
                         id="descricao"
                         name="descricao"
+                        defaultValue={room?.description ?? ""}
                         required
                         maxLength={DESCRIPTION_LIMIT}
                         onChange={(event) => setDescription(event.target.value)}
                         className="mt-2 break-words resize-none w-full h-32" />
                     <span
-                        className={`self-end text-xs ${description.length >= DESCRIPTION_LIMIT
-                                ? "text-red-500"
-                                : "text-muted-foreground"
-                            }`}
+                        className={`self-end text-xs ${description.length >= DESCRIPTION_LIMIT ? "text-red-500" : "text-muted-foreground"}`}
                     >
                         {description.length} / {DESCRIPTION_LIMIT}
                     </span>
@@ -148,7 +150,7 @@ export default function RoomCreationForm({ onSubmit }: RoomCreationFormProps) {
                     onChange={handleImageChange}
                 />
 
-                <RoomFurnitureSelector />
+                <RoomFurnitureSelector room={room} />
             </div>
         </form>
     )

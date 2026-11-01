@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import type { Room } from "../types";
 
 type FurnitureItem = {
     id: string;
@@ -19,13 +20,17 @@ const furnitureItems: FurnitureItem[] = [
   { id: "air-conditioners", name: "Ares-condicionados" },
 ];
 
-export function RoomFurnitureSelector() {
+interface RoomFurnitureSelectorProps {
+    room?: Room;
+}
+
+export function RoomFurnitureSelector({room}: RoomFurnitureSelectorProps) {
   const [selections, setSelections] = useState<
     Record<string, FurnitureSelection>
   >({
-    tables: { selected: false, quantity: 0 },
-    chairs: { selected: false, quantity: 0 },
-    "air-conditioners": { selected: false, quantity: 0 },
+    tables: { selected: (room?.qt_table ?? 0) > 0, quantity: room?.qt_table ?? 0 },
+    chairs: { selected: (room?.qt_chair ?? 0) > 0, quantity: room?.qt_chair ?? 0 },
+    "air-conditioners": { selected: (room?.qt_airconditioner ?? 0) > 0, quantity: room?.qt_airconditioner ?? 0 }
   });
 
   function handleCheckboxChange(id: string, checked: boolean) {
