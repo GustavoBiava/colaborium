@@ -16,8 +16,8 @@ import {
 
 const mainItems = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Users", url: "/usuarios", icon: Users },
-  { title: "Rooms", url: "/salas", icon: DoorClosed },
+  { title: "Clientes", url: "/usuarios", icon: Users },
+  { title: "Salas", url: "/salas", icon: DoorClosed },
 ];
 
 export function SidebarLayout() {
