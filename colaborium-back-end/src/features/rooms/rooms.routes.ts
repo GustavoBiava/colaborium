@@ -1,59 +1,44 @@
 
 import type { FastifyInstance } from "fastify";
+import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { db } from "../../config/database";
 
-export async function roomsRoutes(app: FastifyInstance) {
+import * as controller from "./rooms.controller";
+
+// Validação dos dados da sala
+const salaSchema = z.object({
+  nome: z.string().trim().min(1).max(100),
+  descricao: z.string().nullable().optional(),
+  capacidade: z.number().int().positive(),
+  valor: z.number().nonnegative(),
+  localizacao: z.string().max(150).nullable().optional(),
+  qtd_arcondicionado: z.number().int().nonnegative().default(0),
+  qtd_cadeira: z.number().int().nonnegative().default(0),
+  qtd_mesa: z.number().int().nonnegative().default(0),
+});
+
+// Validação do ID
+const idSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+// Validação da situação
+const situacaoSchema = z.object({
+  ativo: z.boolean(),
+});
+
+export async function roomsRoutes(instance: FastifyInstance) {
+  const app = instance.withTypeProvider<ZodTypeProvider>();
 
   // CADASTRAR SALA
   app.post("/salas", {
     schema: {
       tags: ["Salas"],
       summary: "Cadastrar nova sala",
-      body: z.object({
-        nome: z.string().min(1).max(100),
-        descricao: z.string().optional(),
-        capacidade: z.number().int().positive(),
-        valor: z.number().nonnegative(),
-        localizacao: z.string().optional(),
-        qtd_arcondicionado: z.number().int().nonnegative().default(0),
-        qtd_cadeira: z.number().int().nonnegative().default(0),
-        qtd_mesa: z.number().int().nonnegative().default(0),
-      }),
+      body: salaSchema,
     },
   }, async (request, reply) => {
-    const dados = request.body as {
-      nome: string;
-      descricao?: string;
-      capacidade: number;
-      valor: number;
-      localizacao?: string;
-      qtd_arcondicionado: number;
-      qtd_cadeira: number;
-      qtd_mesa: number;
-    };
-
-    const resultado = await db.query(
-      `INSERT INTO sala (
-        nome, descricao, capacidade, valor,
-        localizacao, qtd_arcondicionado,
-        qtd_cadeira, qtd_mesa
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *`,
-      [
-        dados.nome,
-        dados.descricao ?? null,
-        dados.capacidade,
-        dados.valor,
-        dados.localizacao ?? null,
-        dados.qtd_arcondicionado,
-        dados.qtd_cadeira,
-        dados.qtd_mesa,
-      ]
-    );
-
-    return reply.status(201).send(resultado.rows[0]);
+    return controller.cadastrar(request.body, reply);
   });
 
   // LISTAR SALAS
@@ -62,11 +47,50 @@ export async function roomsRoutes(app: FastifyInstance) {
       tags: ["Salas"],
       summary: "Listar todas as salas",
     },
-  }, async () => {
-    const resultado = await db.query(
-      "SELECT * FROM sala ORDER BY id"
-    );
+  }, async (_request, reply) => {
+    return controller.listar(reply);
+  });
 
-    return resultado.rows;
+  // CONSULTAR SALA POR ID
+  app.get("/salas/:id", {
+    schema: {
+      tags: ["Salas"],
+      summary: "Consultar sala por ID",
+      params: idSchema,
+    },
+  }, async (request, reply) => {
+    return controller.buscar(request.params.id, reply);
+  });
+
+  // ALTERAR SALA
+  app.put("/salas/:id", {
+    schema: {
+      tags: ["Salas"],
+      summary: "Alterar dados de uma sala",
+      params: idSchema,
+      body: salaSchema,
+    },
+  }, async (request, reply) => {
+    return controller.alterar(
+      request.params.id,
+      request.body,
+      reply
+    );
+  });
+
+  // ATIVAR OU DESATIVAR SALA
+  app.patch("/salas/:id/ativo", {
+    schema: {
+      tags: ["Salas"],
+      summary: "Ativar ou desativar uma sala",
+      params: idSchema,
+      body: situacaoSchema,
+    },
+  }, async (request, reply) => {
+    return controller.alterarSituacao(
+      request.params.id,
+      request.body.ativo,
+      reply
+    );
   });
 }
