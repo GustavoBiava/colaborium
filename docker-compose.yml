@@ -1,3 +1,4 @@
+
 services:
   backend:
     build: ./colaborium-back-end
@@ -5,9 +6,13 @@ services:
       - "3333:3333"
     env_file:
       - ./colaborium-back-end/.env
+    environment:
+      DB_HOST: "host.docker.internal"
+      PORT: "3333"
     volumes:
       - ./colaborium-back-end:/app
       - /app/node_modules
+
   frontend:
     build: ./colaborium-front-end
     ports:
