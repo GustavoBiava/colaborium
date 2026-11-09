@@ -1,9 +1,10 @@
-import Login from "@/features/login/page";
+import { Login}  from "@/features/login/page";
 import { Clients } from "@/features/clients/page";
+import { Rooms } from "@/features/rooms/page";
 
 import { Layout } from "@/shared/components/layout/Layout";
 
-import { CardBlurBoilerplateExample } from "../../boilerplate/card-blur-boilerplate-example";
+// import { CardBlurBoilerplateExample } from "../../boilerplate/card-blur-boilerplate-example";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 
@@ -15,7 +16,8 @@ export const Router = () => {
         <Route element={<Layout />}>
           <Route path="/" element={<Clients />} />
           <Route path="/usuarios" element={<Clients />} />
-          <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} />
+          <Route path="/salas" element={<Rooms />} />
+          {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

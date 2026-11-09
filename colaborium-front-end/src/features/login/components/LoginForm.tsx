@@ -18,7 +18,7 @@ export default function LoginForm() {
     <div className="w-full max-w-sm space-y-6 p-2 text-left">
       {/* Header */}
       <div className="space-y-2">
-        <h2 className="text-4xl"> LOGIN </h2>
+        <h2 className="text-4xl text-gray-200"> LOGIN </h2>
         <p className="text-gray-500"> Bem-vindo de volta. </p>
       </div>
 
