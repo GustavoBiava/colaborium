@@ -1,8 +1,13 @@
+
 import { fastify } from "fastify";
 import { db } from "./config/database";
+
+// Rotas dos módulos
 import { roomsRoutes } from "./features/rooms/rooms.routes";
 import { contractsRoutes } from "./features/contracts/contracts.routes";
 import { appointmentsRoutes } from "./features/appointments/appointments.routes";
+import { usersRoutes } from "./features/users/users.routes";
+import { customerRoutes } from "./features/customers/customers.routes";
 
 import {
   serializerCompiler,
@@ -26,7 +31,7 @@ app.setSerializerCompiler(serializerCompiler);
 // Configuração do CORS
 app.register(fastifyCors, {
   origin: ["http://localhost:5173"],
-  methods: ["POST", "PUT", "PATCH", "OPTIONS", "GET", "DELETE"], //credentials: true, // -> permite que envie cookies do frontend diretamente para o backend
+  methods: ["POST", "PUT", "PATCH", "OPTIONS", "GET", "DELETE"],
   credentials: true,
 });
 
@@ -49,9 +54,12 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
+// Registro das rotas
 app.register(roomsRoutes);
 app.register(contractsRoutes);
 app.register(appointmentsRoutes);
+app.register(usersRoutes);
+app.register(customerRoutes);
 
 // Rota para testar o funcionamento da API
 app.get("/health", {
@@ -108,4 +116,5 @@ async function start() {
     process.exit(1);
   }
 }
+
 start();
