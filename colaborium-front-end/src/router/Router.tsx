@@ -1,12 +1,15 @@
-import { Login}  from "@/features/login/page";
-import { Clients } from "@/features/clients/page";
+
+import { Login } from "@/features/login/page";
+import { ClientsPage } from "@/features/clients/page";
 import { Rooms } from "@/features/rooms/page";
 
 import { Layout } from "@/shared/components/layout/Layout";
 
 // import { CardBlurBoilerplateExample } from "../../boilerplate/card-blur-boilerplate-example";
+//import { FullCalendarBoilerplateExample } from "../../boilerplate/fullcalendar-boilerplate-example";
 
 import { BrowserRouter, Route, Routes } from "react-router";
+import { CalendarPage } from "@/features/calendar/page";
 
 export const Router = () => {
   return (
@@ -14,10 +17,19 @@ export const Router = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<Clients />} />
-          <Route path="/usuarios" element={<Clients />} />
+          <Route path="/" element={<ClientsPage />} />
+          <Route path="/usuarios" element={<ClientsPage />} />
           <Route path="/salas" element={<Rooms />} />
           {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
+          <Route path="/clientes" element={<ClientsPage />} />
+          <Route path="/agenda" element={<CalendarPage />} />
+
+          {/* 
+          <Route
+            path="/exemplo-fullcalendar"
+            element={<FullCalendarBoilerplateExample />}
+          /> 
+          */}
         </Route>
       </Routes>
     </BrowserRouter>
