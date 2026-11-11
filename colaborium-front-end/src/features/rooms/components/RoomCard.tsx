@@ -26,6 +26,12 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
       </div>
 
+      {room.occupied === "Ocupado" &&
+        <div className="flex bg-[#9F3C3C] justify-center w-30 h-6 ml-auto mb-auto m-2 rounded-lg text-white">
+            OCUPADO
+        </div>
+      }
+
     </div>
   );
 }
