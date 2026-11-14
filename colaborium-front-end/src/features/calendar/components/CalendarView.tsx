@@ -28,13 +28,17 @@ const MOCK_EVENTS: CalendarEvent[] = [
   },
 ];
 
+interface CalendarViewProps {
+  setOpenCalendar: (value: boolean) => void;
+  setStartDate: (date: Temporal.PlainDate) => void;
+}
+
 export function CalendarView({
   setOpenCalendar,
-}: {
-  setOpenCalendar: (value: boolean) => void;
-}) {
+  setStartDate,
+}: CalendarViewProps) {
   function handleSelect(info: DateSelectInfo) {
-    const start = Temporal.PlainDate.from(info.startStr.slice(0, 10));
+    setStartDate(Temporal.PlainDate.from(info.startStr.slice(0, 10)));
     setOpenCalendar(true);
   }
 

@@ -1,12 +1,20 @@
 import { z } from "zod";
 
 export const calendarSchema = z.object({
-  cliente_id: z.string().min(1, "Cliente obrigatório"),
-  data: z.string().min(1, "Data obrigatória"),
-  inicio: z.string().min(1, "Horário de início obrigatório"),
-  fim: z.string().min(1, "Horário de fim obrigatório"),
-  finalidade: z.string().min(1, "Finalidade obrigatória"),
-  status: z.string().min(1, "Status obrigatório"),
+  cliente_id: z.string({ message: "O cliente é obrigatório" }),
+  data: z
+    .date({ message: "A data é obrigatória" })
+    .refine((date) => date >= new Date(), {
+      message: "A data não pode ser anterior à data atual",
+    }),
+  inicio: z.string({ message: "O horário de início é obrigatório" }).min(1, {
+    message: "O horário de início é obrigatório",
+  }),
+  fim: z.string({ message: "O horário de fim é obrigatório" }).min(1, {
+    message: "O horário de fim é obrigatório",
+  }),
+  finalidade: z.string({ message: "A finalidade é obrigatória" }),
+  status: z.string({ message: "O status é obrigatório" }),
   observacao: z.string().optional(),
   contratual: z.boolean().optional(),
 });

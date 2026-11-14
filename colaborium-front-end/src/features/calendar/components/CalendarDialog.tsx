@@ -36,6 +36,15 @@ import {
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DialogProps } from "@/shared/interfaces/DialogProps";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover";
+import { Calendar } from "@/shared/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import type { Temporal } from "temporal-polyfill";
+import { format } from "date-fns";
 
 // DADOS MOCKADOS
 const clients = [
@@ -49,7 +58,15 @@ const statusOptions = [
   { value: "cancelada", label: "Cancelada" },
 ];
 
-export function CalendarDialog({ setOpen, open }: DialogProps) {
+interface CalendarDialogProps extends DialogProps {
+  startDate: Temporal.PlainDate | null;
+}
+
+export function CalendarDialog({
+  setOpen,
+  open,
+  startDate,
+}: CalendarDialogProps) {
   const [params, _setParams] = useSearchParams();
 
   const {
@@ -57,9 +74,19 @@ export function CalendarDialog({ setOpen, open }: DialogProps) {
     handleSubmit,
     control,
     formState: { errors },
+    setValue,
   } = useForm<CalendarFormData>({
     resolver: zodResolver(calendarSchema),
   });
+
+  useEffect(() => {
+    if (startDate) {
+      setValue(
+        "data",
+        new Date(startDate.year, startDate.month - 1, startDate.day),
+      );
+    }
+  }, [startDate]);
 
   const onSubmit = (data: any) => {
     console.log(data);
@@ -122,12 +149,41 @@ export function CalendarDialog({ setOpen, open }: DialogProps) {
                 </Field>
               )}
             />
+            <Controller
+              control={control}
+              name="data"
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel>Data</FieldLabel>
 
-            <Field>
-              <FieldLabel>Data</FieldLabel>
-              <Input id="data" type="date" {...register("data")} />
-              <FieldError>{errors?.data?.message}</FieldError>
-            </Field>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal rounded-md h-9"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {field.value ? (
+                          (() => {
+                            return format(field.value, "dd/MM/yyyy");
+                          })()
+                        ) : (
+                          <span>Selecione a data</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FieldError>{errors?.data?.message}</FieldError>
+                </Field>
+              )}
+            />
 
             <FieldGroup className="grid grid-cols-2 gap-2">
               <Field>
