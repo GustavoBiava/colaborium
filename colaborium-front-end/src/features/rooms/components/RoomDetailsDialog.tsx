@@ -64,6 +64,9 @@ export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
         <DialogFooter>
           {isEditing ? (
             <>
+              <Button key="save" type="submit" form="room-edit-form" className="bg-[#9F3C3C] hover:bg-[#7F3030]">
+                Excluir
+              </Button>
               <Button key="save" type="submit" form="room-edit-form">
                 Salvar
               </Button>

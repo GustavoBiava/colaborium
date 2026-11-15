@@ -2,6 +2,7 @@
 import { Login } from "@/features/login/page";
 import { ClientsPage } from "@/features/clients/page";
 import { Rooms } from "@/features/rooms/page";
+import { Contracts } from "@/features/contracts/page";
 
 import { Layout } from "@/shared/components/layout/Layout";
 
@@ -23,6 +24,7 @@ export const Router = () => {
           {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
           <Route path="/clientes" element={<ClientsPage />} />
           <Route path="/agenda" element={<CalendarPage />} />
+          <Route path="/contratos" element={<Contracts />} />
 
           {/* 
           <Route
