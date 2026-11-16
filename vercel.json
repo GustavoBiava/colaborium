@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "colaborium-back-end": {
+      "root": "colaborium-back-end",
+      "framework": "fastify"
+    },
+    "colaborium-front-end": {
+      "root": "colaborium-front-end",
+      "framework": "vite"
+    }
+  },
+  "rewrites": []
+}
