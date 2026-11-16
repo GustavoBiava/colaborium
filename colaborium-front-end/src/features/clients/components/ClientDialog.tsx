@@ -17,12 +17,18 @@ import {
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import { Label } from "@/shared/components/ui/label";
 import { cn } from "cn";
 import { useSearchParams } from "react-router";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type FieldErrors } from "react-hook-form";
 import { clientSchema, type ClientFormData } from "../schema/clientSchema";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatCpfCnpj } from "@/shared/utils/formatCpfCnpj";
 import { formatPhone } from "@/shared/utils/formatPhone";
@@ -31,6 +37,54 @@ import type { DialogProps } from "@/shared/interfaces/DialogProps";
 
 export function ClientDialog({ setOpen, open }: DialogProps) {
   const [params, _setParams] = useSearchParams();
+  const [tab, setTab] = useState<"empresa" | "representante">("empresa");
+
+  function onInvalid(errors: FieldErrors<ClientFormData>) {
+      const companyFields: (keyof ClientFormData)[] = [
+          "nome_empresa",
+          "cnpj_cpf_empresa",
+          "ie",
+          "email",
+          "telefone",
+          "endereco_empresa",
+          "numero_empresa",
+          "complemento_empresa",
+          "bairro_empresa",
+          "cidade_empresa",
+          "estado_empresa",
+          "cep_empresa",
+          "isento",
+      ];
+
+      const representativeFields: (keyof ClientFormData)[] = [
+          "nome_representante",
+          "cpf_representante",
+          "nacionalidade_representante",
+          "estado_civil_representante",
+          "cargo_representante",
+          "endereco_representante",
+          "numero_representante",
+          "complemento_representante",
+          "bairro_representante",
+          "cidade_representante",
+          "estado_representante",
+          "cep_representante",
+      ];
+
+      const hasCompanyErrors = companyFields.some(
+          (field) => errors[field]
+      );
+
+      const hasRepresentativeErrors = representativeFields.some(
+          (field) => errors[field]
+      );
+
+      if (hasCompanyErrors) {
+          setTab("empresa");
+      } else if (hasRepresentativeErrors) {
+          setTab("representante");
+      }
+  }
 
   const {
     register,
@@ -48,15 +102,15 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
   const dialogText =
     params.get("mode") === "update"
       ? {
-          title: "Editar cliente",
-          description: "Atualize os dados do cliente.",
-          button: "Salvar",
-        }
+        title: "Editar cliente",
+        description: "Atualize os dados do cliente.",
+        button: "Salvar",
+      }
       : {
-          title: "Novo cliente",
-          description: "Preencha os dados do novo cliente.",
-          button: "Criar",
-        };
+        title: "Novo cliente",
+        description: "Preencha os dados do novo cliente.",
+        button: "Criar",
+      };
 
   useEffect(() => {
     console.log("erros", errors);
@@ -76,340 +130,358 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
 
         <ScrollArea className="min-h-0">
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
             id="client-form"
-            className="grid grid-cols-2 gap-x-5 gap-y-4 mb-4 pr-4"
+            className="mb-4 pr-4"
           >
-            <Field>
-              <FieldLabel>Nome da Empresa</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex: Empresa Ficcional LTDA"
-                {...register("nome_empresa")}
-              />
-              <FieldError>{errors?.nome_empresa?.message}</FieldError>
-            </Field>
-            <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
+            <Tabs
+              value={tab}
+              onValueChange={(value) => setTab(value as "empresa" | "representante")}
+              className="w-full"
+            >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="empresa">
+                Empresa
+              </TabsTrigger>
+
+              <TabsTrigger value="representante">
+                Representante
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="empresa" className="grid grid-cols-2 gap-3">
               <Field>
-                <FieldLabel>Endereço da Empresa</FieldLabel>
+                <FieldLabel>Nome da Empresa</FieldLabel>
                 <Input
-                  id="endereco"
+                  id="nome_empresa"
                   type="text"
-                  placeholder="Rua"
-                  {...register("endereco_empresa")}
+                  placeholder="Ex: Empresa Ficcional LTDA"
+                  {...register("nome_empresa")}
                 />
-                <FieldError>{errors?.endereco_empresa?.message}</FieldError>
+                <FieldError>{errors?.nome_empresa?.message}</FieldError>
+              </Field>
+              <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
+                <Field>
+                  <FieldLabel>Endereço da Empresa</FieldLabel>
+                  <Input
+                    id="endereco_empresa"
+                    type="text"
+                    placeholder="Rua"
+                    {...register("endereco_empresa")}
+                  />
+                  <FieldError>{errors?.endereco_empresa?.message}</FieldError>
+                </Field>
+                <Field>
+                  <FieldLabel>Número da Empresa</FieldLabel>
+                  <Input
+                    id="numero_empresa"
+                    type="text"
+                    placeholder="Número"
+                    {...register("numero_empresa")}
+                  />
+                  <FieldError>{errors?.numero_empresa?.message}</FieldError>
+                </Field>
+              </FieldGroup>
+
+              <Field>
+                <FieldLabel>E-mail da Empresa</FieldLabel>
+                <Input
+                  id="email"
+                  type="text"
+                  placeholder="exemplo@email.com"
+                  {...register("email")}
+                />
+                <FieldError>{errors?.email?.message}</FieldError>
               </Field>
               <Field>
-                <FieldLabel>Número da Empresa</FieldLabel>
+                <FieldLabel>Bairro da Empresa</FieldLabel>
                 <Input
-                  id="numero"
+                  id="bairro_empresa"
                   type="text"
-                  placeholder="Número"
-                  {...register("numero_empresa")}
+                  placeholder="Ex: Centro"
+                  {...register("bairro_empresa")}
                 />
-                <FieldError>{errors?.numero_empresa?.message}</FieldError>
+                <FieldError>{errors?.bairro_empresa?.message}</FieldError>
               </Field>
-            </FieldGroup>
 
-            <Field>
-              <FieldLabel>E-mail da Empresa</FieldLabel>
-              <Input
-                id="email"
-                type="text"
-                placeholder="exemplo@email.com"
-                {...register("email")}
-              />
-              <FieldError>{errors?.email?.message}</FieldError>
-            </Field>
-            <Field>
-              <FieldLabel>Bairro da Empresa</FieldLabel>
-              <Input
-                id="bairro"
-                type="text"
-                placeholder="Ex: Centro"
-                {...register("bairro_empresa")}
-              />
-              <FieldError>{errors?.bairro_empresa?.message}</FieldError>
-            </Field>
-
-            <Controller
-              control={control}
-              name="cnpj_cpf_empresa"
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>CNPJ/CPF da Empresa</FieldLabel>
-                  <Input
-                    id="cnpj_cpf"
-                    type="text"
-                    placeholder="000.000.000-00"
-                    maxLength={14 + 4} // 14 from the phone + special characters
-                    onChange={(e) => {
-                      field.onChange(formatCpfCnpj(e.target.value));
-                    }}
-                    value={field.value}
-                  />
-                  <FieldError>{errors?.cnpj_cpf_empresa?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Field>
-              <FieldLabel>Cidade da Empresa</FieldLabel>
-              <Input
-                id="cidade"
-                type="text"
-                placeholder="Ex: São Paulo"
-                {...register("cidade_empresa")}
-              />
-              <FieldError>{errors?.cidade_empresa?.message}</FieldError>
-            </Field>
-            <Controller
-              control={control}
-              name="telefone"
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Telefone da Empresa</FieldLabel>
-                  <Input
-                    id="telefone"
-                    type="text"
-                    maxLength={11 + 4} // 11 from the phone + special characters
-                    placeholder="(00) 00000-0000"
-                    onChange={(e) => {
-                      field.onChange(formatPhone(e.target.value));
-                    }}
-                    value={field.value}
-                  />
-                  <FieldError>{errors?.telefone?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Field>
-              <FieldLabel>Estado da Empresa</FieldLabel>
-              <Input
-                id="estado"
-                type="text"
-                placeholder="Ex: SP"
-                {...register("estado_empresa")}
-              />
-              <FieldError>{errors?.estado_empresa?.message}</FieldError>
-            </Field>
-
-            <Controller
-              control={control}
-              name="cep_empresa"
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>CEP da Empresa</FieldLabel>
-
-                  <Input
-                    id="cep"
-                    type="text"
-                    placeholder="00000-000"
-                    maxLength={9 + 1}
-                    onChange={(e) => {
-                      field.onChange(formatCep(e.target.value));
-                    }}
-                    value={field.value}
-                  />
-                  <FieldError>{errors?.cep_empresa?.message}</FieldError>
-                </Field>
-              )}
-            />
-            <Field>
-              <FieldLabel>Complemento da Empresa</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex: Sala 201"
-                {...register("complemento_empresa")}
-              />
-              <FieldError>{errors?.complemento_representante?.message}</FieldError>
-            </Field>
-            <Field>
-              <FieldLabel>Inscrição Estadual</FieldLabel>
-              <Input
-                id="ie"
-                type="number"
-                min={0}
-                placeholder="Isento ou número"
-                {...register("ie")}
-              />
-              <FieldError>{errors?.ie?.message}</FieldError>
-              <FieldDescription className="flex flex-row gap-2 items-center">
-                <Controller
-                  control={control}
-                  name="isento"
-                  defaultValue={false}
-                  render={({ field }) => (
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+              <Controller
+                control={control}
+                name="cnpj_cpf_empresa"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>CNPJ/CPF da Empresa</FieldLabel>
+                    <Input
+                      id="cnpj_cpf_empresa"
+                      type="text"
+                      placeholder="000.000.000-00"
+                      maxLength={14 + 4} // 14 from the phone + special characters
+                      onChange={(e) => {
+                        field.onChange(formatCpfCnpj(e.target.value));
+                      }}
+                      value={field.value}
                     />
-                  )}
-                />
-                <Label>Isento</Label>
-              </FieldDescription>
-            </Field>
-
-            <hr/>
-
-            <Field>
-              <FieldLabel>Nome do Representante</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex: João Silva"
-                {...register("nome_representante")}
+                    <FieldError>{errors?.cnpj_cpf_empresa?.message}</FieldError>
+                  </Field>
+                )}
               />
-              <FieldError>{errors?.nome_representante?.message}</FieldError>
-            </Field>
 
-            <Field>
-              <FieldLabel>Nacionalidade do Representante</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex: Brasileiro"
-                {...register("nacionalidade_representante")}
-              />
-              <FieldError>{errors?.nacionalidade_representante?.message}</FieldError>
-            </Field>
-
-            <Field>
-              <FieldLabel>Estado Civil do Representante</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex: Solteiro"
-                {...register("estado_civil_representante")}
-              />
-              <FieldError>{errors?.estado_civil_representante?.message}</FieldError>
-            </Field>
-
-            <Field>
-              <FieldLabel>Cargo do Representante</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex: Analista financeiro"
-                {...register("cargo_representante")}
-              />
-              <FieldError>{errors?.cargo_representante?.message}</FieldError>
-            </Field>
-
-            <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
               <Field>
-                <FieldLabel>Endereço do Representante</FieldLabel>
+                <FieldLabel>Cidade da Empresa</FieldLabel>
                 <Input
-                  id="endereco"
+                  id="cidade_empresa"
                   type="text"
-                  placeholder="Rua"
-                  {...register("endereco_representante")}
+                  placeholder="Ex: São Paulo"
+                  {...register("cidade_empresa")}
                 />
-                <FieldError>{errors?.endereco_representante?.message}</FieldError>
+                <FieldError>{errors?.cidade_empresa?.message}</FieldError>
+              </Field>
+              <Controller
+                control={control}
+                name="telefone"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Telefone da Empresa</FieldLabel>
+                    <Input
+                      id="telefone_empresa"
+                      type="text"
+                      maxLength={11 + 4} // 11 from the phone + special characters
+                      placeholder="(00) 00000-0000"
+                      onChange={(e) => {
+                        field.onChange(formatPhone(e.target.value));
+                      }}
+                      value={field.value}
+                    />
+                    <FieldError>{errors?.telefone?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              <Field>
+                <FieldLabel>Estado da Empresa</FieldLabel>
+                <Input
+                  id="estado_empresa"
+                  type="text"
+                  placeholder="Ex: SP"
+                  {...register("estado_empresa")}
+                />
+                <FieldError>{errors?.estado_empresa?.message}</FieldError>
+              </Field>
+
+              <Controller
+                control={control}
+                name="cep_empresa"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>CEP da Empresa</FieldLabel>
+
+                    <Input
+                      id="cep_empresa"
+                      type="text"
+                      placeholder="00000-000"
+                      maxLength={9 + 1}
+                      onChange={(e) => {
+                        field.onChange(formatCep(e.target.value));
+                      }}
+                      value={field.value}
+                    />
+                    <FieldError>{errors?.cep_empresa?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Field>
+                <FieldLabel>Complemento da Empresa</FieldLabel>
+                <Input
+                  id="complemento_empresa"
+                  type="text"
+                  placeholder="Ex: Sala 201"
+                  {...register("complemento_empresa")}
+                />
+                <FieldError>{errors?.complemento_empresa?.message}</FieldError>
+              </Field>
+              <Field>
+                <FieldLabel>Inscrição Estadual</FieldLabel>
+                <Input
+                  id="ie"
+                  type="number"
+                  min={0}
+                  placeholder="Isento ou número"
+                  {...register("ie")}
+                />
+                <FieldError>{errors?.ie?.message}</FieldError>
+                <FieldDescription className="flex flex-row gap-2 items-center">
+                  <Controller
+                    control={control}
+                    name="isento"
+                    defaultValue={false}
+                    render={({ field }) => (
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+                  <Label>Isento</Label>
+                </FieldDescription>
+              </Field>
+            </TabsContent>
+
+            <TabsContent value="representante" className="grid grid-cols-2  gap-3">
+              <Field>
+                <FieldLabel>Nome do Representante</FieldLabel>
+                <Input
+                  id="nome_representante"
+                  type="text"
+                  placeholder="Ex: João Silva"
+                  {...register("nome_representante")}
+                />
+                <FieldError>{errors?.nome_representante?.message}</FieldError>
+              </Field>
+
+              <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
+                <Field>
+                  <FieldLabel>Endereço do Representante</FieldLabel>
+                  <Input
+                    id="endereco_representante"
+                    type="text"
+                    placeholder="Rua"
+                    {...register("endereco_representante")}
+                  />
+                  <FieldError>{errors?.endereco_representante?.message}</FieldError>
+                </Field>
+
+                <Field>
+                  <FieldLabel>Número Rep.</FieldLabel>
+                  <Input
+                    id="numero_representante"
+                    type="text"
+                    placeholder="Número"
+                    {...register("numero_representante")}
+                  />
+                  <FieldError>{errors?.numero_representante?.message}</FieldError>
+                </Field>
+              </FieldGroup>
+
+              <Field>
+                <FieldLabel>Nacionalidade do Representante</FieldLabel>
+                <Input
+                  id="nacionalidade_representante"
+                  type="text"
+                  placeholder="Ex: Brasileiro"
+                  {...register("nacionalidade_representante")}
+                />
+                <FieldError>{errors?.nacionalidade_representante?.message}</FieldError>
               </Field>
 
               <Field>
-                <FieldLabel>Número Rep.</FieldLabel>
+                <FieldLabel>Estado Civil do Representante</FieldLabel>
                 <Input
-                  id="numero"
+                  id="estado_civil_representante"
                   type="text"
-                  placeholder="Número"
-                  {...register("numero_representante")}
+                  placeholder="Ex: Solteiro"
+                  {...register("estado_civil_representante")}
                 />
-                <FieldError>{errors?.numero_representante?.message}</FieldError>
+                <FieldError>{errors?.estado_civil_representante?.message}</FieldError>
               </Field>
-            </FieldGroup>
 
-            <Field>
-              <FieldLabel>Bairro do Representante</FieldLabel>
-              <Input
-                id="bairro"
-                type="text"
-                placeholder="Ex: Centro"
-                {...register("bairro_representante")}
+              <Field>
+                <FieldLabel>Cargo do Representante</FieldLabel>
+                <Input
+                  id="cargo_representante"
+                  type="text"
+                  placeholder="Ex: Analista financeiro"
+                  {...register("cargo_representante")}
+                />
+                <FieldError>{errors?.cargo_representante?.message}</FieldError>
+              </Field>
+
+              <Field>
+                <FieldLabel>Bairro do Representante</FieldLabel>
+                <Input
+                  id="bairro_representante"
+                  type="text"
+                  placeholder="Ex: Centro"
+                  {...register("bairro_representante")}
+                />
+                <FieldError>{errors?.bairro_representante?.message}</FieldError>
+              </Field>
+
+              <Controller
+                control={control}
+                name="cpf_representante"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>CPF do Representante</FieldLabel>
+                    <Input
+                      id="cpf_representante"
+                      type="text"
+                      placeholder="000.000.000-00"
+                      maxLength={14}
+                      onChange={(e) => {
+                        field.onChange(formatCpfCnpj(e.target.value));
+                      }}
+                      value={field.value}
+                    />
+                    <FieldError>{errors?.cpf_representante?.message}</FieldError>
+                  </Field>
+                )}
               />
-              <FieldError>{errors?.bairro_representante?.message}</FieldError>
-            </Field>
 
-            <Controller
-              control={control}
-              name="cpf_representante"
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>CPF do Representante</FieldLabel>
-                  <Input
-                    id="cnpj_cpf"
-                    type="text"
-                    placeholder="000.000.000-00"
-                    maxLength={14 + 4} // 14 from the phone + special characters
-                    onChange={(e) => {
-                      field.onChange(formatCpfCnpj(e.target.value));
-                    }}
-                    value={field.value}
-                  />
-                  <FieldError>{errors?.cpf_representante?.message}</FieldError>
-                </Field>
-              )}
-            />
+              <Field>
+                <FieldLabel>Cidade do Representante</FieldLabel>
+                <Input
+                  id="cidade_representante"
+                  type="text"
+                  placeholder="Ex: São Paulo"
+                  {...register("cidade_representante")}
+                />
+                <FieldError>{errors?.cidade_representante?.message}</FieldError>
+              </Field>
 
-            <Field>
-              <FieldLabel>Cidade da Empresa</FieldLabel>
-              <Input
-                id="cidade"
-                type="text"
-                placeholder="Ex: São Paulo"
-                {...register("cidade_empresa")}
+              <Field>
+                <FieldLabel>Estado do Representante</FieldLabel>
+                <Input
+                  id="estado_representante"
+                  type="text"
+                  placeholder="Ex: SP"
+                  {...register("estado_representante")}
+                />
+                <FieldError>{errors?.estado_representante?.message}</FieldError>
+              </Field>
+
+              <Controller
+                control={control}
+                name="cep_representante"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>CEP do Representante</FieldLabel>
+
+                    <Input
+                      id="cep_representante"
+                      type="text"
+                      placeholder="00000-000"
+                      maxLength={9 + 1}
+                      onChange={(e) => {
+                        field.onChange(formatCep(e.target.value));
+                      }}
+                      value={field.value}
+                    />
+                    <FieldError>{errors?.cep_representante?.message}</FieldError>
+                  </Field>
+                )}
               />
-              <FieldError>{errors?.cidade_empresa?.message}</FieldError>
-            </Field>
 
-            <Field>
-              <FieldLabel>Estado do Representante</FieldLabel>
-              <Input
-                id="estado"
-                type="text"
-                placeholder="Ex: SP"
-                {...register("estado_representante")}
-              />
-              <FieldError>{errors?.estado_representante?.message}</FieldError>
-            </Field>
-
-            <Controller
-              control={control}
-              name="cep_empresa"
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>CEP do Representante</FieldLabel>
-
-                  <Input
-                    id="cep"
-                    type="text"
-                    placeholder="00000-000"
-                    maxLength={9 + 1}
-                    onChange={(e) => {
-                      field.onChange(formatCep(e.target.value));
-                    }}
-                    value={field.value}
-                  />
-                  <FieldError>{errors?.cep_representante?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Field>
-              <FieldLabel>Complemento do Representante</FieldLabel>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex: Casa"
-                {...register("complemento_empresa")}
-              />
-              <FieldError>{errors?.complemento_representante?.message}</FieldError>
-            </Field>
+              <Field>
+                <FieldLabel>Complemento do Representante</FieldLabel>
+                <Input
+                  id="complemento_representante"
+                  type="text"
+                  placeholder="Ex: Casa"
+                  {...register("complemento_representante")}
+                />
+                <FieldError>{errors?.complemento_representante?.message}</FieldError>
+              </Field>
+            </TabsContent>
+            </Tabs>
 
 
           </form>
