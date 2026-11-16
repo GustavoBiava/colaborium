@@ -3,10 +3,10 @@ import type { Room } from "../types";
 import { RoomCard } from "./RoomCard";
 import { RoomDetailsDialog } from "./RoomDetailsDialog";
 
-export function RoomList({rooms}: {rooms: Room[]}) {
+export function RoomList({ rooms, onRoomUpdated, }: { rooms: Room[]; onRoomUpdated: () => void; }) {
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
-    return(
+    return (
         <>
             <div className="flex flex-col gap-3 overflow-y-auto">
                 {rooms.map((room) => (
@@ -30,6 +30,7 @@ export function RoomList({rooms}: {rooms: Room[]}) {
                 onOpenChange={(open) => {
                     if (!open) setSelectedRoom(null);
                 }}
+                onSaved={onRoomUpdated}
             />
         </>
     )

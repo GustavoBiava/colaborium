@@ -80,7 +80,7 @@ export default function RoomEditForm({ onSubmit, room }: RoomFormProps) {
                         placeholder="0"
                         defaultValue={room?.capacity ?? ""}
                         required
-                        min={0}
+                        min={1}
                         className="bg-[transparent] text-black placeholder:text-gray-500 p-1"
                     />
                 </div>
@@ -96,7 +96,7 @@ export default function RoomEditForm({ onSubmit, room }: RoomFormProps) {
                         placeholder="0"
                         defaultValue={room?.value ?? ""}
                         required
-                        min={0}
+                        min={1}
                         step="0.01"
                         className="bg-[transparent] text-black placeholder:text-gray-500 p-1"
                     />

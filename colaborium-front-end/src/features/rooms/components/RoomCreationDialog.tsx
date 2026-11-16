@@ -14,15 +14,50 @@ import {
 interface DialogProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  onCreated: () => void;
 }
 
-export function RoomCreationDialog({ setOpen, open }: DialogProps) {
+export function RoomCreationDialog({ setOpen, open, onCreated }: DialogProps) {
+  async function handleSubmit(data: FormData) {
+    
+    try {
+      const furniture = JSON.parse(
+        String(data.get("furniture") ?? "[]")
+      ) as { id: string; quantity: number }[];
 
-  function handleSubmit(data: FormData) {
-    console.log(Object.fromEntries(data.entries()));
+      const getQuantity = (id: string) =>
+        furniture.find((item) => item.id === id)?.quantity ?? 0;
 
-    setOpen(false);
+      const sala = {
+        nome: String(data.get("nome") ?? "").trim(),
+        descricao: String(data.get("descricao") ?? "").trim() || null,
+        capacidade: Number(data.get("capacidade")),
+        valor: Number(data.get("valor")),
+        localizacao: String(data.get("localizacao") ?? "").trim() || null,
+        qtd_arcondicionado: getQuantity("air-conditioners"),
+        qtd_cadeira: getQuantity("chairs"),
+        qtd_mesa: getQuantity("tables"),
+      };
+      const response = await fetch("http://localhost:3333/salas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sala),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      onCreated();
+      setOpen(false);
+    } catch (error) {
+      console.error("Erro ao cadastrar sala:", error);
+      alert("Não foi possível cadastrar a sala.");
+    }
   }
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

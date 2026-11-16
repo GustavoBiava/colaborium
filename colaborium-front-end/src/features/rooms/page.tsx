@@ -1,71 +1,67 @@
 import { PageLayout } from "@/shared/components/layout/PageLayout";
 import { Button } from "@/shared/components/ui/button";
 import { Plus, DoorClosed } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { Room } from "./types";
 import { RoomCreationDialog } from "./components/RoomCreationDialog";
 import { RoomList } from "./components/RoomList";
 
+type ApiRoom = {
+  id: number;
+  nome: string;
+  descricao: string | null;
+  capacidade: number;
+  valor: string | number;
+  ocupada: string;
+  localizacao: string | null;
+  qtd_arcondicionado: number;
+  qtd_cadeira: number;
+  qtd_mesa: number;
+  ativo: boolean;
+};
+
 export function Rooms() {
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
-  const rooms = [
-    {
-      id: 1,
-      name: "Room1",
-      description: "descrição 1",
-      capacity: 10,
-      value: 100,
-      occupied: "Ocupado",
-      location: "teste",
-      qt_airconditioner: 0,
-      qt_chair: 2,
-      qt_table: 5,
-      active: true,
-      imageUrl: "awfasfawd",
-    },
-    {
-      id: 2,
-      name: "Room2",
-      description: "descrição 2",
-      capacity: 14,
-      value: 122,
-      occupied: "Disponivel",
-      location: "teste",
-      qt_airconditioner: 4,
-      qt_chair: 3,
-      qt_table: 1,
-      active: true,
-      imageUrl: "awfasfawd",
-    },
-    {
-      id: 3,
-      name: "Room3",
-      description: "descrição 3",
-      capacity: 1234,
-      value: 345,
-      occupied: "Ocupado",
-      location: "teste",
-      qt_airconditioner: 3,
-      qt_chair: 5,
-      qt_table: 7,
-      active: true,
-      imageUrl: "awfasfawd",
-    },
-    {
-      id: 4,
-      name: "Room4",
-      description: "descrição 4",
-      capacity: 5,
-      value: 10,
-      occupied: "Disponivel",
-      location: "teste",
-      qt_airconditioner: 12,
-      qt_chair: 34,
-      qt_table: 12,
-      active: true,
-      imageUrl: "awfasfawd",
-    },
-  ];
+  useEffect(() => {
+    async function carregarSalas() {
+      try {
+        const response = await fetch("http://localhost:3333/salas");
+
+        if (!response.ok) {
+          throw new Error("Erro ao carregar salas");
+        }
+
+        const data: ApiRoom[] | { value: ApiRoom[]; Count: number } =
+          await response.json();
+
+        const salas = Array.isArray(data) ? data : data.value;
+
+        const salasFormatadas: Room[] = salas.map((sala) => ({
+          id: sala.id,
+          name: sala.nome,
+          description: sala.descricao ?? "",
+          capacity: sala.capacidade,
+          value: Number(sala.valor),
+          occupied: sala.ocupada === "S" ? "Ocupado" : "Disponivel",
+          location: sala.localizacao ?? "",
+          qt_airconditioner: sala.qtd_arcondicionado,
+          qt_chair: sala.qtd_cadeira,
+          qt_table: sala.qtd_mesa,
+          active: sala.ativo,
+          imageUrl: "",
+        }));
+
+        setRooms(salasFormatadas);
+      } catch (error) {
+        console.error("Erro ao buscar salas:", error);
+      }
+    }
+
+    carregarSalas();
+  }, [reloadKey]);
 
   return (
     <PageLayout
@@ -86,10 +82,17 @@ export function Rooms() {
       </div>
 
       <div className="flex flex-col gap-3 overflow-y-auto">
-        <RoomList rooms={rooms}/>
+        <RoomList rooms={rooms} onRoomUpdated={() => setReloadKey((prev) => prev + 1)}
+        />
       </div>
 
-      {upsertCard && <RoomCreationDialog open={upsertCard} setOpen={setUpsertCard} />}
+      {upsertCard && (
+        <RoomCreationDialog
+          open={upsertCard}
+          setOpen={setUpsertCard} 
+          onCreated={() => setReloadKey((prev) => prev + 1)}
+        />
+      )}
     </PageLayout>
   );
 }

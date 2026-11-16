@@ -17,17 +17,60 @@ interface DialogProps {
   room: Room | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSaved: () => void;
 }
 
-export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
+export function RoomDetailsDialog({ room, open, onOpenChange,  onSaved }: DialogProps) {
   const [isEditing, setIsEditing] = useState(false);
   if (!room) return null;
 
-  function handleSubmit(data: FormData) {
-    console.log(Object.fromEntries(data.entries()));
 
-    setIsEditing(false);
+  async function handleSubmit(data: FormData) {
+    if (!room) return;
+
+    try {
+      const furniture = JSON.parse(
+        String(data.get("furniture") ?? "[]")
+      ) as { id: string; quantity: number }[];
+
+      const getQuantity = (id: string) =>
+        furniture.find((item) => item.id === id)?.quantity ?? 0;
+
+      const sala = {
+        nome: String(data.get("nome") ?? "").trim(),
+        descricao: String(data.get("descricao") ?? "").trim() || null,
+        capacidade: Number(data.get("capacidade")),
+        valor: Number(data.get("valor")),
+        localizacao: String(data.get("localizacao") ?? "").trim() || null,
+        qtd_arcondicionado: getQuantity("air-conditioners"),
+        qtd_cadeira: getQuantity("chairs"),
+        qtd_mesa: getQuantity("tables"),
+      };
+
+      const response = await fetch(
+        `http://localhost:3333/salas/${room.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(sala),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      
+      onSaved();
+      setIsEditing(false);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Erro ao atualizar sala:", error);
+      alert("Não foi possível atualizar a sala.");
+    }
   }
+
 
   function handleCancel() {
     setIsEditing(false);
@@ -58,8 +101,8 @@ export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
         </DialogHeader>
 
         {isEditing
-          ? <RoomEditForm key={room.id} room={room} onSubmit={handleSubmit}/>
-          : <RoomStatus key={room.id} room={room}/>}
+          ? <RoomEditForm key={room.id} room={room} onSubmit={handleSubmit} />
+          : <RoomStatus key={room.id} room={room} />}
 
         <DialogFooter>
           {isEditing ? (
