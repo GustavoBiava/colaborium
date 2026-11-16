@@ -20,14 +20,12 @@ interface DialogProps {
 export function ContractCreationDialog({ setOpen, open }: DialogProps) {
 
   function handleSubmit(data: FormData) {
-    console.log(Object.fromEntries(data.entries()));
-
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[1000px] max-w-[40vw] h-[700px] max-h-[155vh]">
+      <DialogContent className="w-[min(1000px,95vw)] max-w-[95vw] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Cadastro de contrato</DialogTitle>
           <DialogDescription>Crie um novo contrato</DialogDescription>

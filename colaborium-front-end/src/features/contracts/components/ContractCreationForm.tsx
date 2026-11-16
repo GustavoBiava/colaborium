@@ -146,7 +146,7 @@ export default function ContractCreationForm({ onSubmit, contract }: ContractFor
   ];
 
     return (
-        <form onSubmit={handleSubmit} id="contract-creation-form" className="gap-10">
+        <form onSubmit={handleSubmit} id="contract-creation-form">
             <div className="flex flex-col gap-2 content-start items-start w-full">
                 <div className="gap-2 w-full">
                     <Label htmlFor="nome" className="mt-2">
@@ -156,7 +156,7 @@ export default function ContractCreationForm({ onSubmit, contract }: ContractFor
                         items={clients}
                         name="cliente_id"
                         getLabel={(client) => client.nome}
-                        onSelect={setSelectedClient}
+                        onSelect={(client) => { setSelectedClient(client); setClientError(false); }}
                         getValue={(client) => client.id}
                         placeholder="Pesquisar por Cliente..."
                     />
@@ -181,7 +181,7 @@ export default function ContractCreationForm({ onSubmit, contract }: ContractFor
                         items={rooms}
                         name="sala_id"
                         getLabel={(room) => room.nome}
-                        onSelect={setSelectedRoom}
+                        onSelect={(room)   => { setSelectedRoom(room);     setRoomError(false);   }}
                         getValue={(room) => room.id}
                         placeholder="Pesquisar por Sala..."
                     />
@@ -200,12 +200,12 @@ export default function ContractCreationForm({ onSubmit, contract }: ContractFor
 
                 <div className="flex w-full flex-row justify-between gap-4">
                     <div className="gap-2 w-full gap-2">
-                        <Label htmlFor="valor" className="mt-3">
+                        <Label htmlFor="valor_base" className="mt-3">
                             Valor:
                         </Label>
                         <Input
-                            id="valor"
-                            name="valor"
+                            id="valor_base"
+                            name="valor_base"
                             type="number"
                             placeholder="0"
                             required
@@ -252,13 +252,12 @@ export default function ContractCreationForm({ onSubmit, contract }: ContractFor
                 </div>
 
                 <div className="w-full flex flex-col gap-2">
-                    <Label htmlFor="descricao" className="mt-3">
+                    <Label htmlFor="observacao" className="mt-3">
                         Observação:
                     </Label>
                     <Textarea
-                        id="descricao"
-                        name="descricao"
-                        required
+                        id="observacao"
+                        name="observacao"
                         maxLength={OBSERVATION_LIMIT}
                         onChange={(event) => setObservation(event.target.value)}
                         className="mt-2 break-words resize-none w-full h-32" />

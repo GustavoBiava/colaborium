@@ -8,7 +8,7 @@ export function ContractList({contracts}: {contracts: Contract[]}) {
 
     return(
         <>
-            <div className="flex flex-col gap-3 overflow-y-auto">
+            <div className="flex flex-col gap-3">
                 {contracts.map((contract) => (
                     <button
                         key={contract.id}

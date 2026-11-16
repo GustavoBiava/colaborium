@@ -4,11 +4,12 @@ import { Plus, FileText } from "lucide-react";
 import { useState } from "react";
 import { ContractList } from "./components/ContractList";
 import { ContractCreationDialog } from "./components/ContractCreationDialog";
+import type { Contract } from "./types";
 
 export function Contracts() {
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
 
-    const contracts = [
+    const contracts: Contract[] = [
     {
       id: 1,
       cliente_id: 1,
@@ -20,7 +21,7 @@ export function Contracts() {
       status: "A",
       ativo: true,
       data_cancelamento: new Date("6/10/2020"),
-      motivo_cancelamento: "motivo teste",
+      motivo_cancelamento: null,
       observacao: "observacao teste",
     },
     {
@@ -34,7 +35,7 @@ export function Contracts() {
       status: "F",
       ativo: true,
       data_cancelamento: new Date("9/10/2020"),
-      motivo_cancelamento: "motivo teste 2",
+      motivo_cancelamento: null,
       observacao: "observacao teste 2",
     },
     {
@@ -62,11 +63,11 @@ export function Contracts() {
       status: "A",
       ativo: true,
       data_cancelamento: new Date("11/11/2020"),
-      motivo_cancelamento: "motivo teste 4",
-      observacao: "observacao teste 4",
+      motivo_cancelamento: null,
+      observacao: null,
     },
     {
-      id: 1,
+      id: 5,
       cliente_id: 1,
       sala_id: 1,
       data_inicio: new Date("10/10/2020"),
@@ -80,7 +81,7 @@ export function Contracts() {
       observacao: "observacao teste",
     },
     {
-      id: 2,
+      id: 6,
       cliente_id: 2,
       sala_id: 2,
       data_inicio: new Date("12/10/2020"),
@@ -94,7 +95,7 @@ export function Contracts() {
       observacao: "observacao teste 2",
     },
     {
-      id: 3,
+      id: 7,
       cliente_id: 3,
       sala_id: 3,
       data_inicio: new Date("12/11/2020"),
@@ -108,7 +109,7 @@ export function Contracts() {
       observacao: "observacao teste 3",
     },
     {
-      id: 4,
+      id: 8,
       cliente_id: 4,
       sala_id: 4,
       data_inicio: new Date("2/11/2020"),

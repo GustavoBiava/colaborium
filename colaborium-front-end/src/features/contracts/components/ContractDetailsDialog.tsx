@@ -1,5 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { type Contract } from "../types";
+import { DeleteAlertDialog } from "../../../shared/components/DeleteAlertDialog";
+import { useState } from "react";
 
 import {
   Dialog,
@@ -9,9 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Label } from "@/shared/components/ui/label";
-// import RoomEditForm from "./RoomEditForm";
-// import RoomStatus from "./RoomStatus";
+import { generateContract } from "../services/generateContract";
 
 interface DialogProps {
   contract: Contract | null;
@@ -20,6 +20,7 @@ interface DialogProps {
 }
 
 export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogProps) {
+  const [confirmCancel, setConfirmCancel] = useState(false);
   if (!contract) return null;
 
   function handleOpenChange(nextOpen: boolean) {
@@ -28,7 +29,7 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[1000px] max-w-[55vw] h-[540px] max-h-[155vh]">
+      <DialogContent className="max-w-[55vw] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             Número do contrato: {contract.id}
@@ -65,6 +66,30 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
 
         <hr className="mt-3"/>
 
+        {contract.observacao !== null ? (
+          <>
+            <div className="flex flex-col gap-1 w-full min-w-0 truncate">
+              <h2>
+                  Observações:
+              </h2>
+              <p className="w-full max-h-17 break-words whitespace-normal line-clamp-3">{contract.observacao}</p>
+            </div>
+            <hr className="mb-3"/>
+          </>
+        ) : null}
+
+        {contract.motivo_cancelamento !== null && contract.status === "C" ? (
+          <>
+            <div className="flex flex-col gap-1 w-full min-w-0 truncate">
+              <h2>
+                  Motivo de cancelamento:
+              </h2>
+              <p className="w-full max-h-17 break-words whitespace-normal line-clamp-3">{contract.observacao}</p>
+            </div>
+            <hr className="mb-3"/>
+          </>
+        ) : null}
+
         <div className="flex flex-row gap-10">
           <div>
             <p>
@@ -79,15 +104,18 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
             <p>
               Status do contrato:
             </p>
-            <div className="h-8">
+            <div className="h-8 mb-5">
             {contract.status === "F" ? (
                 <div className="flex bg-[#59a123] w-30 h-6 mt-1 rounded-lg text-white justify-center ml-auto">
                     Finalizado
                 </div>
             ) : contract.status === "C" ? (
+              <>
                 <div className="flex bg-[#9F3C3C] w-30 h-6 mt-1 rounded-lg text-white justify-center ml-auto">
                     Cancelado
                 </div>
+                <p className="text-end">dia {contract.data_cancelamento?.toLocaleDateString()}</p>
+              </>
             ) : contract.status === "A" ? (
                 <div className="flex bg-[#bd8c2a] w-30 h-6 mt-1 rounded-lg text-white justify-center ml-auto">
                     Ativo
@@ -98,12 +126,12 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
         </div>
 
         <DialogFooter>
-          <Button key="close" type="button" variant="outline" className="mr-auto" onClick={() => onOpenChange(false)}>
+          <Button key="download" type="button" variant="outline" className="mr-auto" onClick={() => generateContract(contract)}>
             Baixar PDF
           </Button>
 
           {contract.status === "A" ? (
-            <Button key="close" type="button" onClick={() => onOpenChange(false)}>
+            <Button key="cancel" type="button" onClick={() => setConfirmCancel(true)}>
               Cancelar contrato
             </Button>
           ) : null}
@@ -114,6 +142,16 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
 
         </DialogFooter>
       </DialogContent>
+
+      <DeleteAlertDialog
+          open={confirmCancel}
+          title={"Cancelar contrato"}
+          description={"Tem certeza de que deseja cancelar este contrato? Essa ação não poderá ser desfeita."}
+          onOpenChange={setConfirmCancel}
+          onConfirm={() => {
+              setConfirmCancel(false);
+          }}
+      />
     </Dialog>
   );
 }

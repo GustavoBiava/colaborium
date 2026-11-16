@@ -15,6 +15,7 @@ import { Pen, Plus, Trash, User } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
 import { ClientDialog } from "./components/ClientDialog";
+import { DeleteAlertDialog } from "@/shared/components/DeleteAlertDialog";
 
 // here we are using tanstack table, beacuse we already plan to use tanstack query. Basically the advantage of using tanstack table is that it already has some data tables logics built in, like sorting, pagination, global filters, etc. And its headless, so we can use our own UI
 // here is a video about it https://www.youtube.com/watch?v=GtT3mRjQ7Eo
@@ -39,6 +40,7 @@ const helper = createColumnHelper<typeof features, User>();
 export function ClientsPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [_params, setParams] = useSearchParams();
 
   // here we define columns obviously
@@ -59,7 +61,7 @@ export function ClientsPage() {
           >
             <Pen color="black" />
           </Button>
-          <Button className="bg-white hover:bg-neutral-200 px-2.5">
+          <Button className="bg-white hover:bg-neutral-200 px-2.5" onClick={() => setConfirmCancel(true)}>
             <Trash color="black" />
           </Button>
         </div>
@@ -77,30 +79,43 @@ export function ClientsPage() {
   });
 
   return (
-    <PageLayout
-      pageTitle="Clientes"
-      Icon={User}
-      subtitle="Gerencie seus clientes"
-    >
-      <div className="flex flex-col gap-5 ">
-        <div className="flex flex-col gap-5 w-full items-end">
-          <Button
-            onClick={() => {
-              setUpsertCard(true);
-              setParams({ mode: "create" });
-            }}
-            className="w-36"
-          >
-            <Plus size={18} />
-            <p>Cliente</p>
-          </Button>
+    <>
+      <PageLayout
+        pageTitle="Clientes"
+        Icon={User}
+        subtitle="Gerencie seus clientes"
+      >
+        <div className="flex flex-col gap-5 ">
+          <div className="flex flex-col gap-5 w-full items-end">
+            <Button
+              onClick={() => {
+                setUpsertCard(true);
+                setParams({ mode: "create" });
+              }}
+              className="w-36"
+            >
+              <Plus size={18} />
+              <p>Cliente</p>
+            </Button>
+          </div>
+
+          <DataTable table={table} />
         </div>
+        <p>{upsertCard}</p>
 
-        <DataTable table={table} />
-      </div>
-      <p>{upsertCard}</p>
+        {upsertCard && <ClientDialog open={upsertCard} setOpen={setUpsertCard} />}
+      </PageLayout>
 
-      {upsertCard && <ClientDialog open={upsertCard} setOpen={setUpsertCard} />}
-    </PageLayout>
+      
+      <DeleteAlertDialog
+          open={confirmCancel}
+          title={"Excluir cliente"}
+          description={"Tem certeza de que deseja excluir este cliente? Essa ação não poderá ser desfeita."}
+          onOpenChange={setConfirmCancel}
+          onConfirm={() => {
+              setConfirmCancel(false);
+          }}
+      />
+    </>
   );
 }

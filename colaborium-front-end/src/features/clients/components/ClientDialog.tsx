@@ -81,40 +81,40 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
             className="grid grid-cols-2 gap-x-5 gap-y-4 mb-4 pr-4"
           >
             <Field>
-              <FieldLabel>Nome</FieldLabel>
+              <FieldLabel>Nome da Empresa</FieldLabel>
               <Input
                 id="name"
                 type="text"
-                placeholder="Ex: João Silva"
-                {...register("name")}
+                placeholder="Ex: Empresa Ficcional LTDA"
+                {...register("nome_empresa")}
               />
-              <FieldError>{errors?.name?.message}</FieldError>
+              <FieldError>{errors?.nome_empresa?.message}</FieldError>
             </Field>
             <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
               <Field>
-                <FieldLabel>Endereço</FieldLabel>
+                <FieldLabel>Endereço da Empresa</FieldLabel>
                 <Input
                   id="endereco"
                   type="text"
                   placeholder="Rua"
-                  {...register("endereco")}
+                  {...register("endereco_empresa")}
                 />
-                <FieldError>{errors?.endereco?.message}</FieldError>
+                <FieldError>{errors?.endereco_empresa?.message}</FieldError>
               </Field>
               <Field>
-                <FieldLabel>Número</FieldLabel>
+                <FieldLabel>Número da Empresa</FieldLabel>
                 <Input
                   id="numero"
                   type="text"
                   placeholder="Número"
-                  {...register("numero")}
+                  {...register("numero_empresa")}
                 />
-                <FieldError>{errors?.numero?.message}</FieldError>
+                <FieldError>{errors?.numero_empresa?.message}</FieldError>
               </Field>
             </FieldGroup>
 
             <Field>
-              <FieldLabel>E-mail</FieldLabel>
+              <FieldLabel>E-mail da Empresa</FieldLabel>
               <Input
                 id="email"
                 type="text"
@@ -124,22 +124,22 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
               <FieldError>{errors?.email?.message}</FieldError>
             </Field>
             <Field>
-              <FieldLabel>Bairro</FieldLabel>
+              <FieldLabel>Bairro da Empresa</FieldLabel>
               <Input
                 id="bairro"
                 type="text"
                 placeholder="Ex: Centro"
-                {...register("bairro")}
+                {...register("bairro_empresa")}
               />
-              <FieldError>{errors?.bairro?.message}</FieldError>
+              <FieldError>{errors?.bairro_empresa?.message}</FieldError>
             </Field>
 
             <Controller
               control={control}
-              name="cnpj_cpf"
+              name="cnpj_cpf_empresa"
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>CNPJ/CPF</FieldLabel>
+                  <FieldLabel>CNPJ/CPF da Empresa</FieldLabel>
                   <Input
                     id="cnpj_cpf"
                     type="text"
@@ -150,27 +150,27 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
                     }}
                     value={field.value}
                   />
-                  <FieldError>{errors?.cnpj_cpf?.message}</FieldError>
+                  <FieldError>{errors?.cnpj_cpf_empresa?.message}</FieldError>
                 </Field>
               )}
             />
 
             <Field>
-              <FieldLabel>Cidade</FieldLabel>
+              <FieldLabel>Cidade da Empresa</FieldLabel>
               <Input
                 id="cidade"
                 type="text"
                 placeholder="Ex: São Paulo"
-                {...register("cidade")}
+                {...register("cidade_empresa")}
               />
-              <FieldError>{errors?.cidade?.message}</FieldError>
+              <FieldError>{errors?.cidade_empresa?.message}</FieldError>
             </Field>
             <Controller
               control={control}
               name="telefone"
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>Telefone</FieldLabel>
+                  <FieldLabel>Telefone da Empresa</FieldLabel>
                   <Input
                     id="telefone"
                     type="text"
@@ -187,22 +187,22 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
             />
 
             <Field>
-              <FieldLabel>Estado</FieldLabel>
+              <FieldLabel>Estado da Empresa</FieldLabel>
               <Input
                 id="estado"
                 type="text"
                 placeholder="Ex: SP"
-                {...register("estado")}
+                {...register("estado_empresa")}
               />
-              <FieldError>{errors?.estado?.message}</FieldError>
+              <FieldError>{errors?.estado_empresa?.message}</FieldError>
             </Field>
 
             <Controller
               control={control}
-              name="cep"
+              name="cep_empresa"
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>CEP</FieldLabel>
+                  <FieldLabel>CEP da Empresa</FieldLabel>
 
                   <Input
                     id="cep"
@@ -214,10 +214,20 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
                     }}
                     value={field.value}
                   />
-                  <FieldError>{errors?.cep?.message}</FieldError>
+                  <FieldError>{errors?.cep_empresa?.message}</FieldError>
                 </Field>
               )}
             />
+            <Field>
+              <FieldLabel>Complemento da Empresa</FieldLabel>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Ex: Sala 201"
+                {...register("complemento_empresa")}
+              />
+              <FieldError>{errors?.complemento_representante?.message}</FieldError>
+            </Field>
             <Field>
               <FieldLabel>Inscrição Estadual</FieldLabel>
               <Input
@@ -243,6 +253,165 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
                 <Label>Isento</Label>
               </FieldDescription>
             </Field>
+
+            <hr/>
+
+            <Field>
+              <FieldLabel>Nome do Representante</FieldLabel>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Ex: João Silva"
+                {...register("nome_representante")}
+              />
+              <FieldError>{errors?.nome_representante?.message}</FieldError>
+            </Field>
+
+            <Field>
+              <FieldLabel>Nacionalidade do Representante</FieldLabel>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Ex: Brasileiro"
+                {...register("nacionalidade_representante")}
+              />
+              <FieldError>{errors?.nacionalidade_representante?.message}</FieldError>
+            </Field>
+
+            <Field>
+              <FieldLabel>Estado Civil do Representante</FieldLabel>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Ex: Solteiro"
+                {...register("estado_civil_representante")}
+              />
+              <FieldError>{errors?.estado_civil_representante?.message}</FieldError>
+            </Field>
+
+            <Field>
+              <FieldLabel>Cargo do Representante</FieldLabel>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Ex: Analista financeiro"
+                {...register("cargo_representante")}
+              />
+              <FieldError>{errors?.cargo_representante?.message}</FieldError>
+            </Field>
+
+            <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
+              <Field>
+                <FieldLabel>Endereço do Representante</FieldLabel>
+                <Input
+                  id="endereco"
+                  type="text"
+                  placeholder="Rua"
+                  {...register("endereco_representante")}
+                />
+                <FieldError>{errors?.endereco_representante?.message}</FieldError>
+              </Field>
+
+              <Field>
+                <FieldLabel>Número Rep.</FieldLabel>
+                <Input
+                  id="numero"
+                  type="text"
+                  placeholder="Número"
+                  {...register("numero_representante")}
+                />
+                <FieldError>{errors?.numero_representante?.message}</FieldError>
+              </Field>
+            </FieldGroup>
+
+            <Field>
+              <FieldLabel>Bairro do Representante</FieldLabel>
+              <Input
+                id="bairro"
+                type="text"
+                placeholder="Ex: Centro"
+                {...register("bairro_representante")}
+              />
+              <FieldError>{errors?.bairro_representante?.message}</FieldError>
+            </Field>
+
+            <Controller
+              control={control}
+              name="cpf_representante"
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel>CPF do Representante</FieldLabel>
+                  <Input
+                    id="cnpj_cpf"
+                    type="text"
+                    placeholder="000.000.000-00"
+                    maxLength={14 + 4} // 14 from the phone + special characters
+                    onChange={(e) => {
+                      field.onChange(formatCpfCnpj(e.target.value));
+                    }}
+                    value={field.value}
+                  />
+                  <FieldError>{errors?.cpf_representante?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Field>
+              <FieldLabel>Cidade da Empresa</FieldLabel>
+              <Input
+                id="cidade"
+                type="text"
+                placeholder="Ex: São Paulo"
+                {...register("cidade_empresa")}
+              />
+              <FieldError>{errors?.cidade_empresa?.message}</FieldError>
+            </Field>
+
+            <Field>
+              <FieldLabel>Estado do Representante</FieldLabel>
+              <Input
+                id="estado"
+                type="text"
+                placeholder="Ex: SP"
+                {...register("estado_representante")}
+              />
+              <FieldError>{errors?.estado_representante?.message}</FieldError>
+            </Field>
+
+            <Controller
+              control={control}
+              name="cep_empresa"
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel>CEP do Representante</FieldLabel>
+
+                  <Input
+                    id="cep"
+                    type="text"
+                    placeholder="00000-000"
+                    maxLength={9 + 1}
+                    onChange={(e) => {
+                      field.onChange(formatCep(e.target.value));
+                    }}
+                    value={field.value}
+                  />
+                  <FieldError>{errors?.cep_representante?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Field>
+              <FieldLabel>Complemento do Representante</FieldLabel>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Ex: Casa"
+                {...register("complemento_empresa")}
+              />
+              <FieldError>{errors?.complemento_representante?.message}</FieldError>
+            </Field>
+
+
           </form>
         </ScrollArea>
 
