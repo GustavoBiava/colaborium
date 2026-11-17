@@ -1,4 +1,5 @@
 import { Button } from "@/shared/components/ui/button";
+import { Calendar } from "@/shared/components/ui/calendar";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
   Dialog,
@@ -16,6 +17,13 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -24,27 +32,20 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { Label } from "@/shared/components/ui/label";
-import { cn } from "cn";
-import { useSearchParams } from "react-router";
-import { Controller, useForm } from "react-hook-form";
-import {
-  calendarSchema,
-  type CalendarFormData,
-} from "../schema/calendarSchema";
-import { useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import type { DialogProps } from "@/shared/interfaces/DialogProps";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/components/ui/popover";
-import { Calendar } from "@/shared/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
-import type { Temporal } from "temporal-polyfill";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { cn } from "cn";
 import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router";
+import type { Temporal } from "temporal-polyfill";
+import { useCreateAppointments } from "../hooks/useCreateAppointments";
+import {
+  appointmentSchema,
+  type AppointmentFormData,
+} from "../schema/appointmentSchema";
 
 // DADOS MOCKADOS
 const clients = [
@@ -58,16 +59,17 @@ const statusOptions = [
   { value: "cancelada", label: "Cancelada" },
 ];
 
-interface CalendarDialogProps extends DialogProps {
+interface AppointmentDialogProps extends DialogProps {
   startDate: Temporal.PlainDate | null;
 }
 
-export function CalendarDialog({
+export function AppointmentDialog({
   setOpen,
   open,
   startDate,
-}: CalendarDialogProps) {
+}: AppointmentDialogProps) {
   const [params, _setParams] = useSearchParams();
+  const { createAppointments } = useCreateAppointments();
 
   const {
     register,
@@ -75,8 +77,8 @@ export function CalendarDialog({
     control,
     formState: { errors },
     setValue,
-  } = useForm<CalendarFormData>({
-    resolver: zodResolver(calendarSchema),
+  } = useForm<AppointmentFormData>({
+    resolver: zodResolver(appointmentSchema),
   });
 
   useEffect(() => {
@@ -88,7 +90,8 @@ export function CalendarDialog({
     }
   }, [startDate]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: AppointmentFormData) => {
+    createAppointments(data);
     console.log(data);
   };
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const calendarSchema = z.object({
+export const appointmentSchema = z.object({
   cliente_id: z.string({ message: "O cliente é obrigatório" }),
   data: z
     .date({ message: "A data é obrigatória" })
@@ -19,4 +19,4 @@ export const calendarSchema = z.object({
   contratual: z.boolean().optional(),
 });
 
-export type CalendarFormData = z.infer<typeof calendarSchema>;
+export type AppointmentFormData = z.infer<typeof appointmentSchema>;

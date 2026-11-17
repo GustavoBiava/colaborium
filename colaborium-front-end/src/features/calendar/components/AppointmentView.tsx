@@ -11,6 +11,8 @@ import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/forma/palettes/blue.css";
 import "@fullcalendar/react/themes/forma/theme.css";
 import { Temporal } from "temporal-polyfill";
+import { useAppointments } from "../hooks/useAppointments";
+import { appointmentToEvent } from "../utils/appointmentToEvent";
 
 type CalendarEvent = {
   id: string;
@@ -28,15 +30,17 @@ const MOCK_EVENTS: CalendarEvent[] = [
   },
 ];
 
-interface CalendarViewProps {
+interface AppointmentViewProps {
   setOpenCalendar: (value: boolean) => void;
   setStartDate: (date: Temporal.PlainDate) => void;
 }
 
-export function CalendarView({
+export function AppointmentView({
   setOpenCalendar,
   setStartDate,
-}: CalendarViewProps) {
+}: AppointmentViewProps) {
+  const { appointments } = useAppointments();
+
   function handleSelect(info: DateSelectInfo) {
     setStartDate(Temporal.PlainDate.from(info.startStr.slice(0, 10)));
     setOpenCalendar(true);
@@ -51,7 +55,11 @@ export function CalendarView({
       selectable
       editable
       initialView="dayGridMonth"
-      events={MOCK_EVENTS}
+      events={
+        appointments.length > 0
+          ? appointments.map((ap) => appointmentToEvent(ap))
+          : []
+      }
       select={handleSelect}
       eventClick={handleEventClick}
       locale="pt-br"
