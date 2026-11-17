@@ -1,7 +1,6 @@
 
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { db } from "../../config/database";
 import customerController from "./customers.controller";
 import { createCustomerSchema, updateCustomerSchema } from "./customers.schemas";
 
@@ -52,7 +51,7 @@ export async function customerRoutes(app: FastifyInstance) {
     },
   }, customerController.updateCustomerHandler.bind(customerController));
 
-  // EXCLUIR USUÁRIO
+  // EXCLUIR CLIENTE
   app.delete("/clientes/:id", {
     schema: {
       tags: ["Clientes"],
