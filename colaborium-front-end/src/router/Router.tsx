@@ -19,12 +19,11 @@ export const Router = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<Layout />}>
-            <Route path="/" element={<ClientsPage />} />
             <Route path="/usuarios" element={<ClientsPage />} />
             <Route path="/salas" element={<Rooms />} />
             {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
             <Route path="/clientes" element={<ClientsPage />} />
-            <Route path="/agenda" element={<CalendarPage />} />
+            <Route path="/*" element={<CalendarPage />} />
 
             {/* 
           <Route
