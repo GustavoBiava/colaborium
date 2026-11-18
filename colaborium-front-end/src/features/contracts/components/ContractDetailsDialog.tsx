@@ -1,6 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import { type Contract } from "../types";
-import { DeleteAlertDialog } from "../../../shared/components/DeleteAlertDialog";
+import { ContractCancelAlertDialog } from "./ContractCancelAlertDialog";
 import { useState } from "react";
 
 import {
@@ -143,10 +143,8 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
         </DialogFooter>
       </DialogContent>
 
-      <DeleteAlertDialog
+      <ContractCancelAlertDialog
           open={confirmCancel}
-          title={"Cancelar contrato"}
-          description={"Tem certeza de que deseja cancelar este contrato? Essa ação não poderá ser desfeita."}
           onOpenChange={setConfirmCancel}
           onConfirm={() => {
               setConfirmCancel(false);
