@@ -1,10 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { AppointmentResponse } from "../types/AppointmentResponse";
-import type { AppointmentFormData } from "../schema/appointmentSchema";
 
 async function createAppointments(
-  payload: AppointmentFormData,
+  payload: Omit<AppointmentResponse, "id">,
 ): Promise<AppointmentResponse> {
   const { data } = await api.post<AppointmentResponse>(
     "/agendamentos",

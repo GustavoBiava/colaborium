@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const appointmentSchema = z.object({
-  cliente_id: z.string({ message: "O cliente é obrigatório" }),
+  cliente_id: z.number({ message: "O cliente é obrigatório" }),
+  sala_id: z.number().min(1, "Sala é obrigatória"),
   data: z
     .date({ message: "A data é obrigatória" })
     .refine((date) => date >= new Date(), {
