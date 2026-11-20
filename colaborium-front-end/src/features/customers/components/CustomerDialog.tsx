@@ -16,21 +16,20 @@ import {
   FieldLabel,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Label } from "@/shared/components/ui/label";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import type { DialogProps } from "@/shared/interfaces/DialogProps";
+import { formatCep } from "@/shared/utils/formatCep";
+import { formatCpfCnpj } from "@/shared/utils/formatCpfCnpj";
+import { formatPhone } from "@/shared/utils/formatPhone";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "cn";
-import { useSearchParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router";
 import {
   customerSchema,
   type CustomerFormData,
 } from "../schema/customerSchema";
-import { useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formatCpfCnpj } from "@/shared/utils/formatCpfCnpj";
-import { formatPhone } from "@/shared/utils/formatPhone";
-import { formatCep } from "@/shared/utils/formatCep";
-import type { DialogProps } from "@/shared/interfaces/DialogProps";
 
 export function CustomerDialog({ setOpen, open }: DialogProps) {
   const [params, _setParams] = useSearchParams();
@@ -60,10 +59,6 @@ export function CustomerDialog({ setOpen, open }: DialogProps) {
           description: "Preencha os dados do novo cliente.",
           button: "Criar",
         };
-
-  useEffect(() => {
-    console.log("erros", errors);
-  }, [errors]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
