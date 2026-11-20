@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const clientSchema = z
+export const customerSchema = z
   .object({
     name: z.string({ error: () => "Nome obrigatório" }),
     email: z.email("E-mail inválido"),
@@ -51,4 +51,4 @@ export const clientSchema = z
     }
   });
 
-export type ClientFormData = z.infer<typeof clientSchema>;
+export type CustomerFormData = z.infer<typeof customerSchema>;

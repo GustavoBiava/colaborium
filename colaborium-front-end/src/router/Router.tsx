@@ -1,5 +1,5 @@
 import { Login } from "@/features/login/page";
-import { ClientsPage } from "@/features/clients/page";
+import { CustomersPage } from "@/features/customers/page";
 import { Rooms } from "@/features/rooms/page";
 
 import { Layout } from "@/shared/components/layout/Layout";
@@ -19,10 +19,10 @@ export const Router = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<Layout />}>
-            <Route path="/usuarios" element={<ClientsPage />} />
+            <Route path="/usuarios" element={<CustomersPage />} />
             <Route path="/salas" element={<Rooms />} />
             {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
-            <Route path="/clientes" element={<ClientsPage />} />
+            <Route path="/clientes" element={<CustomersPage />} />
             <Route path="/*" element={<CalendarPage />} />
 
             {/* 

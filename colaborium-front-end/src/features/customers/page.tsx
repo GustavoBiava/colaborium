@@ -14,7 +14,7 @@ import {
 import { Pen, Plus, Trash, User } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
-import { ClientDialog } from "./components/ClientDialog";
+import { CustomerDialog } from "./components/CustomerDialog";
 
 // here we are using tanstack table, beacuse we already plan to use tanstack query. Basically the advantage of using tanstack table is that it already has some data tables logics built in, like sorting, pagination, global filters, etc. And its headless, so we can use our own UI
 // here is a video about it https://www.youtube.com/watch?v=GtT3mRjQ7Eo
@@ -36,7 +36,7 @@ const features = tableFeatures({
 const helper = createColumnHelper<typeof features, User>();
 // From what I understand, this is to avoid typing error. You kind of merge the data and the functions, so typescript knows what columns and features are available .
 
-export function ClientsPage() {
+export function CustomersPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
   const [_params, setParams] = useSearchParams();
@@ -100,7 +100,9 @@ export function ClientsPage() {
       </div>
       <p>{upsertCard}</p>
 
-      {upsertCard && <ClientDialog open={upsertCard} setOpen={setUpsertCard} />}
+      {upsertCard && (
+        <CustomerDialog open={upsertCard} setOpen={setUpsertCard} />
+      )}
     </PageLayout>
   );
 }

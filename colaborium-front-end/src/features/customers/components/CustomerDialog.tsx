@@ -21,7 +21,10 @@ import { Label } from "@/shared/components/ui/label";
 import { cn } from "cn";
 import { useSearchParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
-import { clientSchema, type ClientFormData } from "../schema/clientSchema";
+import {
+  customerSchema,
+  type CustomerFormData,
+} from "../schema/customerSchema";
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatCpfCnpj } from "@/shared/utils/formatCpfCnpj";
@@ -29,7 +32,7 @@ import { formatPhone } from "@/shared/utils/formatPhone";
 import { formatCep } from "@/shared/utils/formatCep";
 import type { DialogProps } from "@/shared/interfaces/DialogProps";
 
-export function ClientDialog({ setOpen, open }: DialogProps) {
+export function CustomerDialog({ setOpen, open }: DialogProps) {
   const [params, _setParams] = useSearchParams();
 
   const {
@@ -37,8 +40,8 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<ClientFormData>({
-    resolver: zodResolver(clientSchema),
+  } = useForm<CustomerFormData>({
+    resolver: zodResolver(customerSchema),
   });
 
   const onSubmit = (data: any) => {
@@ -77,7 +80,7 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
         <ScrollArea className="min-h-0">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            id="client-form"
+            id="customer-form"
             className="grid grid-cols-2 gap-x-5 gap-y-4 mb-4 pr-4"
           >
             <Field>
@@ -247,7 +250,7 @@ export function ClientDialog({ setOpen, open }: DialogProps) {
         </ScrollArea>
 
         <DialogFooter>
-          <Button form="client-form" type="submit" variant="outline">
+          <Button form="customer-form" type="submit" variant="outline">
             {dialogText.button}
           </Button>
           <Button variant="outline" onClick={() => setOpen(false)}>
