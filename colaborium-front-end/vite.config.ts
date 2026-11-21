@@ -8,7 +8,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"), // Points to your frontend src folder
-      "@server": path.resolve(import.meta.dirname, "../server/src"),
     },
   },
   plugins: [react(), tailwindcss()],
