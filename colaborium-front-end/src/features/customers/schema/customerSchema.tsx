@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const clientSchema = z
+export const customerSchema = z
   .object({
     // Company information
     nome_empresa: z.string({ error: () => "Nome obrigatório" }).trim().min(1, "Nome obrigatório"),
@@ -86,4 +86,4 @@ export const clientSchema = z
     }
   });
 
-export type ClientFormData = z.infer<typeof clientSchema>;
+export type CustomerFormData = z.infer<typeof customerSchema>;

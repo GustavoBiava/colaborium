@@ -1,7 +1,6 @@
 
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { db } from "../../config/database";
 import customerController from "./customers.controller";
 import { createCustomerSchema, updateCustomerSchema } from "./customers.schemas";
 
@@ -52,14 +51,17 @@ export async function customerRoutes(app: FastifyInstance) {
     },
   }, customerController.updateCustomerHandler.bind(customerController));
 
-  // EXCLUIR USUÁRIO
-  app.delete("/clientes/:id", {
+  // ATIVAR OU DESATIVAR CLIENTE
+  app.patch("/clientes/:id/ativo", {
     schema: {
       tags: ["Clientes"],
-      summary: "Excluir um cliente",
+      summary: "Ativar ou desativar um cliente",
       params: z.object({
         id: z.coerce.number().int().positive(),
       }),
+      body: z.object({
+        ativo: z.boolean(),
+      }),
     },
-  }, customerController.deleteCustomerHandler.bind(customerController));
+  }, customerController.updateCustomerActiveHandler.bind(customerController));
 }

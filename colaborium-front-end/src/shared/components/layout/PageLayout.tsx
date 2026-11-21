@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 
 interface PageLayoutProps {
@@ -5,6 +6,7 @@ interface PageLayoutProps {
   children: React.ReactNode;
   pageTitle: string;
   subtitle: string;
+  className?: string;
 }
 
 export function PageLayout({
@@ -12,10 +14,16 @@ export function PageLayout({
   pageTitle,
   Icon,
   subtitle,
+  className,
 }: PageLayoutProps) {
   return (
     <div className="flex flex-col justify-center items-start min-h-screen bg-neutral-900 pr-2 ">
-      <div className="flex flex-col h-[98%] w-full p-3 bg-white rounded-md py-6 px-5 gap-10 ">
+      <div
+        className={cn(
+          "flex flex-col h-[98%] w-full p-3 bg-white rounded-md py-6 px-5 gap-10 ",
+          className,
+        )}
+      >
         {pageTitle && (
           <span className="flex flex-wrap justify-start items-center gap-2">
             {Icon && (

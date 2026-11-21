@@ -40,8 +40,9 @@ class CustomerService {
         return result;
     }
 
-    async deleteCustomer(id: number) {
-        customerRepository.deleteCustomer(id);
+    async updateCustomerActive(id: number, ativo: boolean) {
+        const result = customerRepository.updateCustomerActive(id, ativo);
+        return result;
     }
 
 }

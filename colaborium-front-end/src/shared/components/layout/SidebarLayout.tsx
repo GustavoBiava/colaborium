@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
-import { Calendar, Home, Users, DoorClosed, FileText } from "lucide-react";
+import { Calendar, Users, DoorClosed, FileText, Receipt } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,11 +19,10 @@ import {
 } from "../ui/sidebar";
 
 const mainItems = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Clientes", url: "/usuarios", icon: Users },
   { title: "Salas", url: "/salas", icon: DoorClosed },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Agenda", url: "/agenda", icon: Calendar },
+  { title: "Contas a Receber", url: "/contas-receber", icon: Receipt },
   { title: "Contratos", url: "/contratos", icon: FileText },
 ];
 
@@ -60,7 +59,7 @@ export function SidebarLayout() {
                   key={item.title}
                 >
                   <SidebarMenuButton
-                    className={cn(open && "flex flex-row justify-center")}
+                    className={cn(open && "flex flex-row justify-start")}
                     asChild
                   >
                     <Link to={item.url}>

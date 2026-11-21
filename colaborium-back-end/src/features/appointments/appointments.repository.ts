@@ -1,4 +1,3 @@
-
 import type { PoolClient } from "pg";
 import { db } from "../../config/database";
 
@@ -25,7 +24,7 @@ export type AppointmentStatus = "CONCLUIDA" | "CANCELADA";
 export class AppointmentError extends Error {
   constructor(
     public statusCode: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = "AppointmentError";
@@ -33,7 +32,7 @@ export class AppointmentError extends Error {
 }
 
 async function transaction<T>(
-  operation: (client: PoolClient) => Promise<T>
+  operation: (client: PoolClient) => Promise<T>,
 ): Promise<T> {
   const client = await db.connect();
 
@@ -54,7 +53,9 @@ async function transaction<T>(
 const selectAppointment = `
   SELECT
     a.*,
-    c.nome AS cliente_nome,
+    a.cliente_id::integer AS cliente_id,
+    a.sala_id::integer AS sala_id,
+    c.nome_empresa AS cliente_nome,
     s.nome AS sala_nome
   FROM agenda_reuniao a
   JOIN cliente c ON c.id = a.cliente_id
@@ -62,17 +63,12 @@ const selectAppointment = `
 `;
 
 export async function findAppointmentById(id: number) {
-  const result = await db.query(
-    `${selectAppointment} WHERE a.id = $1`,
-    [id]
-  );
+  const result = await db.query(`${selectAppointment} WHERE a.id = $1`, [id]);
 
   return result.rows[0] ?? null;
 }
 
-export async function listAppointments(
-  filters: AppointmentFilters
-) {
+export async function listAppointments(filters: AppointmentFilters) {
   const result = await db.query(
     `${selectAppointment}
      WHERE ($1::integer IS NULL OR a.cliente_id = $1)
@@ -85,43 +81,31 @@ export async function listAppointments(
       filters.sala_id ?? null,
       filters.data ?? null,
       filters.status ?? null,
-    ]
+    ],
   );
 
   return result.rows;
 }
 
-async function checkClient(
-  client: PoolClient,
-  clienteId: number
-) {
-  const result = await client.query(
-    "SELECT ativo FROM cliente WHERE id = $1",
-    [clienteId]
-  );
+async function checkClient(client: PoolClient, clienteId: number) {
+  const result = await client.query("SELECT ativo FROM cliente WHERE id = $1", [
+    clienteId,
+  ]);
 
   if (!result.rows.length) {
-    throw new AppointmentError(
-      404,
-      "Cliente não encontrado"
-    );
+    throw new AppointmentError(404, "Cliente não encontrado");
   }
 
   if (!result.rows[0].ativo) {
-    throw new AppointmentError(
-      409,
-      "Cliente inativo"
-    );
+    throw new AppointmentError(409, "Cliente inativo");
   }
 }
 
 // Bloqueia a sala durante a operação.
 // Isso serializa reservas concorrentes da mesma sala.
-async function lockRooms(
-  client: PoolClient,
-  roomIds: number[]
-) {
-  const ids = [...new Set(roomIds)].sort((a, b) => a - b);
+
+async function lockRooms(client: PoolClient, roomIds: number[]) {
+  const ids = [...new Set(roomIds.map(Number))].sort((a, b) => a - b);
 
   const result = await client.query(
     `SELECT id, ativo
@@ -129,21 +113,15 @@ async function lockRooms(
      WHERE id = ANY($1::integer[])
      ORDER BY id
      FOR UPDATE`,
-    [ids]
+    [ids],
   );
 
   if (result.rows.length !== ids.length) {
-    throw new AppointmentError(
-      404,
-      "Sala não encontrada"
-    );
+    throw new AppointmentError(404, "Sala não encontrada");
   }
 
   if (result.rows.some((room) => !room.ativo)) {
-    throw new AppointmentError(
-      409,
-      "A sala está inativa"
-    );
+    throw new AppointmentError(409, "A sala está inativa");
   }
 }
 
@@ -152,7 +130,7 @@ async function lockRooms(
 async function checkAvailability(
   client: PoolClient,
   data: AppointmentInput,
-  excludeId?: number
+  excludeId?: number,
 ) {
   const result = await client.query(
     `SELECT id
@@ -164,26 +142,18 @@ async function checkAvailability(
        AND fim > $3::time
        AND id <> COALESCE($5::integer, -1)
      LIMIT 1`,
-    [
-      data.sala_id,
-      data.data,
-      data.inicio,
-      data.fim,
-      excludeId ?? null,
-    ]
+    [data.sala_id, data.data, data.inicio, data.fim, excludeId ?? null],
   );
 
   if (result.rows.length) {
     throw new AppointmentError(
       409,
-      `A sala já possui agendamento nesse horário (ID ${result.rows[0].id})`
+      `A sala já possui agendamento nesse horário (ID ${result.rows[0].id})`,
     );
   }
 }
 
-export async function createAppointment(
-  data: AppointmentInput
-) {
+export async function createAppointment(data: AppointmentInput) {
   const id = await transaction(async (client) => {
     await checkClient(client, data.cliente_id);
     await lockRooms(client, [data.sala_id]);
@@ -207,7 +177,7 @@ export async function createAppointment(
         data.finalidade ?? null,
         data.observacao ?? null,
         data.contratual,
-      ]
+      ],
     );
 
     return result.rows[0].id as number;
@@ -216,45 +186,34 @@ export async function createAppointment(
   return findAppointmentById(id);
 }
 
-export async function updateAppointment(
-  id: number,
-  data: AppointmentInput
-) {
+export async function updateAppointment(id: number, data: AppointmentInput) {
   await transaction(async (client) => {
     // Impede duas alterações simultâneas do mesmo agendamento.
-    await client.query(
-      "SELECT pg_advisory_xact_lock(400, $1)",
-      [id]
-    );
+    await client.query("SELECT pg_advisory_xact_lock(400, $1)", [id]);
 
     const existing = await client.query(
       `SELECT sala_id, status
        FROM agenda_reuniao
        WHERE id = $1`,
-      [id]
+      [id],
     );
 
     if (!existing.rows.length) {
-      throw new AppointmentError(
-        404,
-        "Agendamento não encontrado"
-      );
+      throw new AppointmentError(404, "Agendamento não encontrado");
     }
 
     if (existing.rows[0].status !== "AGENDADA") {
       throw new AppointmentError(
         409,
-        "Somente agendamentos pendentes podem ser alterados"
+        "Somente agendamentos pendentes podem ser alterados",
       );
     }
 
     await checkClient(client, data.cliente_id);
 
     // Bloqueia a sala antiga e a nova, em ordem fixa.
-    await lockRooms(client, [
-      existing.rows[0].sala_id,
-      data.sala_id,
-    ]);
+    console.log(data.sala_id, typeof data.sala_id);
+    await lockRooms(client, [existing.rows[0].sala_id, data.sala_id]);
 
     await checkAvailability(client, data, id);
 
@@ -279,7 +238,7 @@ export async function updateAppointment(
         data.observacao ?? null,
         data.contratual,
         id,
-      ]
+      ],
     );
   });
 
@@ -288,41 +247,32 @@ export async function updateAppointment(
 
 export async function changeAppointmentStatus(
   id: number,
-  status: AppointmentStatus
+  status: AppointmentStatus,
 ) {
   await transaction(async (client) => {
-    await client.query(
-      "SELECT pg_advisory_xact_lock(400, $1)",
-      [id]
-    );
+    await client.query("SELECT pg_advisory_xact_lock(400, $1)", [id]);
 
     const result = await client.query(
       `SELECT status
        FROM agenda_reuniao
        WHERE id = $1
        FOR UPDATE`,
-      [id]
+      [id],
     );
 
     if (!result.rows.length) {
-      throw new AppointmentError(
-        404,
-        "Agendamento não encontrado"
-      );
+      throw new AppointmentError(404, "Agendamento não encontrado");
     }
 
     if (result.rows[0].status !== "AGENDADA") {
-      throw new AppointmentError(
-        409,
-        "Agendamento já concluído ou cancelado"
-      );
+      throw new AppointmentError(409, "Agendamento já concluído ou cancelado");
     }
 
     await client.query(
       `UPDATE agenda_reuniao
        SET status = $1
        WHERE id = $2`,
-      [status, id]
+      [status, id],
     );
   });
 
