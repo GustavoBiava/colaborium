@@ -4,9 +4,6 @@ import { Rooms } from "@/features/rooms/page";
 
 import { Layout } from "@/shared/components/layout/Layout";
 
-// import { CardBlurBoilerplateExample } from "../../boilerplate/card-blur-boilerplate-example";
-//import { FullCalendarBoilerplateExample } from "../../boilerplate/fullcalendar-boilerplate-example";
-
 import { BrowserRouter, Route, Routes } from "react-router";
 import { CalendarPage } from "@/features/appointments/page";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
@@ -21,16 +18,8 @@ export const Router = () => {
           <Route element={<Layout />}>
             <Route path="/usuarios" element={<CustomersPage />} />
             <Route path="/salas" element={<Rooms />} />
-            {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
             <Route path="/clientes" element={<CustomersPage />} />
             <Route path="/*" element={<CalendarPage />} />
-
-            {/* 
-          <Route
-            path="/exemplo-fullcalendar"
-            element={<FullCalendarBoilerplateExample />}
-          /> 
-          */}
           </Route>
         </Routes>
       </BrowserRouter>
