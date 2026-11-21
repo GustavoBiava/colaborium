@@ -160,11 +160,16 @@ class CustomerRepository {
         return result.rows;
     }
 
-    async deleteCustomer(id: number) {
-        await db.query(
-            `DELETE FROM public.cliente WHERE id = $1`,
-            [id]
+    async updateCustomerActive(id: number, ativo: boolean) {
+        const result = await db.query(
+            `UPDATE public.cliente
+            SET ativo = $1
+            WHERE id = $2
+            RETURNING id`,
+            [ativo, id]
         );
+
+        return result.rows;
     }
 
     async countTotal() {

@@ -83,15 +83,23 @@ class CustomerController {
     }
   }
 
-  async deleteCustomerHandler(
-    request: FastifyRequest<{ Params: CustomerParams }>,
+  async updateCustomerActiveHandler(
+    request: FastifyRequest<{
+      Params: CustomerParams;
+      Body: { ativo: boolean };
+    }>,
     reply: FastifyReply,
   ) {
     try {
       const { id } = request.params;
-      await customerService.deleteCustomer(id);
+      const { ativo } = request.body;
+      const result = await customerService.updateCustomerActive(id, ativo);
 
-      return reply.status(204).send();
+      if (!result[0]) {
+        return reply.status(404).send({ message: "Cliente não encontrado" });
+      }
+
+      return reply.status(200).send(result[0]);
     } catch (error) {
       request.log.error(error);
       return reply.status(500).send({ error });
