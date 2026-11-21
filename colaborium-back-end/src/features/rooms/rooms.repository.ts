@@ -1,4 +1,3 @@
-
 import { db } from "../../config/database";
 
 export type RoomInput = {
@@ -10,6 +9,7 @@ export type RoomInput = {
   qtd_arcondicionado: number;
   qtd_cadeira: number;
   qtd_mesa: number;
+  ocupada: boolean;
 };
 
 export async function createRoom(data: RoomInput) {
@@ -17,9 +17,9 @@ export async function createRoom(data: RoomInput) {
     `INSERT INTO sala (
       nome, descricao, capacidade, valor,
       localizacao, qtd_arcondicionado,
-      qtd_cadeira, qtd_mesa
+      qtd_cadeira, qtd_mesa, ocupada
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
     RETURNING *`,
     [
       data.nome,
@@ -30,33 +30,26 @@ export async function createRoom(data: RoomInput) {
       data.qtd_arcondicionado,
       data.qtd_cadeira,
       data.qtd_mesa,
-    ]
+      data.ocupada ?? false,
+    ],
   );
 
   return result.rows[0];
 }
 
 export async function listRooms() {
-  const result = await db.query(
-    "SELECT * FROM sala ORDER BY id"
-  );
+  const result = await db.query("SELECT * FROM sala ORDER BY id");
 
   return result.rows;
 }
 
 export async function findRoomById(id: number) {
-  const result = await db.query(
-    "SELECT * FROM sala WHERE id = $1",
-    [id]
-  );
+  const result = await db.query("SELECT * FROM sala WHERE id = $1", [id]);
 
   return result.rows[0] ?? null;
 }
 
-export async function updateRoom(
-  id: number,
-  data: RoomInput
-) {
+export async function updateRoom(id: number, data: RoomInput) {
   const result = await db.query(
     `UPDATE sala SET
       nome = $1,
@@ -66,8 +59,9 @@ export async function updateRoom(
       localizacao = $5,
       qtd_arcondicionado = $6,
       qtd_cadeira = $7,
-      qtd_mesa = $8
-    WHERE id = $9
+      qtd_mesa = $8,
+      ocupada = $9
+    WHERE id = $10
     RETURNING *`,
     [
       data.nome,
@@ -78,23 +72,21 @@ export async function updateRoom(
       data.qtd_arcondicionado,
       data.qtd_cadeira,
       data.qtd_mesa,
+      data.ocupada ?? false,
       id,
-    ]
+    ],
   );
 
   return result.rows[0] ?? null;
 }
 
-export async function updateRoomActive(
-  id: number,
-  ativo: boolean
-) {
+export async function updateRoomActive(id: number, ativo: boolean) {
   const result = await db.query(
     `UPDATE sala
      SET ativo = $1
      WHERE id = $2
      RETURNING *`,
-    [ativo, id]
+    [ativo, id],
   );
 
   return result.rows[0] ?? null;
