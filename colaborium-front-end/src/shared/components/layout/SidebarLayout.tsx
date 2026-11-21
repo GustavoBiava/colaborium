@@ -1,5 +1,5 @@
 import { cn } from "cn";
-import { Calendar, DoorClosed, Users } from "lucide-react";
+import { Calendar, DoorClosed, Users, Receipt } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,10 +15,10 @@ import {
 } from "../ui/sidebar";
 
 const mainItems = [
-  { title: "Clientes", url: "/usuarios", icon: Users },
   { title: "Salas", url: "/salas", icon: DoorClosed },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Agenda", url: "/agenda", icon: Calendar },
+  { title: "Contas a Receber", url: "/contas-receber", icon: Receipt },
 ];
 
 export function SidebarLayout() {
@@ -46,7 +46,7 @@ export function SidebarLayout() {
                   key={item.title}
                 >
                   <SidebarMenuButton
-                    className={cn(open && "flex flex-row justify-center")}
+                    className={cn(open && "flex flex-row justify-start")}
                     asChild
                   >
                     <a href={item.url}>

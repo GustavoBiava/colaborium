@@ -8,7 +8,7 @@ import { Layout } from "@/shared/components/layout/Layout";
 //import { FullCalendarBoilerplateExample } from "../../boilerplate/fullcalendar-boilerplate-example";
 
 import { BrowserRouter, Route, Routes } from "react-router";
-import { CalendarPage } from "@/features/calendar/page";
+import { CalendarPage } from "@/features/appointments/page";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 export const Router = () => {
