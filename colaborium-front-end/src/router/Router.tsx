@@ -11,29 +11,36 @@ import { Layout } from "@/shared/components/layout/Layout";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 import { CalendarPage } from "@/features/calendar/page";
+import { AuthProvider } from "@/features/auth/AuthContext";
+import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 
 export const Router = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route element={<Layout />}>
-          <Route path="/" element={<ClientsPage />} />
-          <Route path="/usuarios" element={<ClientsPage />} />
-          <Route path="/salas" element={<Rooms />} />
-          {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
-          <Route path="/clientes" element={<ClientsPage />} />
-          <Route path="/agenda" element={<CalendarPage />} />
-          <Route path="/contratos" element={<Contracts />} />
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
 
-          {/* 
-          <Route
-            path="/exemplo-fullcalendar"
-            element={<FullCalendarBoilerplateExample />}
-          /> 
-          */}
-        </Route>
-      </Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/" element={<ClientsPage />} />
+              <Route path="/usuarios" element={<ClientsPage />} />
+              <Route path="/salas" element={<Rooms />} />
+              {/* <Route path="/exemplo-card-blur" element={<CardBlurBoilerplateExample />} /> */}
+              <Route path="/clientes" element={<ClientsPage />} />
+              <Route path="/agenda" element={<CalendarPage />} />
+              <Route path="/contratos" element={<Contracts />} />
+
+              {/* 
+              <Route
+                path="/exemplo-fullcalendar"
+                element={<FullCalendarBoilerplateExample />}
+              /> 
+              */}
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 };

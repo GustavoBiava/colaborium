@@ -1,15 +1,18 @@
 import { db } from "../../config/database";
 import type { createUserDTO, updateUserDTO } from "./users.schemas";
+import bcrypt from "bcryptjs";
 
 class UserRepository {
 
     async getUsersPaginated(limit: number, offset: number) {
-        const query = 'SELECT * FROM usuario ORDER BY id ASC LIMIT $1 OFFSET $2';
+        const query = 'SELECT id, nome, email, perfil, ativo FROM usuario ORDER BY id ASC LIMIT $1 OFFSET $2';
         const result = await db.query(query, [limit, offset]);
         return result.rows;
     }
 
     async createUser(user: createUserDTO) {
+        const senhaHash = await bcrypt.hash(user.senha, 12);
+
         const result = await db.query(
             `INSERT INTO usuario(
                 nome, email, senha_hash, perfil, ativo)
@@ -18,7 +21,7 @@ class UserRepository {
             [
                 user.nome,
                 user.email,
-                user.senha,
+                senhaHash,
                 user.perfil,
                 true
             ]
@@ -28,12 +31,14 @@ class UserRepository {
     }
 
     async getUser(id: number) {
-        const query = 'SELECT * FROM usuario WHERE id = $1';
+        const query = 'SELECT id, nome, email, perfil, ativo FROM usuario FROM usuario WHERE id = $1';
         const result = await db.query(query, [ id ]);
         return result.rows;
     }
 
     async updateUser(id: number, user: updateUserDTO) {
+        const senhaHash = user.senha ? await bcrypt.hash(user.senha, 12) : undefined;
+
         const result = await db.query(
             `UPDATE usuario SET
                 nome = $1,
@@ -46,7 +51,7 @@ class UserRepository {
             [
                 user.nome,
                 user.email,
-                user.senha,
+                senhaHash,
                 user.perfil,
                 user.ativo,
                 id

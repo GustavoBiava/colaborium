@@ -1,6 +1,8 @@
 
 import { fastify } from "fastify";
 import { db } from "./config/database";
+import { registerAuth } from "./config/auth";
+import { authRoutes } from "./features/auth/auth.routes";
 
 // Rotas dos módulos
 import { roomsRoutes } from "./features/rooms/rooms.routes";
@@ -47,6 +49,12 @@ app.register(fastifySwagger, {
   transform: jsonSchemaTransform,
 });
 
+// Registrar autenticação
+await registerAuth(app);
+
+// Rotas públicas
+app.register(authRoutes);
+
 // Interface visual do Swagger
 if (process.env.NODE_ENV !== "production") {
   app.register(fastifySwaggerUi, {
@@ -54,12 +62,16 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-// Registro das rotas
-app.register(roomsRoutes);
-app.register(contractsRoutes);
-app.register(appointmentsRoutes);
-app.register(usersRoutes);
-app.register(customerRoutes);
+// Rotas protegidas
+app.register(async (protectedApp) => {
+  protectedApp.addHook("preHandler", protectedApp.authenticate);
+
+  protectedApp.register(roomsRoutes);
+  protectedApp.register(contractsRoutes);
+  protectedApp.register(appointmentsRoutes);
+  protectedApp.register(usersRoutes);
+  protectedApp.register(customerRoutes);
+});
 
 // Rota para testar o funcionamento da API
 app.get("/health", {
