@@ -12,6 +12,7 @@ import {
 import RoomEditForm from "./RoomEditForm";
 import RoomStatus from "./RoomStatus";
 import { useState } from "react";
+import { DeleteAlertDialog } from "@/shared/components/DeleteAlertDialog";
 import type { RoomResponse } from "../types/RoomResponse";
 
 interface DialogProps {
@@ -21,6 +22,7 @@ interface DialogProps {
 }
 
 export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   if (!room) return null;
 
@@ -32,6 +34,7 @@ export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
 
   function handleCancel() {
     setIsEditing(false);
+    setConfirmCancel(false);
   }
 
   function handleOpenChange(nextOpen: boolean) {
@@ -39,64 +42,87 @@ export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
 
     if (!nextOpen) {
       setIsEditing(false);
+      setConfirmCancel(false);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[1000px] max-w-[95vw] h-[700px] max-h-[155vh]">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Editar sala" : room.nome}</DialogTitle>
+    <>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="w-[1000px] max-w-[95vw] h-[700px] max-h-[155vh]">
+          <DialogHeader>
+            <DialogTitle>{isEditing ? "Editar sala" : room.nome}</DialogTitle>
 
-          <DialogDescription>
-            {isEditing
-              ? "Altere as informações da sala."
-              : "Informações da sala"}
-          </DialogDescription>
-        </DialogHeader>
+            <DialogDescription>
+              {isEditing
+                ? "Altere as informações da sala."
+                : "Informações da sala"}
+            </DialogDescription>
+          </DialogHeader>
 
-        {isEditing ? (
-          <RoomEditForm key={room.id} room={room} onSubmit={handleSubmit} />
-        ) : (
-          <RoomStatus key={room.id} room={room} />
-        )}
-
-        <DialogFooter>
           {isEditing ? (
-            <>
-              <Button key="save" type="submit" form="room-edit-form">
-                Salvar
-              </Button>
-              <Button
-                key="cancel"
-                type="button"
-                variant="outline"
-                onClick={handleCancel}
-              >
-                Cancelar
-              </Button>
-            </>
+            <RoomEditForm key={room.id} room={room} onSubmit={handleSubmit} />
           ) : (
-            <>
-              <Button
-                key="edit"
-                type="button"
-                onClick={() => setIsEditing(true)}
-              >
-                Editar
-              </Button>
-              <Button
-                key="close"
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Fechar
-              </Button>
-            </>
+            <RoomStatus key={room.id} room={room} />
           )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+
+          <DialogFooter>
+            {isEditing ? (
+              <>
+                <Button
+                  key="delete"
+                  type="button"
+                  form="room-edit-form"
+                  className="bg-[#9F3C3C] hover:bg-[#7F3030]"
+                  onClick={() => setConfirmCancel(true)}
+                >
+                  Excluir
+                </Button>
+                <Button key="save" type="submit" form="room-edit-form">
+                  Salvar
+                </Button>
+                <Button
+                  key="cancel"
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                >
+                  Cancelar
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  key="edit"
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Editar
+                </Button>
+                <Button
+                  key="close"
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Fechar
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <DeleteAlertDialog
+        open={confirmCancel}
+        title={"Excluir sala"}
+        description={
+          "Tem certeza de que deseja excluir esta sala? Essa ação não poderá ser desfeita."
+        }
+        onOpenChange={setConfirmCancel}
+        onConfirm={() => {
+          setConfirmCancel(false);
+        }}
+      />
+    </>
   );
 }

@@ -7,7 +7,6 @@ interface LoginCarouselProps {
 
 export function LoginCarousel({ images, interval }: LoginCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [previousIndex, setPreviousIndex] = useState<number | null>(null);
 
     useEffect(() => {
         if (images.length <= 1) return;

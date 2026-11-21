@@ -1,4 +1,5 @@
 import type { RoomResponse } from "../types/RoomResponse";
+import Placeholder from "@/assets/sync2.jpeg";
 
 type RoomCardProps = { room: RoomResponse };
 
@@ -8,7 +9,10 @@ export function RoomCard({ room }: RoomCardProps) {
       <img
         src={room.imageUrl}
         alt="Pré-visualização da sala"
-        className="bg-[#888888] rounded-lg h-full w-[220px]"
+        onError={(e) => {
+          e.currentTarget.src = Placeholder;
+        }}
+        className="bg-[#888888] rounded-lg h-full w-[220px] object-cover"
       />
 
       <div className="flex flex-col justify-left gap-1 text-left">
@@ -27,6 +31,12 @@ export function RoomCard({ room }: RoomCardProps) {
           Número: <span className="text-black">{room.id}</span>
         </p>
       </div>
+
+      {room.occupied === "Ocupado" && (
+        <div className="flex bg-[#9F3C3C] justify-center w-30 h-6 ml-auto mb-auto m-2 rounded-lg text-white">
+          OCUPADO
+        </div>
+      )}
     </div>
   );
 }

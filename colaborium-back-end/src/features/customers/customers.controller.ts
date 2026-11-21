@@ -1,4 +1,4 @@
-import type { FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas";
 import customerService from "./customers.service";
 

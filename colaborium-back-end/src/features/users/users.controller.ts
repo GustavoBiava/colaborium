@@ -1,4 +1,4 @@
-import { type FastifyRequest, type FastifyReply } from "fastify";
+import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import userService from "./users.service";
 

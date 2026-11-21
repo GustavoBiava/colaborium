@@ -1,5 +1,9 @@
 import { cn } from "cn";
-import { Calendar, DoorClosed, Users, Receipt } from "lucide-react";
+import { Link } from "react-router";
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router";
+import { useAuth } from "@/features/auth/AuthContext";
+import { Calendar, Users, DoorClosed, FileText, Receipt } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,10 +23,19 @@ const mainItems = [
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Agenda", url: "/agenda", icon: Calendar },
   { title: "Contas a Receber", url: "/contas-receber", icon: Receipt },
+  { title: "Contratos", url: "/contratos", icon: FileText },
 ];
 
 export function SidebarLayout() {
   const { open } = useSidebar();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/login", { replace: true });
+  }
+
   return (
     <Sidebar collapsible="icon" className="text-neutral-400 border-neutral-900">
       <SidebarHeader className="bg-neutral-900 h-2/12 ">
@@ -49,10 +62,10 @@ export function SidebarLayout() {
                     className={cn(open && "flex flex-row justify-start")}
                     asChild
                   >
-                    <a href={item.url}>
+                    <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -62,6 +75,22 @@ export function SidebarLayout() {
       </SidebarContent>
 
       <SidebarFooter className="bg-neutral-900">
+        {user && (
+          <>
+            <span className="truncate text-sm font-medium text-neutral-200">
+              {user.nome}
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sair da conta"
+              className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-neutral-400 transition hover:bg-neutral-800 hover:text-white cursor-pointer"
+            >
+              <LogOut size={16} />
+              {open && <span>Sair da conta atual</span>}
+            </button>
+          </>
+        )}
         <span className="px-2 text-xs text-muted-foreground">v1.0.0</span>
       </SidebarFooter>
     </Sidebar>

@@ -4,6 +4,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { useState } from "react";
 import type { RoomResponse } from "../types/RoomResponse";
 import { RoomFurnitureSelector } from "./RoomFurnitureSelector";
+import Placeholder from "@/assets/sync2.jpeg";
 
 const DESCRIPTION_LIMIT = 500;
 
@@ -143,6 +144,9 @@ export default function RoomEditForm({ onSubmit, room }: RoomFormProps) {
               src={imagePreview}
               alt="Pré-visualização da sala"
               className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = Placeholder;
+              }}
             />
           ) : (
             <span className="px-2 text-center text-sm text-gray-400">

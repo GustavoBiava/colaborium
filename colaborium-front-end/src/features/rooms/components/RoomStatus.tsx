@@ -1,5 +1,6 @@
 import { Label } from "@/shared/components/ui/label";
 import type { RoomResponse } from "../types/RoomResponse";
+import Placeholder from "@/assets/sync2.jpeg";
 
 type RoomFormProps = {
   room: RoomResponse;
@@ -59,6 +60,9 @@ export default function RoomStatus({ room }: RoomFormProps) {
               src={room.imageUrl}
               alt="Pré-visualização da sala"
               className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = Placeholder;
+              }}
             />
           ) : (
             <span className="px-2 text-center text-sm text-gray-400">
