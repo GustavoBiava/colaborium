@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { CustomerResponse } from "../types/CustomerResponse";
-import type { CreateCustomerPayload } from "./useCreateCustomer";
 
 type UpdateCustomerPayload = {
   id: number;
-  data: CreateCustomerPayload & {
+  data: Omit<CustomerResponse, "id"> & {
     ativo: boolean;
   };
 };

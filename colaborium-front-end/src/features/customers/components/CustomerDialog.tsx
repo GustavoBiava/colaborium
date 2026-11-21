@@ -22,30 +22,37 @@ import type { DialogProps } from "@/shared/interfaces/DialogProps";
 import { formatCep } from "@/shared/utils/formatCep";
 import { formatCpfCnpj } from "@/shared/utils/formatCpfCnpj";
 import { formatPhone } from "@/shared/utils/formatPhone";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "cn";
-import { Controller, useForm } from "react-hook-form";
+import type {
+  Control,
+  FieldErrors,
+  UseFormHandleSubmit,
+  UseFormRegister,
+} from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { useSearchParams } from "react-router";
-import {
-  customerSchema,
-  type CustomerFormData,
-} from "../schema/customerSchema";
+import type { CustomerFormData } from "../schema/customerSchema";
+import { useState } from "react";
 
-export function CustomerDialog({ setOpen, open }: DialogProps) {
+interface CustomerDialogProps extends DialogProps {
+  register: UseFormRegister<CustomerFormData>;
+  control: Control<CustomerFormData>;
+  errors: FieldErrors<CustomerFormData>;
+  handleSubmit: UseFormHandleSubmit<CustomerFormData>;
+  onSubmit: (data: CustomerFormData) => void;
+}
+
+export function CustomerDialog({
+  setOpen,
+  open,
+  register,
+  control,
+  errors,
+  handleSubmit,
+  onSubmit,
+}: CustomerDialogProps) {
   const [params, _setParams] = useSearchParams();
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<CustomerFormData>({
-    resolver: zodResolver(customerSchema),
-  });
-
-  const onSubmit = (data: any) => {
-    console.log(data);
-  };
+  const [isEnterprise, setIsEnterprise] = useState(true);
 
   const dialogText =
     params.get("mode") === "update"
@@ -73,10 +80,24 @@ export function CustomerDialog({ setOpen, open }: DialogProps) {
         </DialogHeader>
 
         <ScrollArea className="min-h-0">
+          <Button
+            onClick={() => setIsEnterprise(true)}
+            className={cn(!isEnterprise ? "bg-gray-100" : "border-b-0")}
+            variant={"outline"}
+          >
+            Empresa
+          </Button>
+          <Button
+            onClick={() => setIsEnterprise(false)}
+            className={cn(isEnterprise ? "bg-gray-100" : "border-b-0")}
+            variant={"outline"}
+          >
+            Representante
+          </Button>
           <form
             onSubmit={handleSubmit(onSubmit)}
             id="customer-form"
-            className="grid grid-cols-2 gap-x-5 gap-y-4 mb-4 pr-4"
+            className="grid grid-cols-2 gap-x-5 gap-y-4 mb-4 pr-4 mt-2 ml-1"
           >
             <Field>
               <FieldLabel>Nome</FieldLabel>
