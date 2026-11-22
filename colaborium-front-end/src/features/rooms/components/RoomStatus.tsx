@@ -55,20 +55,11 @@ export default function RoomStatus({ room }: RoomFormProps) {
           htmlFor="roomImage"
           className="relative flex aspect-[4/2] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#222222]"
         >
-          {room.imageUrl ? (
-            <img
-              src={room.imageUrl}
-              alt="Pré-visualização da sala"
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = Placeholder;
-              }}
-            />
-          ) : (
-            <span className="px-2 text-center text-sm text-gray-400">
-              Clique para enviar uma imagem
-            </span>
-          )}
+          <img
+            src={Placeholder}
+            alt="Imagem da sala"
+            className="h-full w-full object-cover"
+          />
         </label>
 
         <Label className="font-semibold mb-3 mt-4">
