@@ -70,3 +70,27 @@ export async function alterarSituacao(
 
   return reply.status(200).send(sala);
 }
+
+// EXCLUIR SALA
+export async function excluir(
+  id: number,
+  reply: FastifyReply
+) {
+  const resultado = await service.excluirSala(id);
+
+  if (resultado === "NAO_ENCONTRADA") {
+    return reply.status(404).send({
+      message: "Sala não encontrada",
+    });
+  }
+
+  if (resultado === "POSSUI_CONTRATO") {
+    return reply.status(409).send({
+      message: "Não é possível excluir esta sala, pois ela já esteve vinculada a um contrato.",
+    });
+  }
+
+  return reply.status(200).send({
+    message: "Sala excluída com sucesso",
+  });
+}

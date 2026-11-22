@@ -1,5 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import RoomCreationForm from "./RoomEditForm";
+import { useCreateRoom } from "../hooks/useCreateRoom";
 import { type Dispatch, type SetStateAction } from "react";
 
 import {
@@ -14,12 +15,12 @@ import {
 interface DialogProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  onCreated: () => void;
 }
 
-export function RoomCreationDialog({ setOpen, open, onCreated }: DialogProps) {
+export function RoomCreationDialog({ setOpen, open }: DialogProps) {
+  const { createRoom } = useCreateRoom();
   async function handleSubmit(data: FormData) {
-    
+
     try {
       const furniture = JSON.parse(
         String(data.get("furniture") ?? "[]")
@@ -38,19 +39,9 @@ export function RoomCreationDialog({ setOpen, open, onCreated }: DialogProps) {
         qtd_cadeira: getQuantity("chairs"),
         qtd_mesa: getQuantity("tables"),
       };
-      const response = await fetch("http://localhost:3333/salas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(sala),
-      });
+      await createRoom(sala);
+      setOpen(false);
 
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      onCreated();
       setOpen(false);
     } catch (error) {
       console.error("Erro ao cadastrar sala:", error);

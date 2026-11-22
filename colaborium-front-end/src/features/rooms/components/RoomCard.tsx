@@ -7,7 +7,7 @@ export function RoomCard({ room }: RoomCardProps) {
   return (
     <div className="flex h-[120px] w-full items-center gap-2 rounded-xl border border-[#888888] bg-[transparent] p-1 text-black">
       <img
-        src={room.imageUrl}
+        src={Placeholder}
         alt="Pré-visualização da sala"
         onError={(e) => {
           e.currentTarget.src = Placeholder;
@@ -24,7 +24,7 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
 
         <p className="text-sm text-gray-600">
-          Ocupação: <span className="text-black">{room.ocupada} </span>
+          Ocupação: <span className="text-black">{room.ocupada ? "Ocupado" : "Livre"}</span>
         </p>
 
         <p className="text-sm text-gray-600">
@@ -32,7 +32,7 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
       </div>
 
-      {room.occupied === "Ocupado" && (
+      {room.ocupada && (
         <div className="flex bg-[#9F3C3C] justify-center w-30 h-6 ml-auto mb-auto m-2 rounded-lg text-white">
           OCUPADO
         </div>
