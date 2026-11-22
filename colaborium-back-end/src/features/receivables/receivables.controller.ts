@@ -1,15 +1,16 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import receivableService from "./receivables.service";
-import { ReceivableError } from "./receivables.errors";
+import { ReceivableError } from "./receivables.repository";
 import type {
   CreateReceivableDTO,
   ListReceivablesQuery,
   SettleReceivableDTO,
 } from "./receivables.schemas";
 
-type IdParams = { id: number };
+type ReceivableParams = {
+  id: number;
+};
 
-// converte erro em resposta http. erro de regra = status próprio, resto = 500
 function handleError(
   error: unknown,
   request: FastifyRequest,
@@ -58,7 +59,10 @@ class ReceivableController {
   }
 
   async settleHandler(
-    request: FastifyRequest<{ Params: IdParams; Body: SettleReceivableDTO }>,
+    request: FastifyRequest<{
+      Params: ReceivableParams;
+      Body: SettleReceivableDTO;
+    }>,
     reply: FastifyReply,
   ) {
     try {

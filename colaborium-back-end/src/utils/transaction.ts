@@ -1,7 +1,6 @@
 import type { PoolClient } from "pg";
-import { db } from "../../src/config/database";
+import { db } from "../config/database";
 
-// roda operação numa transação só. erro = ROLLBACK
 export async function withTransaction<T>(
   operation: (client: PoolClient) => Promise<T>,
 ): Promise<T> {

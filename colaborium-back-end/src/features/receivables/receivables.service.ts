@@ -1,31 +1,28 @@
-import receivableRepository from "./receivables.repository";
-import { ReceivableError } from "./receivables.errors";
-import type {
-  PaginatedReceivables,
-  ReceivableRow,
-  ReceivableSummary,
-} from "./receivables.types";
+import receivableRepository, { ReceivableError } from "./receivables.repository";
 import type {
   CreateReceivableDTO,
   ListReceivablesQuery,
+  PaginatedReceivables,
+  ReceivableRow,
+  ReceivableSummary,
   SettleReceivableDTO,
 } from "./receivables.schemas";
 
 class ReceivableService {
-  // lista paginada no padrão {data, pagination}
-  async getReceivables(query: ListReceivablesQuery): Promise<PaginatedReceivables> {
+  async getReceivables(
+    query: ListReceivablesQuery,
+  ): Promise<PaginatedReceivables> {
     const { page, limit, status, search } = query;
     const filters = { status, search };
 
-    // "all" = sem paginar
     if (limit === "all") {
-      const rows = await receivableRepository.list(filters, null, 0);
+      const registers = await receivableRepository.list(filters, null, 0);
       return {
-        data: rows,
+        data: registers,
         pagination: {
           actual_page: page,
           limit_per_page: limit,
-          total: rows.length,
+          total: registers.length,
           total_pages: 1,
           has_next: false,
         },
@@ -34,37 +31,34 @@ class ReceivableService {
 
     const offset = (page - 1) * limit;
 
-    const [rows, total] = await Promise.all([
+    const [registers, totalRegisters] = await Promise.all([
       receivableRepository.list(filters, limit, offset),
       receivableRepository.count(filters),
     ]);
 
-    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const totalPages = Math.max(1, Math.ceil(totalRegisters / limit));
 
     return {
-      data: rows,
+      data: registers,
       pagination: {
         actual_page: page,
         limit_per_page: limit,
-        total,
+        total: totalRegisters,
         total_pages: totalPages,
         has_next: page < totalPages,
       },
     };
   }
 
-  // totais dos cards
   async getSummary(): Promise<ReceivableSummary> {
     return receivableRepository.summary();
   }
 
-  // cria conta manual
   async createReceivable(data: CreateReceivableDTO): Promise<ReceivableRow> {
     if (!(await receivableRepository.clientExists(data.cliente_id))) {
       throw new ReceivableError(404, "Cliente não encontrado");
     }
 
-    // vínculos opcionais precisam existir (senão estoura FK)
     if (
       data.contrato_id &&
       !(await receivableRepository.contractExists(data.contrato_id))
@@ -86,7 +80,6 @@ class ReceivableService {
     return created;
   }
 
-  // dá baixa. retorna a conta já atualizada
   async settleReceivable(
     id: number,
     data: SettleReceivableDTO,

@@ -1,9 +1,7 @@
 import { z } from "zod";
 
-// data no formato YYYY-MM-DD
 const isoDate = z.iso.date("Data inválida (use AAAA-MM-DD)");
 
-// status que a tela enxerga (calculado, não é o valor cru da coluna)
 export const receivableStatusSchema = z.enum([
   "todos",
   "pendente",
@@ -11,21 +9,16 @@ export const receivableStatusSchema = z.enum([
   "recebido",
 ]);
 
-// querystring da listagem
 export const listReceivablesQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z
-    .union([
-      z.literal("all"),
-      z.coerce.number().int().positive().max(100),
-    ])
+    .union([z.literal("all"), z.coerce.number().int().positive().max(100)])
     .optional()
     .default(10),
   status: receivableStatusSchema.optional().default("todos"),
   search: z.string().trim().max(150).optional(),
 });
 
-// body: nova conta manual
 export const createReceivableSchema = z.object({
   cliente_id: z.number().int().positive(),
   contrato_id: z.number().int().positive().nullable().optional(),
@@ -36,7 +29,6 @@ export const createReceivableSchema = z.object({
   data_vencimento: isoDate,
 });
 
-// body: dar baixa
 export const settleReceivableSchema = z.object({
   data_pagamento: isoDate,
   forma_pagamento: z.string().trim().min(1).max(50),
@@ -54,3 +46,42 @@ export type ReceivableStatusFilter = z.infer<typeof receivableStatusSchema>;
 export type ListReceivablesQuery = z.infer<typeof listReceivablesQuerySchema>;
 export type CreateReceivableDTO = z.infer<typeof createReceivableSchema>;
 export type SettleReceivableDTO = z.infer<typeof settleReceivableSchema>;
+
+export type ReceivableStatus = "pendente" | "vencido" | "recebido";
+
+export type ReceivableRow = {
+  id: number;
+  cliente_id: number;
+  cliente_nome: string;
+  contrato_id: number | null;
+  pagamento_id: number | null;
+  descricao: string | null;
+  valor: number;
+  data_emissao: string | null;
+  data_vencimento: string | null;
+  data_pagamento: string | null;
+  status: ReceivableStatus;
+  forma_pagamento: string | null;
+  juros: number;
+  multa: number;
+  desconto: number;
+  valor_pago: number;
+};
+
+export type ReceivableSummary = {
+  total_a_receber: number;
+  a_vencer: number;
+  vencido: number;
+  recebido_mes: number;
+};
+
+export type PaginatedReceivables = {
+  data: ReceivableRow[];
+  pagination: {
+    actual_page: number;
+    limit_per_page: number | "all";
+    total: number;
+    total_pages: number;
+    has_next: boolean;
+  };
+};

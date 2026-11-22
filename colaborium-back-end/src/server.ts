@@ -20,6 +20,7 @@ import {
 import { fastifyCors } from "@fastify/cors";
 import { fastifySwagger } from "@fastify/swagger";
 import { fastifySwaggerUi } from "@fastify/swagger-ui";
+import { receivablesRoutes } from "./features/receivables/receivables.routes";
 
 const app = fastify({
   logger: true,
@@ -70,6 +71,7 @@ app.register(async (protectedApp) => {
   protectedApp.register(appointmentsRoutes);
   protectedApp.register(usersRoutes);
   protectedApp.register(customerRoutes);
+  protectedApp.register(receivablesRoutes);
 });
 
 // Rota para testar o funcionamento da API
@@ -127,7 +129,7 @@ app.get(
 async function start() {
   try {
     await app.listen({
-      port: Number(process.env.DB_PORT ?? 3333),
+      port: Number(process.env.PORT ?? 3333),
       // host: "0.0.0.0",
     });
   } catch (error) {
