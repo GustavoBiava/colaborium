@@ -1,21 +1,30 @@
-import { db } from "../../src/config/database";
-import { ReceivableError } from "./receivables.errors";
-import { withTransaction } from "./receivables.transaction";
-import { PAYMENT_PAID_STATUS } from "./receivables.constants";
-import type { ReceivableRow, ReceivableSummary } from "./receivables.types";
+import { db } from "../../config/database";
+import { withTransaction } from "../../utils/transaction";
 import type {
   CreateReceivableDTO,
+  ReceivableRow,
   ReceivableStatusFilter,
+  ReceivableSummary,
   SettleReceivableDTO,
 } from "./receivables.schemas";
 
-// filtros já validados pela rota
+export class ReceivableError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ReceivableError";
+  }
+}
+
+const PAYMENT_PAID_STATUS = "pago";
+
 type ReceivableFilters = {
   status: ReceivableStatusFilter;
   search?: string;
 };
 
-// status calculado: pago > vencido (data passou) > pendente
 const STATUS_SQL = `
   CASE
     WHEN cr.data_pagamento IS NOT NULL THEN 'recebido'
@@ -24,10 +33,8 @@ const STATUS_SQL = `
   END
 `;
 
-// conta cancelada nunca aparece na tela
 const NOT_CANCELED_SQL = `COALESCE(cr.status, '') <> 'cancelado'`;
 
-// numeric vira float8 e date vira texto, pra json sair limpo
 const SELECT_ROW = `
   SELECT
     cr.id,
@@ -50,7 +57,6 @@ const SELECT_ROW = `
   JOIN public.cliente c ON c.id = cr.cliente_id
 `;
 
-// monta WHERE + params a partir dos filtros
 function buildWhere(filters: ReceivableFilters) {
   const conditions: string[] = [NOT_CANCELED_SQL];
   const params: unknown[] = [];
@@ -71,7 +77,6 @@ function buildWhere(filters: ReceivableFilters) {
 }
 
 class ReceivableRepository {
-  // lista página. limit null = sem paginar
   async list(
     filters: ReceivableFilters,
     limit: number | null,
@@ -89,7 +94,6 @@ class ReceivableRepository {
     return result.rows;
   }
 
-  // total de registros com os mesmos filtros
   async count(filters: ReceivableFilters): Promise<number> {
     const { where, params } = buildWhere(filters);
     const result = await db.query<{ total: number }>(
@@ -102,7 +106,6 @@ class ReceivableRepository {
     return result.rows[0]?.total ?? 0;
   }
 
-  // 4 totais dos cards
   async summary(): Promise<ReceivableSummary> {
     const result = await db.query<ReceivableSummary>(
       `SELECT
@@ -129,7 +132,6 @@ class ReceivableRepository {
     );
   }
 
-  // busca uma conta pelo id (com nome do cliente)
   async findById(id: number): Promise<ReceivableRow | null> {
     const result = await db.query<ReceivableRow>(
       `${SELECT_ROW} WHERE cr.id = $1`,
@@ -138,7 +140,6 @@ class ReceivableRepository {
     return result.rows[0] ?? null;
   }
 
-  // confere se cliente existe
   async clientExists(clienteId: number): Promise<boolean> {
     const result = await db.query(
       `SELECT 1 FROM public.cliente WHERE id = $1`,
@@ -147,7 +148,6 @@ class ReceivableRepository {
     return result.rowCount !== 0;
   }
 
-  // confere se contrato existe
   async contractExists(contratoId: number): Promise<boolean> {
     const result = await db.query(
       `SELECT 1 FROM public.contrato WHERE id = $1`,
@@ -156,7 +156,6 @@ class ReceivableRepository {
     return result.rowCount !== 0;
   }
 
-  // confere se parcela (pagamento) existe
   async paymentExists(pagamentoId: number): Promise<boolean> {
     const result = await db.query(
       `SELECT 1 FROM public.pagamento WHERE id = $1`,
@@ -165,7 +164,6 @@ class ReceivableRepository {
     return result.rowCount !== 0;
   }
 
-  // cria conta manual, nasce pendente
   async create(data: CreateReceivableDTO): Promise<number> {
     const result = await db.query<{ id: number }>(
       `INSERT INTO public.conta_receber (
@@ -189,10 +187,8 @@ class ReceivableRepository {
     return id;
   }
 
-  // dá baixa na conta e marca parcela ligada como paga. tudo numa transação
   async settle(id: number, data: SettleReceivableDTO): Promise<void> {
     await withTransaction(async (client) => {
-      // trava a linha pra evitar baixa dupla
       const current = await client.query<{
         pagamento_id: number | null;
         data_pagamento: string | null;
@@ -235,7 +231,6 @@ class ReceivableRepository {
       );
 
       if (row.pagamento_id) {
-        // mesma transação da baixa: se falhar, nada é gravado
         await client.query(
           `UPDATE public.pagamento SET status = $2 WHERE id = $1`,
           [row.pagamento_id, PAYMENT_PAID_STATUS],

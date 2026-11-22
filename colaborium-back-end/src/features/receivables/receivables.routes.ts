@@ -7,9 +7,8 @@ import {
   settleReceivableSchema,
 } from "./receivables.schemas";
 
-// registrar em server.ts dentro do bloco de rotas protegidas
 export async function receivablesRoutes(app: FastifyInstance) {
-  // LISTAR CONTAS (paginado, filtro por status e busca)
+  // LISTAR CONTAS A RECEBER
   app.get(
     "/contas-receber",
     {
@@ -34,7 +33,7 @@ export async function receivablesRoutes(app: FastifyInstance) {
     receivableController.summaryHandler.bind(receivableController),
   );
 
-  // CRIAR CONTA MANUAL
+  // CADASTRAR CONTA A RECEBER
   app.post(
     "/contas-receber",
     {
@@ -47,7 +46,7 @@ export async function receivablesRoutes(app: FastifyInstance) {
     receivableController.createHandler.bind(receivableController),
   );
 
-  // DAR BAIXA
+  // DAR BAIXA EM CONTA A RECEBER
   app.patch(
     "/contas-receber/:id/baixa",
     {
