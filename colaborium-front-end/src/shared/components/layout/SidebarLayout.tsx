@@ -22,7 +22,7 @@ const mainItems = [
   { title: "Salas", url: "/salas", icon: DoorClosed },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Agenda", url: "/agenda", icon: Calendar },
-  { title: "Contas a Receber", url: "/contas-receber", icon: Receipt },
+  { title: "Contas a Receber", url: "/contas_receber", icon: Receipt },
   { title: "Contratos", url: "/contratos", icon: FileText },
 ];
 
