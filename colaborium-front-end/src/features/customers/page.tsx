@@ -7,14 +7,16 @@ import {
   createColumnHelper,
   createSortedRowModel,
   rowSortingFeature,
+  rowPaginationFeature,
   sortFn_alphanumeric,
   tableFeatures,
   useTable,
   type SortingState,
 } from "@tanstack/react-table";
 import { Pen, Plus, RotateCcw, Trash, User } from "lucide-react";
+import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { CustomerDialog } from "./components/CustomerDialog";
 import { useCustomerById } from "./hooks/useCustomerById";
@@ -26,29 +28,64 @@ import { useCreateCustomer } from "./hooks/useCreateCustomer";
 import { useUpdateCustomer } from "./hooks/useUpdateCustomer";
 import { useDeactivateCustomer } from "./hooks/useDeactivateCustomer";
 import { useActivateCustomer } from "./hooks/useActivateCustomer";
+import { Pagination } from "@/shared/components/Pagination";
 
 interface CustomerColumns extends Pick<
   CustomerResponse,
   "nome_empresa" | "telefone" | "ativo" | "email" | "id"
 > {}
 
-const features = tableFeatures({
+export const features = tableFeatures({
   rowSortingFeature,
+  rowPaginationFeature,
   sortedRowModel: createSortedRowModel(),
   sortFns: { alphanumeric: sortFn_alphanumeric },
 });
 
 const helper = createColumnHelper<typeof features, CustomerColumns>();
 
+const fieldTabMap: Partial<
+  Record<keyof CustomerFormData, "empresa" | "representante">
+> = {
+  nome_empresa: "empresa",
+  email: "empresa",
+  cpf_cnpj_empresa: "empresa",
+  telefone: "empresa",
+  ie: "empresa",
+  isento: "empresa",
+  complemento_empresa: "empresa",
+  cep_empresa: "empresa",
+  endereco_empresa: "empresa",
+  numero_empresa: "empresa",
+  bairro_empresa: "empresa",
+  cidade_empresa: "empresa",
+  estado_empresa: "empresa",
+  nome_representante: "representante",
+  cpf_representante: "representante",
+  nacionalidade_representante: "representante",
+  estado_civil_representante: "representante",
+  cargo_representante: "representante",
+  complemento_representante: "representante",
+  cep_representante: "representante",
+  endereco_representante: "representante",
+  numero_representante: "representante",
+  bairro_representante: "representante",
+  cidade_representante: "representante",
+  estado_representante: "representante",
+};
+
 export function CustomersPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [upsertCard, setUpsertCard] = useState<boolean>(false);
+  const [tab, setTab] = useState<"empresa" | "representante">("empresa");
   const [params, setParams] = useSearchParams();
-  const { customers } = useCustomers();
 
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState<number | "all">(10);
+
+  const { customers, pagination } = useCustomers({ page, limit });
   const { createCustomer } = useCreateCustomer();
   const { updateCustomer } = useUpdateCustomer();
-
   const { deactivateCustomer } = useDeactivateCustomer();
   const { activateCustomer } = useActivateCustomer();
 
@@ -64,6 +101,7 @@ export function CustomersPage() {
     handleSubmit,
     control,
     reset,
+    setError,
     formState: { errors },
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
@@ -75,14 +113,60 @@ export function CustomersPage() {
     }
   }, [customer, reset]);
 
-  const onSubmit = (data: CustomerFormData) => {
-    if (updateMode && customerId) {
-      updateCustomer({ id: customerId, data });
-    } else {
-      createCustomer(data);
-    }
-    console.log(data);
+  const duplicateFieldByMessage: Record<string, keyof CustomerFormData> = {
+    "CNPJ já cadastrado": "cpf_cnpj_empresa",
+    "E-mail já cadastrado": "email",
+    "IE já cadastrada": "ie",
+    "CPF do representante já cadastrado": "cpf_representante",
   };
+
+  const onSubmit = async (data: CustomerFormData) => {
+    const payload = {
+      ...data,
+      ie: data.isento ? null : data.ie,
+      ativo: true,
+    };
+
+    try {
+      if (updateMode && customerId) {
+        await updateCustomer({ id: customerId, data: payload });
+      } else {
+        await createCustomer(payload, {
+          onSuccess: () => {
+            setUpsertCard(false);
+          },
+        });
+      }
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        const message = error.response.data.message as string;
+        const field = duplicateFieldByMessage[message];
+
+        if (field) {
+          setError(field, { message });
+          const errorTab = fieldTabMap[field];
+          if (errorTab) setTab(errorTab);
+          return;
+        }
+      }
+
+      throw error;
+    }
+  };
+
+  const onInvalid = (invalidErrors: FieldErrors<CustomerFormData>) => {
+    const errorField = Object.keys(invalidErrors)[0] as keyof CustomerFormData;
+    const errorTab = fieldTabMap[errorField];
+    if (errorTab) setTab(errorTab);
+  };
+
+  function handleRowClick(customerId: number) {
+    setParams({ id: `${customerId}` });
+    if (customer) {
+      reset(customerToFormData(customer));
+    }
+    setUpsertCard(true);
+  }
 
   const columns = helper.columns([
     helper.accessor("nome_empresa", { header: "Nome" }),
@@ -98,7 +182,8 @@ export function CustomersPage() {
       cell: (info) => (
         <div className="flex justify-end items-center">
           <Button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setParams({
                 mode: "update",
                 id: info.row.original.id.toString(),
@@ -158,11 +243,22 @@ export function CustomersPage() {
           </Button>
         </div>
 
-        <DataTable table={table} />
+        <DataTable onRowClick={handleRowClick} table={table} />
+        <Pagination
+          page={pagination?.actual_page ?? 1}
+          totalPages={pagination?.total_pages ?? 1}
+          onPageChange={setPage}
+          limit={limit}
+          onLimitChange={(v) => {
+            setLimit(v);
+            setPage(1);
+          }}
+        />
       </div>
 
       {upsertCard && (
         <CustomerDialog
+          reset={reset}
           open={upsertCard}
           setOpen={setUpsertCard}
           register={register}
@@ -170,6 +266,9 @@ export function CustomersPage() {
           errors={errors}
           handleSubmit={handleSubmit}
           onSubmit={onSubmit}
+          onInvalid={onInvalid}
+          tab={tab}
+          setTab={setTab}
         />
       )}
     </PageLayout>

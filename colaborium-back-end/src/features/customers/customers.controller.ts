@@ -1,10 +1,11 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from "fastify";
 import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas";
 import customerService from "./customers.service";
+import { CustomerError } from "./customers.repository";
 
 type CustomerQuery = {
   page: number;
-  limit: number;
+  limit: number | "all";
 };
 
 type CustomerParams = {
@@ -37,6 +38,10 @@ class CustomerController {
 
       return reply.status(201).send(result[0]);
     } catch (error) {
+      if (error instanceof CustomerError) {
+        return reply.status(error.statusCode).send({ message: error.message });
+      }
+
       request.log.error(error);
       return reply.status(500).send({ error });
     }
@@ -78,6 +83,10 @@ class CustomerController {
 
       return reply.status(200).send(result[0]);
     } catch (error) {
+      if (error instanceof CustomerError) {
+        return reply.status(error.statusCode).send({ message: error.message });
+      }
+
       request.log.error(error);
       return reply.status(500).send({ error });
     }

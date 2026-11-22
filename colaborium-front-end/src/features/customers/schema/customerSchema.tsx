@@ -2,27 +2,32 @@ import { z } from "zod";
 
 export const customerSchema = z
   .object({
-    // Company information
-    nome_empresa: z.string({ error: () => "Nome obrigatório" }).trim().min(1, "Nome obrigatório"),
+    nome_empresa: z
+      .string({ error: () => "Nome obrigatório" })
+      .trim()
+      .min(1, "Nome obrigatório"),
     email: z.email("E-mail inválido"),
-    cnpj_cpf_empresa: z.string({ error: () => "CNPJ/CPF obrigatório" }).refine((e) => {
-      const digits = e.replace(/\D/g, "");
-      return digits.length === 14 || digits.length === 11;
-    }, "Quantidade de dígitos inválido"),
+    cpf_cnpj_empresa: z
+      .string({ error: () => "CNPJ/CPF obrigatório" })
+      .refine((e) => {
+        const digits = e.replace(/\D/g, "");
+        return digits.length === 14 || digits.length === 11;
+      }, "Quantidade de dígitos inválido"),
     telefone: z
       .string({ error: () => "Telefone obrigatório" })
       .refine(
         (e) => e.replace(/\D/g, "").length === 11,
         "Telefone deve ter 11 dígitos",
       ),
-    ie: z.string().max(14, "IE não deve conter mais que 14 dígitos").optional(),
+    ie: z.string().max(14, "IE não deve conter mais que 14 dígitos").nullable(),
     isento: z.boolean().optional(),
-
-    // Company location
     complemento_empresa: z.string().optional(),
     cep_empresa: z
       .string({ error: () => "CEP obrigatório" })
-      .refine((e) => e.replace(/\D/g, "").length === 8, "Quantidade de dígitos inválido"),
+      .refine(
+        (e) => e.replace(/\D/g, "").length === 8,
+        "Quantidade de dígitos inválido",
+      ),
     endereco_empresa: z
       .string({ error: () => "Endereço obrigatório" })
       .min(1, "Endereço obrigatório"),
@@ -38,22 +43,35 @@ export const customerSchema = z
     estado_empresa: z
       .string({ error: () => "Estado obrigatório" })
       .min(1, "Estado obrigatório"),
-
-    // Company representative information
-    cpf_representante: z.string({ error: () => "CPF obrigatório" }).refine((e) => {
-      const digits = e.replace(/\D/g, "");
-      return digits.length === 14 || digits.length === 11;
-    }, "Quantidade de dígitos inválido"),
-    nome_representante: z.string({ error: () => "Nome obrigatório" }).trim().min(1, "Nome obrigatório"),
-    nacionalidade_representante: z.string({ error: () => "Nacionalidade obrigatória" }).trim().min(1, "Nacionalidade obrigatória"),
-    estado_civil_representante: z.string({ error: () => "Estado Civil obrigatório" }).trim().min(1, "Estado Civil obrigatório"),
-    cargo_representante: z.string({ error: () => "Cargo obrigatório" }).trim().min(1, "Cargo obrigatório"),
-
-    // Company representative location
+    cpf_representante: z
+      .string({ error: () => "CPF obrigatório" })
+      .refine((e) => {
+        const digits = e.replace(/\D/g, "");
+        return digits.length === 14 || digits.length === 11;
+      }, "Quantidade de dígitos inválido"),
+    nome_representante: z
+      .string({ error: () => "Nome obrigatório" })
+      .trim()
+      .min(1, "Nome obrigatório"),
+    nacionalidade_representante: z
+      .string({ error: () => "Nacionalidade obrigatória" })
+      .trim()
+      .min(1, "Nacionalidade obrigatória"),
+    estado_civil_representante: z
+      .string({ error: () => "Estado Civil obrigatório" })
+      .trim()
+      .min(1, "Estado Civil obrigatório"),
+    cargo_representante: z
+      .string({ error: () => "Cargo obrigatório" })
+      .trim()
+      .min(1, "Cargo obrigatório"),
     complemento_representante: z.string().optional(),
     cep_representante: z
       .string({ error: () => "CEP obrigatório" })
-      .refine((e) => e.replace(/\D/g, "").length === 8, "Quantidade de dígitos inválido"),
+      .refine(
+        (e) => e.replace(/\D/g, "").length === 8,
+        "Quantidade de dígitos inválido",
+      ),
     endereco_representante: z
       .string({ error: () => "Endereço obrigatório" })
       .min(1, "Endereço obrigatório"),
