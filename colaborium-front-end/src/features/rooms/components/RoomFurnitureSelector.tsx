@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import type { Room } from "../types";
+import { useState } from "react";
+import type { RoomResponse } from "../types/RoomResponse";
 
 type FurnitureItem = {
-    id: string;
-    name: string;
+  id: string;
+  name: string;
 };
 
 type FurnitureSelection = {
@@ -21,16 +21,25 @@ const furnitureItems: FurnitureItem[] = [
 ];
 
 interface RoomFurnitureSelectorProps {
-    room?: Room;
+  room?: RoomResponse;
 }
 
-export function RoomFurnitureSelector({room}: RoomFurnitureSelectorProps) {
+export function RoomFurnitureSelector({ room }: RoomFurnitureSelectorProps) {
   const [selections, setSelections] = useState<
     Record<string, FurnitureSelection>
   >({
-    tables: { selected: (room?.qt_table ?? 0) > 0, quantity: room?.qt_table ?? 0 },
-    chairs: { selected: (room?.qt_chair ?? 0) > 0, quantity: room?.qt_chair ?? 0 },
-    "air-conditioners": { selected: (room?.qt_airconditioner ?? 0) > 0, quantity: room?.qt_airconditioner ?? 0 }
+    tables: {
+      selected: (room?.qtd_mesa ?? 0) > 0,
+      quantity: room?.qtd_mesa ?? 0,
+    },
+    chairs: {
+      selected: (room?.capacidade ?? 0) > 0,
+      quantity: room?.capacidade ?? 0,
+    },
+    "air-conditioners": {
+      selected: (room?.qtd_arcondicionado ?? 0) > 0,
+      quantity: room?.qtd_arcondicionado ?? 0,
+    },
   });
 
   function handleCheckboxChange(id: string, checked: boolean) {
@@ -63,23 +72,20 @@ export function RoomFurnitureSelector({room}: RoomFurnitureSelectorProps) {
 
   return (
     <div className="mt-4">
+      <input
+        type="hidden"
+        name="furniture"
+        value={JSON.stringify(
+          Object.entries(selections)
+            .filter(([, selection]) => selection.selected)
+            .map(([id, selection]) => ({
+              id,
+              quantity: selection.quantity,
+            })),
+        )}
+      />
 
-        <input
-            type="hidden"
-            name="furniture"
-            value={JSON.stringify(
-                Object.entries(selections)
-                .filter(([, selection]) => selection.selected)
-                .map(([id, selection]) => ({
-                    id,
-                    quantity: selection.quantity,
-                }))
-            )}
-        />
-
-      <Label className="font-semibold mb-3">
-        Lista de móveis disponíveis
-      </Label>
+      <Label className="font-semibold mb-3">Lista de móveis disponíveis</Label>
 
       <div className="space-y-2">
         {furnitureItems.map((item) => {
@@ -102,9 +108,7 @@ export function RoomFurnitureSelector({room}: RoomFurnitureSelectorProps) {
                   }
                 />
 
-                <span className="truncate font-medium">
-                  {item.name}
-                </span>
+                <span className="truncate font-medium">{item.name}</span>
               </label>
 
               <Input

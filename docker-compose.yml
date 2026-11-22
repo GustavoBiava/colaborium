@@ -14,6 +14,7 @@ services:
       DB_NAME: colaborium_db
       DB_USER: colaborium_teste
       DB_PASSWORD: colaborium123
+      JWT_EXPIRES_IN: "15m"
     volumes:
       - ./colaborium-back-end:/app
       - /app/node_modules

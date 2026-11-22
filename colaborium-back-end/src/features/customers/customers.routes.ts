@@ -51,14 +51,17 @@ export async function customerRoutes(app: FastifyInstance) {
     },
   }, customerController.updateCustomerHandler.bind(customerController));
 
-  // EXCLUIR CLIENTE
-  app.delete("/clientes/:id", {
+  // ATIVAR OU DESATIVAR CLIENTE
+  app.patch("/clientes/:id/ativo", {
     schema: {
       tags: ["Clientes"],
-      summary: "Excluir um cliente",
+      summary: "Ativar ou desativar um cliente",
       params: z.object({
         id: z.coerce.number().int().positive(),
       }),
+      body: z.object({
+        ativo: z.boolean(),
+      }),
     },
-  }, customerController.deleteCustomerHandler.bind(customerController));
+  }, customerController.updateCustomerActiveHandler.bind(customerController));
 }

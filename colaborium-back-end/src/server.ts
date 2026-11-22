@@ -1,6 +1,7 @@
-
 import { fastify } from "fastify";
 import { db } from "./config/database";
+import { registerAuth } from "./config/auth";
+import { authRoutes } from "./features/auth/auth.routes";
 
 // Rotas dos módulos
 import { roomsRoutes } from "./features/rooms/rooms.routes";
@@ -47,6 +48,12 @@ app.register(fastifySwagger, {
   transform: jsonSchemaTransform,
 });
 
+// Registrar autenticação
+await registerAuth(app);
+
+// Rotas públicas
+app.register(authRoutes);
+
 // Interface visual do Swagger
 if (process.env.NODE_ENV !== "production") {
   app.register(fastifySwaggerUi, {
@@ -54,62 +61,74 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-// Registro das rotas
-app.register(roomsRoutes);
-app.register(contractsRoutes);
-app.register(appointmentsRoutes);
-app.register(usersRoutes);
-app.register(customerRoutes);
+// Rotas protegidas
+app.register(async (protectedApp) => {
+  protectedApp.addHook("preHandler", protectedApp.authenticate);
+
+  protectedApp.register(roomsRoutes);
+  protectedApp.register(contractsRoutes);
+  protectedApp.register(appointmentsRoutes);
+  protectedApp.register(usersRoutes);
+  protectedApp.register(customerRoutes);
+});
 
 // Rota para testar o funcionamento da API
-app.get("/health", {
-  schema: {
-    tags: ["Sistema"],
-    summary: "Verificar funcionamento da API",
-    description: "Retorna o status do servidor",
+app.get(
+  "/health",
+  {
+    schema: {
+      tags: ["Sistema"],
+      summary: "Verificar funcionamento da API",
+      description: "Retorna o status do servidor",
+    },
   },
-}, async () => {
-  return {
-    status: "ok",
-    message: "Colaborium API funcionando!",
-  };
-});
-
-// Verificar conexão com PostgreSQL
-app.get("/health/database", {
-  schema: {
-    tags: ["Sistema"],
-    summary: "Testar conexão com PostgreSQL",
-    description: "Verifica se a API consegue acessar o banco",
-  },
-}, async (request, reply) => {
-  try {
-    const result = await db.query(
-      "SELECT CURRENT_DATABASE() AS banco, NOW() AS horario"
-    );
-
+  async () => {
     return {
       status: "ok",
-      message: "PostgreSQL conectado com sucesso!",
-      database: result.rows[0].banco,
-      horario: result.rows[0].horario,
+      message: "Colaborium API funcionando!",
     };
-  } catch (error) {
-    request.log.error(error);
+  },
+);
 
-    return reply.status(503).send({
-      status: "error",
-      message: "Não foi possível conectar ao PostgreSQL",
-    });
-  }
-});
+// Verificar conexão com PostgreSQL
+app.get(
+  "/health/database",
+  {
+    schema: {
+      tags: ["Sistema"],
+      summary: "Testar conexão com PostgreSQL",
+      description: "Verifica se a API consegue acessar o banco",
+    },
+  },
+  async (request, reply) => {
+    try {
+      const result = await db.query(
+        "SELECT CURRENT_DATABASE() AS banco, NOW() AS horario",
+      );
+
+      return {
+        status: "ok",
+        message: "PostgreSQL conectado com sucesso!",
+        database: result.rows[0].banco,
+        horario: result.rows[0].horario,
+      };
+    } catch (error) {
+      request.log.error(error);
+
+      return reply.status(503).send({
+        status: "error",
+        message: "Não foi possível conectar ao PostgreSQL",
+      });
+    }
+  },
+);
 
 // Inicialização do servidor
 async function start() {
   try {
     await app.listen({
-      port: Number(process.env.PORT ?? 3333),
-      host: "0.0.0.0",
+      port: Number(process.env.DB_PORT ?? 3333),
+      // host: "0.0.0.0",
     });
   } catch (error) {
     app.log.error(error);

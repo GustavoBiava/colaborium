@@ -1,24 +1,65 @@
-
 import { db } from "../../config/database";
 import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas";
 
-class CustomerRepository {
+export class CustomerError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "CustomerError";
+  }
+}
 
-    async getCustomersPaginated(limit: number, offset: number) {
-        const query = `
+class CustomerRepository {
+  async findDuplicate(
+    customer: createCustomerDTO | updateCustomerDTO,
+    excludeId?: number,
+  ) {
+    const query = `
+            SELECT cpf_cnpj_empresa, email, ie, cpf_representante
+            FROM public.cliente
+            WHERE id != $5
+            AND (
+                cpf_cnpj_empresa = $1
+                OR email = $2
+                OR (ie IS NOT NULL AND ie = $3)
+                OR cpf_representante = $4
+            )
+        `;
+
+    const result = await db.query(query, [
+      customer.cpf_cnpj_empresa,
+      customer.email,
+      customer.ie,
+      customer.cpf_representante,
+      excludeId ?? 0,
+    ]);
+
+    return result.rows[0] ?? null;
+  }
+
+  async getCustomersPaginated(limit: number, offset: number) {
+    const query = `
             SELECT *
             FROM public.cliente
             ORDER BY id ASC
             LIMIT $1 OFFSET $2
         `;
 
-        const result = await db.query(query, [limit, offset]);
-        return result.rows;
-    }
+    const result = await db.query(query, [limit, offset]);
+    return result.rows;
+  }
 
-    async createCustomer(customer: createCustomerDTO) {
-        const result = await db.query(
-            `INSERT INTO public.cliente (
+  async getAllCustomers() {
+    const query = `SELECT * FROM public.cliente ORDER BY id ASC`;
+    const result = await db.query(query);
+    return result.rows;
+  }
+
+  async createCustomer(customer: createCustomerDTO) {
+    const result = await db.query(
+      `INSERT INTO public.cliente (
                 nome_empresa,
                 cpf_cnpj_empresa,
                 ie,
@@ -53,52 +94,52 @@ class CustomerRepository {
                 $25
             )
             RETURNING id`,
-            [
-                customer.nome_empresa,
-                customer.cpf_cnpj_empresa,
-                customer.ie,
-                customer.email,
-                customer.telefone,
-                customer.endereco_empresa,
-                customer.numero_empresa,
-                customer.complemento_empresa ?? null,
-                customer.bairro_empresa,
-                customer.cidade_empresa,
-                customer.estado_empresa,
-                customer.cep_empresa,
-                customer.nome_representante,
-                customer.cpf_representante,
-                customer.nacionalidade_representante ?? null,
-                customer.estado_civil_representante,
-                customer.cargo_representante,
-                customer.endereco_representante,
-                customer.numero_representante,
-                customer.complemento_representante ?? null,
-                customer.bairro_representante,
-                customer.cidade_representante,
-                customer.estado_representante,
-                customer.cep_representante,
-                true
-            ]
-        );
+      [
+        customer.nome_empresa,
+        customer.cpf_cnpj_empresa,
+        customer.ie,
+        customer.email,
+        customer.telefone,
+        customer.endereco_empresa,
+        customer.numero_empresa,
+        customer.complemento_empresa ?? null,
+        customer.bairro_empresa,
+        customer.cidade_empresa,
+        customer.estado_empresa,
+        customer.cep_empresa,
+        customer.nome_representante,
+        customer.cpf_representante,
+        customer.nacionalidade_representante ?? null,
+        customer.estado_civil_representante,
+        customer.cargo_representante,
+        customer.endereco_representante,
+        customer.numero_representante,
+        customer.complemento_representante ?? null,
+        customer.bairro_representante,
+        customer.cidade_representante,
+        customer.estado_representante,
+        customer.cep_representante,
+        true,
+      ],
+    );
 
-        return result.rows;
-    }
+    return result.rows;
+  }
 
-    async getCustomer(id: number) {
-        const query = `
+  async getCustomer(id: number) {
+    const query = `
             SELECT *
             FROM public.cliente
             WHERE id = $1
         `;
 
-        const result = await db.query(query, [id]);
-        return result.rows;
-    }
+    const result = await db.query(query, [id]);
+    return result.rows;
+  }
 
-    async updateUser(id: number, customer: updateCustomerDTO) {
-        const result = await db.query(
-            `UPDATE public.cliente
+  async updateUser(id: number, customer: updateCustomerDTO) {
+    const result = await db.query(
+      `UPDATE public.cliente
             SET
                 nome_empresa = $1,
                 cpf_cnpj_empresa = $2,
@@ -127,52 +168,56 @@ class CustomerRepository {
                 ativo = $25
             WHERE id = $26
             RETURNING id`,
-            [
-                customer.nome_empresa,
-                customer.cpf_cnpj_empresa,
-                customer.ie,
-                customer.email,
-                customer.telefone,
-                customer.endereco_empresa,
-                customer.numero_empresa,
-                customer.complemento_empresa ?? null,
-                customer.bairro_empresa,
-                customer.cidade_empresa,
-                customer.estado_empresa,
-                customer.cep_empresa,
-                customer.nome_representante,
-                customer.cpf_representante,
-                customer.nacionalidade_representante ?? null,
-                customer.estado_civil_representante,
-                customer.cargo_representante,
-                customer.endereco_representante,
-                customer.numero_representante,
-                customer.complemento_representante ?? null,
-                customer.bairro_representante,
-                customer.cidade_representante,
-                customer.estado_representante,
-                customer.cep_representante,
-                customer.ativo,
-                id
-            ]
-        );
+      [
+        customer.nome_empresa,
+        customer.cpf_cnpj_empresa,
+        customer.ie,
+        customer.email,
+        customer.telefone,
+        customer.endereco_empresa,
+        customer.numero_empresa,
+        customer.complemento_empresa ?? null,
+        customer.bairro_empresa,
+        customer.cidade_empresa,
+        customer.estado_empresa,
+        customer.cep_empresa,
+        customer.nome_representante,
+        customer.cpf_representante,
+        customer.nacionalidade_representante ?? null,
+        customer.estado_civil_representante,
+        customer.cargo_representante,
+        customer.endereco_representante,
+        customer.numero_representante,
+        customer.complemento_representante ?? null,
+        customer.bairro_representante,
+        customer.cidade_representante,
+        customer.estado_representante,
+        customer.cep_representante,
+        customer.ativo,
+        id,
+      ],
+    );
 
-        return result.rows;
-    }
+    return result.rows;
+  }
 
-    async deleteCustomer(id: number) {
-        await db.query(
-            `DELETE FROM public.cliente WHERE id = $1`,
-            [id]
-        );
-    }
+  async updateCustomerActive(id: number, ativo: boolean) {
+    const result = await db.query(
+      `UPDATE public.cliente
+            SET ativo = $1
+            WHERE id = $2
+            RETURNING id`,
+      [ativo, id],
+    );
 
-    async countTotal() {
-        const query = 'SELECT COUNT(*) FROM public.cliente';
-        const result = await db.query(query);
-        return parseInt(result.rows[0].count, 10);
-    }
+    return result.rows;
+  }
 
+  async countTotal() {
+    const query = "SELECT COUNT(*) FROM public.cliente";
+    const result = await db.query(query);
+    return parseInt(result.rows[0].count, 10);
+  }
 }
 
 export default new CustomerRepository();

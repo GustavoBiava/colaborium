@@ -4,14 +4,31 @@ import { Eye, EyeOff } from "lucide-react";
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
+import { useAuth } from "@/features/auth/AuthContext";
+import { useNavigate } from "react-router";
 
 export default function LoginForm() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+
   const [showPassword, setShowPassword] = useState(false);
 
-  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    console.log("Login form submitted");
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "")
+    const senha = String(formData.get("password") ?? "")
+
+    setError(null)
+
+    try {
+      await login(email, senha);
+      navigate("/")
+    } catch {
+      setError("E-mail ou senha inválidos.")
+    }
   }
 
   return (
@@ -72,6 +89,7 @@ export default function LoginForm() {
         </div>
 
         {/* Submit */}
+        {error && <p className="text-sm text-red-500">{error}</p>}
         <Button
           type="submit"
           className="group relative w-full bg-white text-black overflow-hidden hover:bg-gray-200 mt-5 cursor-pointer"
