@@ -2,25 +2,21 @@ import type { ReceivableResponse } from "../types/ReceivableResponse";
 import { KANBAN_COLUMNS } from "../utils/receivableStatus";
 import { ReceivableKanbanColumn } from "./ReceivableKanbanColumn";
 
-// props: todas as contas (sem paginar) e ação de baixa
 interface ReceivableKanbanProps {
-  receivables: ReceivableResponse[];
+  search: string;
   onSettle: (receivable: ReceivableResponse) => void;
 }
 
-// 3 colunas por status. só separação visual, sem arrastar
-export function ReceivableKanban({
-  receivables,
-  onSettle,
-}: ReceivableKanbanProps) {
+export function ReceivableKanban({ search, onSettle }: ReceivableKanbanProps) {
   return (
-    <div className="flex flex-row gap-3 w-full">
+    <div className="flex flex-row gap-3 w-full min-h-0 flex-1">
       {KANBAN_COLUMNS.map((column) => (
         <ReceivableKanbanColumn
           key={column.status}
           title={column.title}
           dotClass={column.dotClass}
-          receivables={receivables.filter((r) => r.status === column.status)}
+          status={column.status}
+          search={search}
           onSettle={onSettle}
         />
       ))}

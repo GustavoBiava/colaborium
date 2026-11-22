@@ -5,7 +5,6 @@ type SegmentedOption<T extends string> = {
   label: string;
 };
 
-// props: opções, valor atual e callback de troca
 interface SegmentedControlProps<T extends string> {
   options: SegmentedOption<T>[];
   value: T;
@@ -13,7 +12,6 @@ interface SegmentedControlProps<T extends string> {
   ariaLabel: string;
 }
 
-// grupo de botões, só um ativo por vez
 export function SegmentedControl<T extends string>({
   options,
   value,
@@ -24,7 +22,7 @@ export function SegmentedControl<T extends string>({
     <div
       role="group"
       aria-label={ariaLabel}
-      className="flex items-center gap-1 rounded-xs border border-neutral-200 bg-neutral-50 p-1"
+      className="flex items-center gap-1 rounded-xs border border-neutral-200 bg-neutral-50"
     >
       {options.map((option) => (
         <Button

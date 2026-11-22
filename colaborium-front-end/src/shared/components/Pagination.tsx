@@ -32,7 +32,7 @@ export function Pagination({
   const isLast = page === totalPages;
 
   return (
-    <div className="flex items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 py-2.5 relative">
+    <div className="flex items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 py-1 relative">
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"

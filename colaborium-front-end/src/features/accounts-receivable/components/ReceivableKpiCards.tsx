@@ -3,7 +3,6 @@ import { cn } from "cn";
 import type { ReceivableSummary } from "../types/ReceivableSummary";
 import { formatCurrency } from "../utils/formatCurrency";
 
-// props: totais do resumo (undefined enquanto carrega)
 interface ReceivableKpiCardsProps {
   summary?: ReceivableSummary;
 }
@@ -14,7 +13,6 @@ type KpiItem = {
   valueClass: string;
 };
 
-// 4 cards do topo
 export function ReceivableKpiCards({ summary }: ReceivableKpiCardsProps) {
   const items: KpiItem[] = [
     {
@@ -42,10 +40,10 @@ export function ReceivableKpiCards({ summary }: ReceivableKpiCardsProps) {
   return (
     <div className="flex flex-row gap-2">
       {items.map((item) => (
-        <Card key={item.label} className="rounded-xs w-full">
+        <Card key={item.label} className="rounded-xs w-full py-3">
           <CardContent className="flex flex-col gap-1">
             <span className="text-sm text-neutral-500">{item.label}</span>
-            <span className={cn("text-2xl font-bold", item.valueClass)}>
+            <span className={cn("text-1xl font-bold", item.valueClass)}>
               {formatCurrency(item.value)}
             </span>
           </CardContent>

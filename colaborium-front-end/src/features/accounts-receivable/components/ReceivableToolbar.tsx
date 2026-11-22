@@ -5,7 +5,6 @@ import { SegmentedControl } from "./SegmentedControl";
 
 export type ReceivableView = "lista" | "kanban";
 
-// props: busca, filtro de status e modo de exibição (lista/kanban)
 interface ReceivableToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
@@ -27,7 +26,6 @@ const VIEW_OPTIONS: { value: ReceivableView; label: string }[] = [
   { value: "kanban", label: "Kanban" },
 ];
 
-// barra acima da tabela. busca espera 300ms depois de digitar
 export function ReceivableToolbar({
   search,
   onSearchChange,
@@ -49,7 +47,7 @@ export function ReceivableToolbar({
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Buscar cliente ou documento..."
-        className="min-w-64 flex-1"
+        className="min-w-64 flex-1 rounded-xs"
       />
 
       <SegmentedControl

@@ -27,16 +27,16 @@ async function fetchReceivables(
   filters: ReceivableFilters,
 ): Promise<PaginatedReceivables> {
   const { data } = await api.get<PaginatedReceivables>("/contas-receber", {
-    // busca vazia não vai na querystring
     params: { ...filters, search: filters.search || undefined },
   });
   return data;
 }
 
-export function useReceivables(filters: ReceivableFilters = {}) {
+export function useReceivables(filters?: ReceivableFilters) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["receivables", filters],
-    queryFn: () => fetchReceivables(filters),
+    queryFn: () => fetchReceivables(filters ?? {}),
+    enabled: filters !== undefined,
   });
 
   return {

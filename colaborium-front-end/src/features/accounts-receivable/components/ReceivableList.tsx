@@ -16,8 +16,8 @@ import type { ReceivableResponse } from "../types/ReceivableResponse";
 import { formatCurrency } from "../utils/formatCurrency";
 import { formatDate } from "../utils/formatDate";
 import { ReceivableStatusBadge } from "./ReceivableStatusBadge";
+import { Download } from "lucide-react";
 
-// mesmas features da tabela de clientes (DataTable espera esse tipo)
 export const features = tableFeatures({
   rowSortingFeature,
   rowPaginationFeature,
@@ -25,15 +25,9 @@ export const features = tableFeatures({
   sortFns: { alphanumeric: sortFn_alphanumeric },
 });
 
-// colunas que a lista usa
 interface ReceivableColumns extends Pick<
   ReceivableResponse,
-  | "id"
-  | "cliente_nome"
-  | "descricao"
-  | "data_vencimento"
-  | "valor"
-  | "status"
+  "id" | "cliente_nome" | "descricao" | "data_vencimento" | "valor" | "status"
 > {}
 
 const helper = createColumnHelper<typeof features, ReceivableColumns>();
@@ -43,7 +37,6 @@ type PaginationInfo = {
   total_pages: number;
 };
 
-// props: dados da página, paginação server-side e ação de baixa
 interface ReceivableListProps {
   receivables: ReceivableResponse[];
   pagination?: PaginationInfo;
@@ -53,7 +46,6 @@ interface ReceivableListProps {
   onSettle: (receivable: ReceivableResponse) => void;
 }
 
-// tabela de contas + paginação
 export function ReceivableList({
   receivables,
   pagination,
@@ -91,7 +83,9 @@ export function ReceivableList({
       id: "actions",
       header: "Ações",
       cell: (info) => {
-        const receivable = receivables.find((r) => r.id === info.row.original.id);
+        const receivable = receivables.find(
+          (r) => r.id === info.row.original.id,
+        );
         if (!receivable || receivable.status === "recebido") return null;
 
         return (
@@ -102,7 +96,7 @@ export function ReceivableList({
               onSettle(receivable);
             }}
           >
-            Dar baixa
+            <Download />
           </Button>
         );
       },
@@ -118,9 +112,10 @@ export function ReceivableList({
   });
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* linha não é clicável nesta tela */}
-      <DataTable table={table} onRowClick={() => {}} />
+    <div className="flex flex-col gap-5 min-h-0 flex-1">
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <DataTable table={table} onRowClick={() => {}} />
+      </div>
       <Pagination
         page={pagination?.actual_page ?? 1}
         totalPages={pagination?.total_pages ?? 1}

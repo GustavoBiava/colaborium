@@ -1,6 +1,5 @@
 import { PageLayout } from "@/shared/components/layout/PageLayout";
-import { Button } from "@/shared/components/ui/button";
-import { Plus, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { ReceivableDialog } from "./components/ReceivableDialog";
@@ -23,7 +22,6 @@ import type {
   ReceivableStatusFilter,
 } from "./types/ReceivableResponse";
 
-// tela Contas a Receber: cards + busca/filtros + lista ou kanban
 export function AccountsReceivablePage() {
   const [status, setStatus] = useState<ReceivableStatusFilter>("todos");
   const [search, setSearch] = useState("");
@@ -39,18 +37,13 @@ export function AccountsReceivablePage() {
 
   const isKanban = view === "kanban";
 
-  // kanban precisa de todas as contas, lista usa paginação do back
-  const { receivables, pagination } = useReceivables({
-    page: isKanban ? 1 : page,
-    limit: isKanban ? "all" : limit,
-    status,
-    search,
-  });
+  const { receivables, pagination } = useReceivables(
+    isKanban ? undefined : { page, limit, status, search },
+  );
   const { summary } = useReceivableSummary();
   const { createReceivable } = useCreateReceivable();
   const { settleReceivable } = useSettleReceivable();
 
-  // trocar busca ou filtro volta pra página 1
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
     setPage(1);
@@ -74,7 +67,6 @@ export function AccountsReceivablePage() {
   const handleCreate = (data: ReceivableFormData) =>
     createReceivable({
       ...data,
-      // texto vazio vira null
       descricao: data.descricao?.trim() || null,
     });
 
@@ -88,30 +80,23 @@ export function AccountsReceivablePage() {
       pageTitle="Contas a Receber"
       Icon={Wallet}
       subtitle="Gerencie suas contas a receber"
+      fullHeight
     >
       <ReceivableKpiCards summary={summary} />
-      <div className="flex flex-col gap-5">
-        <div className="flex w-full flex-col items-end gap-5">
-          <Button onClick={() => setCreateOpen(true)} className="w-40">
-            <Plus size={18} />
-            <p>Nova conta</p>
-          </Button>
+      <div className="flex flex-col gap-5 min-h-0 flex-1">
+        <div className="shrink-0">
+          <ReceivableToolbar
+            search={search}
+            onSearchChange={handleSearchChange}
+            status={status}
+            onStatusChange={handleStatusChange}
+            view={view}
+            onViewChange={setView}
+          />
         </div>
 
-        <ReceivableToolbar
-          search={search}
-          onSearchChange={handleSearchChange}
-          status={status}
-          onStatusChange={handleStatusChange}
-          view={view}
-          onViewChange={setView}
-        />
-
         {isKanban ? (
-          <ReceivableKanban
-            receivables={receivables}
-            onSettle={handleOpenSettle}
-          />
+          <ReceivableKanban search={search} onSettle={handleOpenSettle} />
         ) : (
           <ReceivableList
             receivables={receivables}
