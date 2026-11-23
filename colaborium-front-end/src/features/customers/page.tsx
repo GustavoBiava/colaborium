@@ -33,7 +33,7 @@ import { Pagination } from "@/shared/components/Pagination";
 interface CustomerColumns extends Pick<
   CustomerResponse,
   "nome_empresa" | "telefone" | "ativo" | "email" | "id"
-> {}
+> { }
 
 export const features = tableFeatures({
   rowSortingFeature,
@@ -108,10 +108,10 @@ export function CustomersPage() {
   });
 
   useEffect(() => {
-    if (customer) {
+    if (updateMode && customer && customer.id === customerId) {
       reset(customerToFormData(customer));
     }
-  }, [customer, reset]);
+  }, [customer, customerId, updateMode, reset]);
 
   const duplicateFieldByMessage: Record<string, keyof CustomerFormData> = {
     "CNPJ já cadastrado": "cpf_cnpj_empresa",
@@ -124,12 +124,15 @@ export function CustomersPage() {
     const payload = {
       ...data,
       ie: data.isento ? null : data.ie,
-      ativo: true,
+      ativo: updateMode ? (customer?.ativo ?? true) : true,
     };
 
     try {
       if (updateMode && customerId) {
         await updateCustomer({ id: customerId, data: payload });
+
+        setUpsertCard(false);
+        setParams({});
       } else {
         await createCustomer(payload, {
           onSuccess: () => {
@@ -161,10 +164,8 @@ export function CustomersPage() {
   };
 
   function handleRowClick(customerId: number) {
-    setParams({ id: `${customerId}` });
-    if (customer) {
-      reset(customerToFormData(customer));
-    }
+    setTab("empresa");
+    setParams({ id: `${customerId}`, mode: "update" });
     setUpsertCard(true);
   }
 
@@ -197,14 +198,20 @@ export function CustomersPage() {
 
           {info.row.original.ativo ? (
             <Button
-              onClick={() => deactivateCustomer({ id: info.row.original.id })}
+              onClick={(e) => {
+                e.stopPropagation();
+                deactivateCustomer({ id: info.row.original.id });
+              }}
               className="bg-white hover:bg-neutral-200 px-2.5"
             >
               <Trash color="black" />
             </Button>
           ) : (
             <Button
-              onClick={() => activateCustomer({ id: info.row.original.id })}
+              onClick={(e) => {
+                e.stopPropagation();
+                activateCustomer({ id: info.row.original.id });
+              }}
               className="bg-white hover:bg-neutral-200 px-2.5"
             >
               <RotateCcw color="black" />
@@ -233,6 +240,8 @@ export function CustomersPage() {
         <div className="flex flex-col gap-5 w-full items-end">
           <Button
             onClick={() => {
+              reset();
+              setTab("empresa");
               setUpsertCard(true);
               setParams({ mode: "create" });
             }}
