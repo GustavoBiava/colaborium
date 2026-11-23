@@ -6,8 +6,15 @@ export async function cadastrarSala(data: RoomInput) {
   return repository.createRoom(data);
 }
 
-export async function listarSalas() {
-  return repository.listRooms();
+export async function listarSalas(incluirInativos: boolean) {
+  return repository.listRooms(incluirInativos);
+}
+
+export async function listarSalasDisponiveis(
+  dataInicio: string,
+  dataFim: string
+) {
+  return repository.listAvailableRooms(dataInicio, dataFim);
 }
 
 export async function buscarSala(id: number) {

@@ -13,8 +13,24 @@ export async function cadastrar(
 }
 
 // LISTAR
-export async function listar(reply: FastifyReply) {
-  const salas = await service.listarSalas();
+export async function listar(
+  incluirInativos: boolean,
+  reply: FastifyReply
+) {
+  const salas = await service.listarSalas(incluirInativos);
+  return reply.status(200).send(salas);
+}
+
+// LISTAR DISPONÍVEIS NO PERÍODO
+export async function listarDisponiveis(
+  dataInicio: string,
+  dataFim: string,
+  reply: FastifyReply
+) {
+  const salas = await service.listarSalasDisponiveis(
+    dataInicio,
+    dataFim
+  );
   return reply.status(200).send(salas);
 }
 
