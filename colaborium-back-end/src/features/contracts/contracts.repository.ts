@@ -7,7 +7,7 @@ export type ContractInput = {
   data_inicio: string;
   data_fim: string;
   valor_base: number;
-  periodo: string;
+  periodo: number;
   observacao?: string | null;
   salas: number[];
 };

@@ -1,7 +1,7 @@
 import { PDFDocument } from "pdf-lib";
-import type { Contract } from "../types";
+import type { ContractResponse } from "../types/ContractResponse";
 
-export async function generateContract(contract: Contract) {
+export async function generateContract(contract: ContractResponse) {
     const response = await fetch("/contract-template.pdf")
     const templateBytes = await response.arrayBuffer()
 
@@ -10,7 +10,7 @@ export async function generateContract(contract: Contract) {
     const form = pdfDoc.getForm()
 
     const clienteId = String(contract.cliente_id)
-    const salaId = String(contract.sala_id)
+    const salaId = contract.salas.map((sala) => sala.nome).join(", ")
     const dataInicio = String(contract.data_inicio)
     const dataFim = String(contract.data_fim)
 
@@ -23,7 +23,7 @@ export async function generateContract(contract: Contract) {
 
     const pdfBytes = await pdfDoc.save();
 
-    // const blob = new Blob([pdfBytes], {type: "application/pdf"})
+    const blob = new Blob([pdfBytes], { type: "application/pdf" })
 
     const url = URL.createObjectURL(blob)
 
