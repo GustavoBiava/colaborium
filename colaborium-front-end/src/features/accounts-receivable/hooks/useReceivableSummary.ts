@@ -9,7 +9,6 @@ async function fetchReceivableSummary(): Promise<ReceivableSummary> {
 
 export function useReceivableSummary() {
   const { data, isLoading, isError, error } = useQuery({
-    // chave começa com "receivables": baixa/criação invalida lista e resumo juntos
     queryKey: ["receivables", "summary"],
     queryFn: fetchReceivableSummary,
   });

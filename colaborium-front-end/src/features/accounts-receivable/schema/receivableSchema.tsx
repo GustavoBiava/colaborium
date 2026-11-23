@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// form "Nova conta"
 export const receivableSchema = z
   .object({
     cliente_id: z

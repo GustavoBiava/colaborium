@@ -39,7 +39,7 @@ export const customerSchema = z
       .min(1, "Bairro obrigatório"),
     cidade_empresa: z
       .string({ error: () => "Cidade obrigatória" })
-      .min(1, "Cidade obrigatória"), //should we use a external api to feed our selects?
+      .min(1, "Cidade obrigatória"),
     estado_empresa: z
       .string({ error: () => "Estado obrigatório" })
       .min(1, "Estado obrigatório"),
@@ -83,7 +83,7 @@ export const customerSchema = z
       .min(1, "Bairro obrigatório"),
     cidade_representante: z
       .string({ error: () => "Cidade obrigatória" })
-      .min(1, "Cidade obrigatória"), //should we use a external api to feed our selects?
+      .min(1, "Cidade obrigatória"),
     estado_representante: z
       .string({ error: () => "Estado obrigatório" })
       .min(1, "Estado obrigatório"),

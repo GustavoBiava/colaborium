@@ -7,11 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/shared/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import {
   Select,
@@ -34,13 +30,11 @@ import { todayIso } from "../utils/formatDate";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { PAYMENT_METHODS } from "../utils/receivableStatus";
 
-// props: conta alvo da baixa + envio do form (a página chama a API)
 interface SettleDialogProps extends DialogProps {
   receivable: ReceivableResponse | null;
   onSubmit: (data: SettleReceivableFormData) => Promise<unknown>;
 }
 
-// valores iniciais: paga hoje, valor cheio, sem juros/multa/desconto
 const buildDefaults = (
   receivable: ReceivableResponse | null,
 ): SettleReceivableFormData => ({
@@ -52,7 +46,6 @@ const buildDefaults = (
   valor_pago: receivable?.valor ?? 0,
 });
 
-// valor final sugerido: valor + juros + multa - desconto
 const calcTotal = (
   valor: number,
   juros: number,
@@ -62,7 +55,6 @@ const calcTotal = (
   Math.round((valor + (juros || 0) + (multa || 0) - (desconto || 0)) * 100) /
   100;
 
-// dialog "Dar baixa"
 export function SettleDialog({
   open,
   setOpen,
@@ -82,12 +74,10 @@ export function SettleDialog({
     defaultValues: buildDefaults(receivable),
   });
 
-  // troca de conta = form novo
   useEffect(() => {
     if (open) reset(buildDefaults(receivable));
   }, [open, receivable, reset]);
 
-  // recalcula valor pago quando juros/multa/desconto mudam
   const [juros, multa, desconto] = useWatch({
     control,
     name: ["juros", "multa", "desconto"],
@@ -98,7 +88,6 @@ export function SettleDialog({
     setValue("valor_pago", calcTotal(receivable.valor, juros, multa, desconto));
   }, [juros, multa, desconto, receivable, setValue]);
 
-  // envia e fecha. erro da API aparece no fim do form
   const submit = async (data: SettleReceivableFormData) => {
     try {
       await onSubmit(data);

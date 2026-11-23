@@ -1,12 +1,10 @@
 import { z } from "zod";
 
-// valor numérico >= 0 (juros, multa, desconto)
 const moneyField = (label: string) =>
   z
     .number({ error: () => `${label} inválido` })
     .min(0, `${label} não pode ser negativo`);
 
-// form "Dar baixa"
 export const settleReceivableSchema = z.object({
   data_pagamento: z
     .string({ error: () => "Data do pagamento obrigatória" })

@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { ReceivableResponse } from "../types/ReceivableResponse";
 
-// body do POST /contas-receber
 type CreateReceivablePayload = {
   cliente_id: number;
   descricao?: string | null;

@@ -7,11 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/shared/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import {
   Select,
@@ -31,18 +27,15 @@ import {
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { todayIso } from "../utils/formatDate";
 
-// props: abre/fecha + envio do form (a página chama a API)
 interface ReceivableDialogProps extends DialogProps {
   onSubmit: (data: ReceivableFormData) => Promise<unknown>;
 }
 
-// valores iniciais do form
 const buildDefaults = (): Partial<ReceivableFormData> => ({
   descricao: "",
   data_emissao: todayIso(),
 });
 
-// dialog "Nova conta"
 export function ReceivableDialog({
   open,
   setOpen,
@@ -62,7 +55,6 @@ export function ReceivableDialog({
     defaultValues: buildDefaults(),
   });
 
-  // envia e fecha. erro da API aparece no topo do form
   const submit = async (data: ReceivableFormData) => {
     try {
       await onSubmit(data);

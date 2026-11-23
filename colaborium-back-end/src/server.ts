@@ -3,7 +3,6 @@ import { db } from "./config/database";
 import { registerAuth } from "./config/auth";
 import { authRoutes } from "./features/auth/auth.routes";
 
-// Rotas dos módulos
 import { roomsRoutes } from "./features/rooms/rooms.routes";
 import { contractsRoutes } from "./features/contracts/contracts.routes";
 import { appointmentsRoutes } from "./features/appointments/appointments.routes";
@@ -26,18 +25,15 @@ const app = fastify({
   logger: true,
 }).withTypeProvider<ZodTypeProvider>();
 
-// Configuração do Zod
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
 
-// Configuração do CORS
 app.register(fastifyCors, {
   origin: ["http://localhost:5173"],
   methods: ["POST", "PUT", "PATCH", "OPTIONS", "GET", "DELETE"],
   credentials: true,
 });
 
-// Configuração do Swagger
 app.register(fastifySwagger, {
   openapi: {
     info: {
@@ -49,20 +45,16 @@ app.register(fastifySwagger, {
   transform: jsonSchemaTransform,
 });
 
-// Registrar autenticação
 await registerAuth(app);
 
-// Rotas públicas
 app.register(authRoutes);
 
-// Interface visual do Swagger
 if (process.env.NODE_ENV !== "production") {
   app.register(fastifySwaggerUi, {
     routePrefix: "/docs",
   });
 }
 
-// Rotas protegidas
 app.register(async (protectedApp) => {
   protectedApp.addHook("preHandler", protectedApp.authenticate);
 
@@ -74,7 +66,6 @@ app.register(async (protectedApp) => {
   protectedApp.register(receivablesRoutes);
 });
 
-// Rota para testar o funcionamento da API
 app.get(
   "/health",
   {
@@ -92,7 +83,6 @@ app.get(
   },
 );
 
-// Verificar conexão com PostgreSQL
 app.get(
   "/health/database",
   {
@@ -125,11 +115,10 @@ app.get(
   },
 );
 
-// Inicialização do servidor
 async function start() {
   try {
     await app.listen({
-      port: Number(process.env.PORT ?? 3333),
+      port: Number(process.env.DB_PORT ?? 3333),
       // host: "0.0.0.0",
     });
   } catch (error) {

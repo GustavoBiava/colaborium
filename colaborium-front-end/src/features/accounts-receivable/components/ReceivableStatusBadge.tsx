@@ -5,12 +5,10 @@ import {
   RECEIVABLE_STATUS_LABEL,
 } from "../utils/receivableStatus";
 
-// props: status da conta
 interface ReceivableStatusBadgeProps {
   status: ReceivableStatus;
 }
 
-// pílula colorida com o nome do status
 export function ReceivableStatusBadge({ status }: ReceivableStatusBadgeProps) {
   return (
     <span

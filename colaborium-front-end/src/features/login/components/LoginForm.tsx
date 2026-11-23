@@ -33,15 +33,12 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-sm space-y-6 p-2 text-left">
-      {/* Header */}
       <div className="space-y-2">
         <h2 className="text-4xl text-gray-200"> LOGIN </h2>
         <p className="text-gray-500"> Bem-vindo de volta. </p>
       </div>
 
-      {/* Formulário */}
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* E-mail */}
         <div>
           <Label htmlFor="email" className="text-gray-200 mb-2">
             {" "}
@@ -59,7 +56,6 @@ export default function LoginForm() {
           />
         </div>
 
-        {/* Senha */}
         <div>
           <Label htmlFor="email" className="text-gray-200 mb-2">
             {" "}
@@ -77,7 +73,6 @@ export default function LoginForm() {
               className="border-[#383838] bg-[#222222] text-white placeholder:text-gray-500 p-1"
             />
 
-            {/* Esconder senha */}
             <button
               type="button"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 transition hover:text-white cursor-pointer"
@@ -88,7 +83,6 @@ export default function LoginForm() {
           </div>
         </div>
 
-        {/* Submit */}
         {error && <p className="text-sm text-red-500">{error}</p>}
         <Button
           type="submit"
