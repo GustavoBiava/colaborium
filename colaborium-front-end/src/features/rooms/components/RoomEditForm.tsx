@@ -14,9 +14,8 @@ type RoomFormProps = {
 };
 
 export default function RoomEditForm({ onSubmit, room }: RoomFormProps) {
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    room?.imageUrl || null,
-  );
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
   const [description, setDescription] = useState(room?.descricao ?? "");
 
   function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {

@@ -8,7 +8,7 @@ export function RoomCard({ room }: RoomCardProps) {
   return (
     <div className="flex h-20 w-full items-center gap-2 rounded-xs border border-b-gray-200 border-t-0 border-l-0 border-r-0 p-2 text-black min-w-0">
       <img
-        src={room.imageUrl}
+        src={Placeholder}
         alt="Pré-visualização da sala"
         onError={(e) => {
           e.currentTarget.src = Placeholder;

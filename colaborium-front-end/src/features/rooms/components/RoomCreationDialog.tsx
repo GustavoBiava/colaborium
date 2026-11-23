@@ -1,5 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import RoomCreationForm from "./RoomEditForm";
+import { useCreateRoom } from "../hooks/useCreateRoom";
 import { type Dispatch, type SetStateAction } from "react";
 
 import {
@@ -17,12 +18,37 @@ interface DialogProps {
 }
 
 export function RoomCreationDialog({ setOpen, open }: DialogProps) {
+  const { createRoom } = useCreateRoom();
+  async function handleSubmit(data: FormData) {
 
-  function handleSubmit(data: FormData) {
-    console.log(Object.fromEntries(data.entries()));
+    try {
+      const furniture = JSON.parse(
+        String(data.get("furniture") ?? "[]")
+      ) as { id: string; quantity: number }[];
 
-    setOpen(false);
+      const getQuantity = (id: string) =>
+        furniture.find((item) => item.id === id)?.quantity ?? 0;
+
+      const sala = {
+        nome: String(data.get("nome") ?? "").trim(),
+        descricao: String(data.get("descricao") ?? "").trim() || null,
+        capacidade: Number(data.get("capacidade")),
+        valor: Number(data.get("valor")),
+        localizacao: String(data.get("localizacao") ?? "").trim() || null,
+        qtd_arcondicionado: getQuantity("air-conditioners"),
+        qtd_cadeira: getQuantity("chairs"),
+        qtd_mesa: getQuantity("tables"),
+      };
+      await createRoom(sala);
+      setOpen(false);
+
+      setOpen(false);
+    } catch (error) {
+      console.error("Erro ao cadastrar sala:", error);
+      alert("Não foi possível cadastrar a sala.");
+    }
   }
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

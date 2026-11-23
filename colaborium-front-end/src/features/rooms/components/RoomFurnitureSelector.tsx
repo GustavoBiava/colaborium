@@ -33,8 +33,8 @@ export function RoomFurnitureSelector({ room }: RoomFurnitureSelectorProps) {
       quantity: room?.qtd_mesa ?? 0,
     },
     chairs: {
-      selected: (room?.capacidade ?? 0) > 0,
-      quantity: room?.capacidade ?? 0,
+      selected: (room?.qtd_cadeira ?? 0) > 0,
+      quantity: room?.qtd_cadeira ?? 0,
     },
     "air-conditioners": {
       selected: (room?.qtd_arcondicionado ?? 0) > 0,

@@ -130,4 +130,19 @@ export async function roomsRoutes(instance: FastifyInstance) {
       reply
     );
   });
+
+  // EXCLUIR SALA
+  app.delete("/salas/:id", {
+    schema: {
+      tags: ["Salas"],
+      summary: "Excluir sala",
+      params: idSchema,
+    },
+  }, async (request, reply) => {
+    return controller.excluir(
+      request.params.id,
+      reply
+    );
+  });
+
 }

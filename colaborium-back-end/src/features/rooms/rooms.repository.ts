@@ -9,7 +9,7 @@ export type RoomInput = {
   qtd_arcondicionado: number;
   qtd_cadeira: number;
   qtd_mesa: number;
-  ocupada: boolean;
+  ocupada?: boolean;
 };
 
 export async function createRoom(data: RoomInput) {
@@ -86,9 +86,8 @@ export async function updateRoom(id: number, data: RoomInput) {
       localizacao = $5,
       qtd_arcondicionado = $6,
       qtd_cadeira = $7,
-      qtd_mesa = $8,
-      ocupada = $9
-    WHERE id = $10
+      qtd_mesa = $8
+      WHERE id = $9
     RETURNING *`,
     [
       data.nome,
@@ -99,7 +98,6 @@ export async function updateRoom(id: number, data: RoomInput) {
       data.qtd_arcondicionado,
       data.qtd_cadeira,
       data.qtd_mesa,
-      data.ocupada ?? false,
       id,
     ],
   );
@@ -114,6 +112,31 @@ export async function updateRoomActive(id: number, ativo: boolean) {
      WHERE id = $2
      RETURNING *`,
     [ativo, id],
+  );
+
+  return result.rows[0] ?? null;
+}
+
+export async function hasAnyContract(id: number): Promise<boolean> {
+  const result = await db.query(
+    `SELECT EXISTS (
+       SELECT 1
+       FROM contrato_sala
+       WHERE sala_id = $1
+     ) AS possui_contrato`,
+    [id],
+  );
+
+  return result.rows[0].possui_contrato;
+}
+
+// EXCLUIR SALA
+export async function deleteRoom(id: number) {
+  const result = await db.query(
+    `DELETE FROM sala
+     WHERE id = $1
+     RETURNING id`,
+    [id],
   );
 
   return result.rows[0] ?? null;
