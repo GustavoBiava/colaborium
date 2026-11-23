@@ -39,10 +39,22 @@ class CustomerRepository {
     return result.rows[0] ?? null;
   }
 
-  async getCustomersPaginated(limit: number, offset: number) {
-    const query = `
+  async getCustomersPaginated(
+    limit: number,
+    offset: number,
+    incluirInativos: boolean,
+  ) {
+    const query = incluirInativos
+      ? `
             SELECT *
             FROM public.cliente
+            ORDER BY id ASC
+            LIMIT $1 OFFSET $2
+        `
+      : `
+            SELECT *
+            FROM public.cliente
+            WHERE ativo = true
             ORDER BY id ASC
             LIMIT $1 OFFSET $2
         `;
@@ -51,8 +63,10 @@ class CustomerRepository {
     return result.rows;
   }
 
-  async getAllCustomers() {
-    const query = `SELECT * FROM public.cliente ORDER BY id ASC`;
+  async getAllCustomers(incluirInativos: boolean) {
+    const query = incluirInativos
+      ? `SELECT * FROM public.cliente ORDER BY id ASC`
+      : `SELECT * FROM public.cliente WHERE ativo = true ORDER BY id ASC`;
     const result = await db.query(query);
     return result.rows;
   }
@@ -213,8 +227,10 @@ class CustomerRepository {
     return result.rows;
   }
 
-  async countTotal() {
-    const query = "SELECT COUNT(*) FROM public.cliente";
+  async countTotal(incluirInativos: boolean) {
+    const query = incluirInativos
+      ? "SELECT COUNT(*) FROM public.cliente"
+      : "SELECT COUNT(*) FROM public.cliente WHERE ativo = true";
     const result = await db.query(query);
     return parseInt(result.rows[0].count, 10);
   }

@@ -5,6 +5,7 @@ import type { CustomerResponse } from "../types/CustomerResponse";
 type CustomerFilters = {
   page?: number;
   limit?: number | "all";
+  incluirInativos?: boolean;
 };
 
 type PaginatedCustomers = {

@@ -22,6 +22,7 @@ interface AppointmentViewProps {
   setStartDate: (date: Temporal.PlainDate) => void;
   onEventClick(info: EventClickInfo): void;
   reset: UseFormReset<AppointmentFormData>;
+  incluirCancelados: boolean;
 }
 
 export function AppointmentView({
@@ -29,8 +30,9 @@ export function AppointmentView({
   setStartDate,
   onEventClick,
   reset,
+  incluirCancelados,
 }: AppointmentViewProps) {
-  const { appointments } = useAppointments();
+  const { appointments } = useAppointments({ incluirCancelados });
   const [_params, setParams] = useSearchParams();
 
   function handleSelect(info: DateSelectInfo) {
@@ -41,7 +43,7 @@ export function AppointmentView({
   }
 
   function handleEventClick(info: EventClickInfo) {
-    setParams({ mode: "update", id: info.event.id });
+    setParams({ mode: "view", id: info.event.id });
     setOpenCalendar(true);
     onEventClick(info);
   }

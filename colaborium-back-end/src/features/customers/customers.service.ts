@@ -21,9 +21,13 @@ class CustomerService {
     return "Registro duplicado";
   }
 
-  async getCustomers(page: number, limit: number | "all") {
+  async getCustomers(
+    page: number,
+    limit: number | "all",
+    incluirInativos: boolean,
+  ) {
     if (limit === "all") {
-      const registers = await customerRepository.getAllCustomers();
+      const registers = await customerRepository.getAllCustomers(incluirInativos);
       return {
         data: registers,
         pagination: {
@@ -39,8 +43,8 @@ class CustomerService {
     const offset = (page - 1) * limit;
 
     const [registers, totalRegisters] = await Promise.all([
-      customerRepository.getCustomersPaginated(limit, offset),
-      customerRepository.countTotal(),
+      customerRepository.getCustomersPaginated(limit, offset, incluirInativos),
+      customerRepository.countTotal(incluirInativos),
     ]);
 
     const totalPages = Math.ceil(totalRegisters / limit);

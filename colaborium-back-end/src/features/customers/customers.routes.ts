@@ -14,7 +14,11 @@ export async function customerRoutes(app: FastifyInstance) {
       summary: "Listar todos os clientes",
       querystring: z.object({
         page: z.coerce.number().int().positive().optional().default(1),
-        limit: z.coerce.number().int().positive().max(100).optional().default(10)
+        limit: z.union([
+          z.coerce.number().int().positive().max(100),
+          z.literal("all"),
+        ]).optional().default(10),
+        incluirInativos: z.enum(["true", "false"]).optional().default("false").transform((value) => value === "true")
       })
     },
   }, customerController.getCustomersHandler.bind(customerController));

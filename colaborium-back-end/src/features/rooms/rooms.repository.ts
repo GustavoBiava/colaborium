@@ -37,8 +37,35 @@ export async function createRoom(data: RoomInput) {
   return result.rows[0];
 }
 
-export async function listRooms() {
-  const result = await db.query("SELECT * FROM sala ORDER BY id");
+export async function listRooms(incluirInativos: boolean) {
+  const result = incluirInativos
+    ? await db.query("SELECT * FROM sala ORDER BY id")
+    : await db.query("SELECT * FROM sala WHERE ativo = true ORDER BY id");
+
+  return result.rows;
+}
+
+// Lista salas ativas sem conflito de contrato no período informado.
+export async function listAvailableRooms(
+  dataInicio: string,
+  dataFim: string
+) {
+  const result = await db.query(
+    `SELECT s.*
+     FROM sala s
+     WHERE s.ativo = true
+       AND NOT EXISTS (
+         SELECT 1
+         FROM contrato c
+         JOIN contrato_sala cs ON cs.contrato_id = c.id
+         WHERE cs.sala_id = s.id
+           AND c.status = 'A'
+           AND c.data_inicio <= $2::date
+           AND COALESCE(c.data_fim, 'infinity'::date) >= $1::date
+       )
+     ORDER BY s.id`,
+    [dataInicio, dataFim]
+  );
 
   return result.rows;
 }

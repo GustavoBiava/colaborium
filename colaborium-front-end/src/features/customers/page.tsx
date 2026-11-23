@@ -1,6 +1,8 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { PageLayout } from "@/shared/components/layout/PageLayout";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Label } from "@/shared/components/ui/label";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -82,8 +84,13 @@ export function CustomersPage() {
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState<number | "all">(10);
+  const [incluirInativos, setIncluirInativos] = useState<boolean>(false);
 
-  const { customers, pagination } = useCustomers({ page, limit });
+  const { customers, pagination } = useCustomers({
+    page,
+    limit,
+    incluirInativos,
+  });
   const { createCustomer } = useCreateCustomer();
   const { updateCustomer } = useUpdateCustomer();
   const { deactivateCustomer } = useDeactivateCustomer();
@@ -235,9 +242,21 @@ export function CustomersPage() {
       pageTitle="Clientes"
       Icon={User}
       subtitle="Gerencie seus clientes"
+      fullHeight
     >
-      <div className="flex flex-col gap-5 ">
-        <div className="flex flex-col gap-5 w-full items-end">
+      <div className="flex flex-col gap-5 min-h-0 flex-1">
+        <div className="flex flex-row gap-5 shrink-0 w-full items-end justify-between">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="incluir-inativos"
+              checked={incluirInativos}
+              onCheckedChange={(checked) => {
+                setIncluirInativos(checked === true);
+                setPage(1);
+              }}
+            />
+            <Label htmlFor="incluir-inativos">Mostrar inativos</Label>
+          </div>
           <Button
             onClick={() => {
               reset();
@@ -252,7 +271,10 @@ export function CustomersPage() {
           </Button>
         </div>
 
-        <DataTable onRowClick={handleRowClick} table={table} />
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <DataTable onRowClick={handleRowClick} table={table} />
+        </div>
+
         <Pagination
           page={pagination?.actual_page ?? 1}
           totalPages={pagination?.total_pages ?? 1}

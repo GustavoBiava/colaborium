@@ -1,273 +1,292 @@
-import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { useState } from "react";
-import type { Contract } from "../types";
-import { ContractSearch } from "./ContractSearch";
+import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Button } from "@/shared/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover";
+import { Calendar } from "@/shared/components/ui/calendar";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+import { useCustomers } from "@/features/customers/hooks/useCustomers";
+import { useAvailableRooms } from "@/features/rooms/hooks/useAvailableRooms";
+import { addMonths, format } from "date-fns";
+import { CalendarIcon, Plus, X } from "lucide-react";
+import { useEffect } from "react";
+import {
+  contractSchema,
+  type ContractFormData,
+} from "../schema/contractSchema";
 
 const OBSERVATION_LIMIT = 500;
 
 type ContractFormProps = {
-    onSubmit: (data: FormData) => void;
-    contract?: Contract;
+  onSubmit: (data: ContractFormData) => void;
 };
 
-type Client = {
-  id: number;
-  nome: string;
-};
+export default function ContractCreationForm({ onSubmit }: ContractFormProps) {
+  const { customers } = useCustomers({ limit: "all" });
 
-type Room = {
-  id: number;
-  nome: string;
-};
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<ContractFormData>({
+    resolver: zodResolver(contractSchema),
+  });
 
-export default function ContractCreationForm({ onSubmit, contract }: ContractFormProps) {
-    const [observation, setObservation] = useState(contract?.observacao ?? "");
-    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-    const [clientError, setClientError] = useState(false);
-    const [roomError, setRoomError] = useState(false);
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+  const periodo = watch("periodo");
+  const startDate = watch("data_inicio");
+  const endDate = watch("data_fim");
+  const observacao = watch("observacao") ?? "";
 
-    const now = new Date();
+  const now = new Date();
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
 
-    const today = [
-        now.getFullYear(),
-        String(now.getMonth() + 1).padStart(2, "0"),
-        String(now.getDate()).padStart(2, "0"),
-    ].join("-");
-
-
-    function handleStartDateChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const value = event.target.value;
-        setStartDate(value);
-
-        if (endDate && value && endDate < value) setEndDate("");
+  useEffect(() => {
+    if (!startDate || !periodo) {
+      setValue("data_fim", "");
+      return;
     }
 
-    function handleEndDateChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const value = event.target.value;
+    const computedEnd = addMonths(
+      new Date(`${startDate}T00:00:00`),
+      periodo
+    );
 
-        if (startDate && value && value < startDate) {
-            setEndDate(startDate);
-            return;
-        }
-        setEndDate(value);
+    setValue("data_fim", format(computedEnd, "yyyy-MM-dd"));
+  }, [startDate, periodo, setValue]);
+
+  const salasEnabled = Boolean(startDate && periodo && endDate);
+
+  const {
+    rooms,
+    isLoading: isLoadingRooms,
+  } = useAvailableRooms(
+    salasEnabled ? startDate : undefined,
+    salasEnabled ? endDate : undefined
+  );
+
+  const salas = watch("salas") ?? [];
+
+  useEffect(() => {
+    if (salas.length === 0) {
+      setValue("salas", [0]);
     }
+  }, [salas.length, setValue]);
 
+  function handleSalaChange(index: number, value: number) {
+    const next = [...salas];
+    next[index] = value;
+    setValue("salas", next);
+  }
 
-    function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-        event.preventDefault();
+  function handleAddSala() {
+    setValue("salas", [...salas, 0]);
+  }
 
-        const hasClient = selectedClient !== null; 
-        const hasRoom = selectedRoom !== null; 
+  function handleRemoveSala(index: number) {
+    setValue(
+      "salas",
+      salas.filter((_, i) => i !== index),
+    );
+  }
 
-        setClientError(!hasClient);
-        setRoomError(!hasRoom);
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      id="contract-creation-form"
+      className="grid grid-cols-2 gap-3"
+    >
+      <Field>
+        <FieldLabel>Cliente</FieldLabel>
+        <Controller
+          control={control}
+          name="cliente_id"
+          render={({ field }) => (
+            <Select
+              onValueChange={(value) => field.onChange(Number(value))}
+              value={field.value ? field.value.toString() : undefined}
+            >
+              <SelectTrigger id="cliente_id" className="w-full">
+                <SelectValue placeholder="Selecione um cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.id.toString()}>
+                    {customer.nome_empresa}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <FieldError>{errors?.cliente_id?.message}</FieldError>
+      </Field>
 
-        if (!hasClient || !hasRoom) {
-            return;
-        }
+      <Field>
+        <FieldLabel>Período (meses)</FieldLabel>
+        <Input
+          id="periodo"
+          type="number"
+          min={1}
+          max={12}
+          step={1}
+          placeholder="Ex: 6"
+          {...register("periodo", { valueAsNumber: true })}
+        />
+        <FieldError>{errors?.periodo?.message}</FieldError>
+      </Field>
 
-        const formData = new FormData(event.currentTarget);
-        onSubmit(formData);
-    }
+      <Field>
+        <FieldLabel>Data de início</FieldLabel>
+        <Input
+          id="data_inicio"
+          type="date"
+          lang="pt-BR"
+          min={today}
+          {...register("data_inicio")}
+        />
+        <FieldError>{errors?.data_inicio?.message}</FieldError>
+      </Field>
 
-    const clients = [
-    {
-      id: 1,
-      nome: "cliente 1",
-    },
-    {
-      id: 2,
-      nome: "cliente 2",
-    },
-    {
-      id: 3,
-      nome: "cliente 3",
-    },
-    {
-      id: 4,
-      nome: "cliente 4",
-    },
-    {
-      id: 1,
-      nome: "cliente 1",
-    },
-    {
-      id: 2,
-      nome: "cliente 2",
-    },
-    {
-      id: 3,
-      nome: "cliente 3",
-    },
-    {
-      id: 4,
-      nome: "cliente 4",
-    },
-    {
-      id: 1,
-      nome: "cliente 1",
-    },
-    {
-      id: 2,
-      nome: "cliente 2",
-    },
-    {
-      id: 3,
-      nome: "cliente 3",
-    },
-    {
-      id: 4,
-      nome: "cliente 4",
-    },
-  ];
+      <Field>
+        <FieldLabel>Data de fim</FieldLabel>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              disabled
+              className="w-full justify-start text-left font-normal rounded-md h-9"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {endDate ? (
+                format(new Date(`${endDate}T00:00:00`), "dd/MM/yyyy")
+              ) : (
+                <span>Preencha início e período</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <Calendar
+              mode="single"
+              selected={endDate ? new Date(`${endDate}T00:00:00`) : undefined}
+            />
+          </PopoverContent>
+        </Popover>
+        <input type="hidden" {...register("data_fim")} />
+        <FieldError>{errors?.data_fim?.message}</FieldError>
+      </Field>
 
-      const rooms = [
-    {
-      id: 1,
-      nome: "sala 1",
-    },
-    {
-      id: 2,
-      nome: "sala 2",
-    },
-    {
-      id: 3,
-      nome: "sala 3",
-    },
-    {
-      id: 4,
-      nome: "sala 4",
-    },
-  ];
-
-    return (
-        <form onSubmit={handleSubmit} id="contract-creation-form">
-            <div className="flex flex-col gap-2 content-start items-start w-full">
-                <div className="gap-2 w-full">
-                    <Label htmlFor="nome" className="mt-2">
-                        Nome do Cliente:
-                    </Label>
-                    <ContractSearch
-                        items={clients}
-                        name="cliente_id"
-                        getLabel={(client) => client.nome}
-                        onSelect={(client) => { setSelectedClient(client); setClientError(false); }}
-                        getValue={(client) => client.id}
-                        placeholder="Pesquisar por Cliente..."
-                    />
-                </div>
-                <div className="min-h-5">
-                    {clientError ? (
-                        <p className="text-sm text-red-500">
-                            Selecione um cliente.
-                        </p>
-                    ) : selectedClient ? (
-                        <p className="text-sm text-green-500">
-                            Cliente selecionado: {selectedClient.nome}
-                        </p>
-                    ) : null}
-                </div>
-
-                <div className="gap-2 w-full">
-                    <Label htmlFor="sala" className="mt-2">
-                        Nome da Sala:
-                    </Label>
-                    <ContractSearch
-                        items={rooms}
-                        name="sala_id"
-                        getLabel={(room) => room.nome}
-                        onSelect={(room)   => { setSelectedRoom(room);     setRoomError(false);   }}
-                        getValue={(room) => room.id}
-                        placeholder="Pesquisar por Sala..."
-                    />
-                </div>
-                <div className="min-h-5">
-                    {roomError ? (
-                        <p className="text-sm text-red-500">
-                            Selecione uma sala.
-                        </p>
-                    ) : selectedRoom ? (
-                        <p className="text-sm text-green-500">
-                            Sala selecionada: {selectedRoom.nome}
-                        </p>
-                    ) : null}
-                </div>
-
-                <div className="flex w-full flex-row justify-between gap-4">
-                    <div className="gap-2 w-full gap-2">
-                        <Label htmlFor="valor_base" className="mt-3">
-                            Valor:
-                        </Label>
-                        <Input
-                            id="valor_base"
-                            name="valor_base"
-                            type="number"
-                            placeholder="0"
-                            required
-                            min={0}
-                            step="0.01"
-                            className="bg-[transparent] text-black placeholder:text-gray-500 p-1"
-                        />
-                    </div>
-
-                    <div className="gap-2 w-full gap-2">
-                        <Label htmlFor="data_inicio" className="mt-3">
-                            Data de início:
-                        </Label>
-                        <Input
-                            id="data_inicio"
-                            name="data_inicio"
-                            type="date"
-                            lang="pt-BR"
-                            min={today}
-                            max={endDate}
-                            value={startDate}
-                            onChange={handleStartDateChange}
-                            required
-                            className="bg-[transparent] text-black placeholder:text-gray-500 p-1"
-                        />
-                    </div>
-
-                    <div className="gap-2 w-full gap-2">
-                        <Label htmlFor="data_fim" className="mt-3">
-                            Data de fim:
-                        </Label>
-                        <Input
-                            id="data_fim"
-                            name="data_fim"
-                            type="date"
-                            lang="pt-BR"
-                            min={startDate || today}
-                            value={endDate}
-                            onChange={handleEndDateChange}
-                            required
-                            className="bg-[transparent] text-black placeholder:text-gray-500 p-1"
-                        />
-                    </div>
-                </div>
-
-                <div className="w-full flex flex-col gap-2">
-                    <Label htmlFor="observacao" className="mt-3">
-                        Observação:
-                    </Label>
-                    <Textarea
-                        id="observacao"
-                        name="observacao"
-                        maxLength={OBSERVATION_LIMIT}
-                        onChange={(event) => setObservation(event.target.value)}
-                        className="mt-2 break-words resize-none w-full h-32" />
-                    <span
-                        className={`self-end text-xs ${observation.length >= OBSERVATION_LIMIT ? "text-red-500" : "text-muted-foreground"}`}
-                    >
-                        {observation.length} / {OBSERVATION_LIMIT}
-                    </span>
-                </div>
+      <Field className="col-span-2">
+        <FieldLabel>Salas</FieldLabel>
+        <div className="flex flex-col gap-2">
+          {salas.map((salaId, index) => (
+            <div key={index} className="flex flex-row gap-2">
+              <Select
+                disabled={!salasEnabled}
+                onValueChange={(value) =>
+                  handleSalaChange(index, Number(value))
+                }
+                value={salaId ? salaId.toString() : undefined}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      !salasEnabled
+                        ? "Preencha o período primeiro"
+                        : "Selecione uma sala"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {rooms
+                    .filter(
+                      (room) =>
+                        room.id === salaId || !salas.includes(room.id),
+                    )
+                    .map((room) => (
+                      <SelectItem key={room.id} value={room.id.toString()}>
+                        {room.nome}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              {salas.length > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={() => handleRemoveSala(index)}
+                >
+                  <X size={16} />
+                </Button>
+              )}
             </div>
-        </form>
-    )
+          ))}
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!salasEnabled}
+          className="w-fit"
+          onClick={handleAddSala}
+        >
+          <Plus size={16} />
+          Adicionar sala
+        </Button>
+        {salasEnabled && !isLoadingRooms && rooms.length === 0 && (
+          <span className="text-xs text-red-500">
+            Nenhuma sala disponível nesse período
+          </span>
+        )}
+        <FieldError>{errors?.salas?.message}</FieldError>
+      </Field>
+
+      <Field>
+        <FieldLabel>Valor</FieldLabel>
+        <Input
+          id="valor_base"
+          type="number"
+          placeholder="0"
+          min={0}
+          step="0.01"
+          {...register("valor_base", { valueAsNumber: true })}
+        />
+        <FieldError>{errors?.valor_base?.message}</FieldError>
+      </Field>
+
+      <Field className="col-span-2">
+        <FieldLabel>Observação</FieldLabel>
+        <Textarea
+          id="observacao"
+          maxLength={OBSERVATION_LIMIT}
+          {...register("observacao")}
+          className="wrap-break-words resize-none w-full h-32"
+        />
+        <span
+          className={`self-end text-xs ${observacao.length >= OBSERVATION_LIMIT ? "text-red-500" : "text-muted-foreground"}`}
+        >
+          {observacao.length} / {OBSERVATION_LIMIT}
+        </span>
+      </Field>
+    </form>
+  );
 }

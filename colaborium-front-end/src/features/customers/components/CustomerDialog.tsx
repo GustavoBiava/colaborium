@@ -192,7 +192,7 @@ export function CustomerDialog({
                         id="cpf_cnpj_empresa"
                         type="text"
                         placeholder="000.000.000-00"
-                        maxLength={14 + 4} // 14 from the phone + special characters
+                        maxLength={14 + 4}
                         onChange={(e) => {
                           field.onChange(formatCpfCnpj(e.target.value));
                         }}
@@ -224,7 +224,7 @@ export function CustomerDialog({
                       <Input
                         id="telefone_empresa"
                         type="text"
-                        maxLength={11 + 4} // 11 from the phone + special characters
+                        maxLength={11 + 4}
                         placeholder="(00) 00000-0000"
                         onChange={(e) => {
                           field.onChange(formatPhone(e.target.value));

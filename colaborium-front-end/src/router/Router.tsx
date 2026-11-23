@@ -10,7 +10,7 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 import { CalendarPage } from "@/features/appointments/page";
-import { AccountsReceivablePage } from "../../boilerplate/accounts-receivable/page";
+import { AccountsReceivablePage } from "@/features/accounts-receivable/page";
 
 export const Router = () => {
   const queryClient = new QueryClient();
