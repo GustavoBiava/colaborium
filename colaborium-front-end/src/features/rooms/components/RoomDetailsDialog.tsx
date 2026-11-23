@@ -1,5 +1,4 @@
 import { Button } from "@/shared/components/ui/button";
-import { type Room } from "../types";
 
 import {
   Dialog,

@@ -53,7 +53,7 @@ export default function RoomStatus({ room }: RoomFormProps) {
 
         <label
           htmlFor="roomImage"
-          className="relative flex aspect-[4/2] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#222222]"
+          className="relative flex aspect-4/2 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#222222]"
         >
           {room.imageUrl ? (
             <img
