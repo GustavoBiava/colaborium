@@ -3,7 +3,6 @@ import { db } from "./config/database";
 import { registerAuth } from "./config/auth";
 import { authRoutes } from "./features/auth/auth.routes";
 
-// Rotas dos módulos
 import { roomsRoutes } from "./features/rooms/rooms.routes";
 import { contractsRoutes } from "./features/contracts/contracts.routes";
 import { appointmentsRoutes } from "./features/appointments/appointments.routes";
@@ -20,23 +19,21 @@ import {
 import { fastifyCors } from "@fastify/cors";
 import { fastifySwagger } from "@fastify/swagger";
 import { fastifySwaggerUi } from "@fastify/swagger-ui";
+import { receivablesRoutes } from "./features/receivables/receivables.routes";
 
 const app = fastify({
   logger: true,
 }).withTypeProvider<ZodTypeProvider>();
 
-// Configuração do Zod
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
 
-// Configuração do CORS
 app.register(fastifyCors, {
   origin: ["http://localhost:5173"],
   methods: ["POST", "PUT", "PATCH", "OPTIONS", "GET", "DELETE"],
   credentials: true,
 });
 
-// Configuração do Swagger
 app.register(fastifySwagger, {
   openapi: {
     info: {
@@ -48,20 +45,16 @@ app.register(fastifySwagger, {
   transform: jsonSchemaTransform,
 });
 
-// Registrar autenticação
 await registerAuth(app);
 
-// Rotas públicas
 app.register(authRoutes);
 
-// Interface visual do Swagger
 if (process.env.NODE_ENV !== "production") {
   app.register(fastifySwaggerUi, {
     routePrefix: "/docs",
   });
 }
 
-// Rotas protegidas
 app.register(async (protectedApp) => {
   protectedApp.addHook("preHandler", protectedApp.authenticate);
 
@@ -70,9 +63,9 @@ app.register(async (protectedApp) => {
   protectedApp.register(appointmentsRoutes);
   protectedApp.register(usersRoutes);
   protectedApp.register(customerRoutes);
+  protectedApp.register(receivablesRoutes);
 });
 
-// Rota para testar o funcionamento da API
 app.get(
   "/health",
   {
@@ -90,7 +83,6 @@ app.get(
   },
 );
 
-// Verificar conexão com PostgreSQL
 app.get(
   "/health/database",
   {
@@ -123,7 +115,6 @@ app.get(
   },
 );
 
-// Inicialização do servidor
 async function start() {
   try {
     await app.listen({

@@ -34,9 +34,10 @@ export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
     if (!room) return;
 
     try {
-      const furniture = JSON.parse(
-        String(data.get("furniture") ?? "[]")
-      ) as { id: string; quantity: number }[];
+      const furniture = JSON.parse(String(data.get("furniture") ?? "[]")) as {
+        id: string;
+        quantity: number;
+      }[];
 
       const getQuantity = (id: string) =>
         furniture.find((item) => item.id === id)?.quantity ?? 0;

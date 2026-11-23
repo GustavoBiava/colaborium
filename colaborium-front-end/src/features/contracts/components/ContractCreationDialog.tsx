@@ -1,6 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
-// import RoomCreationForm from "./RoomEditForm";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { type Dispatch, type SetStateAction } from "react";
+import { cn } from "cn";
 
 import {
   Dialog,
@@ -11,6 +12,8 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import ContractCreationForm from "./ContractCreationForm";
+import { useCreateContract } from "../hooks/useCreateContract";
+import type { ContractFormData } from "../schema/contractSchema";
 
 interface DialogProps {
   open: boolean;
@@ -18,23 +21,33 @@ interface DialogProps {
 }
 
 export function ContractCreationDialog({ setOpen, open }: DialogProps) {
+  const { createContract } = useCreateContract();
 
-  function handleSubmit(data: FormData) {
+  async function handleSubmit(data: ContractFormData) {
+    await createContract(data);
     setOpen(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[min(1000px,95vw)] max-w-[95vw] max-h-[85vh] overflow-y-auto">
+      <DialogContent
+        className={cn(
+          "rounded-xs min-w-[60%] max-h-[90%] overflow-hidden grid grid-rows-[auto_minmax(0,1fr)_auto]",
+        )}
+      >
         <DialogHeader>
           <DialogTitle>Cadastro de contrato</DialogTitle>
           <DialogDescription>Crie um novo contrato</DialogDescription>
         </DialogHeader>
 
-        <ContractCreationForm onSubmit={handleSubmit} />
+        <ScrollArea className="min-h-0">
+          <div className="pr-4 mt-2 ml-1 mb-4">
+            <ContractCreationForm onSubmit={handleSubmit} />
+          </div>
+        </ScrollArea>
 
         <DialogFooter>
-          <Button type="submit" form="contract-creation-form">
+          <Button type="submit" form="contract-creation-form" variant="outline">
             Criar
           </Button>
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>

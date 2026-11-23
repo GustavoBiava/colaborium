@@ -12,11 +12,14 @@ import {
   type AppointmentFormData,
 } from "./schema/appointmentSchema";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Label } from "@/shared/components/ui/label";
 import { useSearchParams } from "react-router";
 
 export function CalendarPage() {
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<Temporal.PlainDate | null>(null);
+  const [incluirCancelados, setIncluirCancelados] = useState<boolean>(false);
   const [_params, setParams] = useSearchParams();
 
   const {
@@ -51,7 +54,15 @@ export function CalendarPage() {
       Icon={CalendarIcon}
       subtitle="Acompanhe o uso das salas de reunião por aqui"
     >
-      <div className="flex flex-col gap-5 w-full items-end">
+      <div className="flex flex-row gap-5 w-full items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="incluir-cancelados"
+            checked={incluirCancelados}
+            onCheckedChange={(checked) => setIncluirCancelados(checked === true)}
+          />
+          <Label htmlFor="incluir-cancelados">Mostrar cancelados</Label>
+        </div>
         <Button
           onClick={() => {
             setOpenCalendar(true);
@@ -69,6 +80,7 @@ export function CalendarPage() {
         setOpenCalendar={setOpenCalendar}
         setStartDate={setStartDate}
         reset={reset}
+        incluirCancelados={incluirCancelados}
       />
       {openCalendar && (
         <AppointmentDialog
