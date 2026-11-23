@@ -6,6 +6,7 @@ import { CustomerError } from "./customers.repository";
 type CustomerQuery = {
   page: number;
   limit: number | "all";
+  incluirInativos: boolean;
 };
 
 type CustomerParams = {
@@ -18,9 +19,9 @@ class CustomerController {
     reply: FastifyReply,
   ) {
     try {
-      const { page, limit } = request.query;
+      const { page, limit, incluirInativos } = request.query;
 
-      const result = await customerService.getCustomers(page, limit);
+      const result = await customerService.getCustomers(page, limit, incluirInativos);
 
       return reply.status(200).send(result);
     } catch (error) {
