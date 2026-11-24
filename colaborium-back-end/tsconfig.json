@@ -25,7 +25,7 @@
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
 
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
