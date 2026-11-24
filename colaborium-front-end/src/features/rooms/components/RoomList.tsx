@@ -12,7 +12,7 @@ export function RoomList({ rooms }: RoomListProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 overflow-y-auto">
+      <div className="flex flex-col gap-3 h-full overflow-y-auto">
         {rooms.map((room) => (
           <button
             key={room.id}

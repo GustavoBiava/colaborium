@@ -7,6 +7,7 @@ interface PageLayoutProps {
   pageTitle: string;
   subtitle: string;
   className?: string;
+  fullHeight?: boolean;
 }
 
 export function PageLayout({
@@ -15,12 +16,19 @@ export function PageLayout({
   Icon,
   subtitle,
   className,
+  fullHeight,
 }: PageLayoutProps) {
   return (
-    <div className="flex flex-col justify-center items-start min-h-screen bg-neutral-900 pr-2 ">
+    <div
+      className={cn(
+        "flex flex-col justify-center items-start bg-neutral-900 pr-2",
+        fullHeight ? "h-screen overflow-hidden" : "min-h-screen",
+      )}
+    >
       <div
         className={cn(
           "flex flex-col h-[98%] w-full p-3 bg-white rounded-md py-6 px-5 gap-10 ",
+          fullHeight && "min-h-0",
           className,
         )}
       >

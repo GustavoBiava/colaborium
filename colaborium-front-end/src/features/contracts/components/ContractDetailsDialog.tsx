@@ -1,7 +1,11 @@
 import { Button } from "@/shared/components/ui/button";
-import { type Contract } from "../types";
+import { type ContractResponse } from "../types/ContractResponse";
 import { ContractCancelAlertDialog } from "./ContractCancelAlertDialog";
 import { useState } from "react";
+import { useCustomers } from "@/features/customers/hooks/useCustomers";
+import { useRooms } from "@/features/rooms/hooks/useRooms";
+import { useChangeContractStatus } from "../hooks/useChangeContractStatus";
+import { cn } from "cn";
 
 import {
   Dialog,
@@ -12,19 +16,53 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { generateContract, getPdfErrorMessage } from "../services/generateContract";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
+
+const CONTRACT_STATUS_LABEL: Record<ContractResponse["status"], string> = {
+  F: "Finalizado",
+  C: "Cancelado",
+  A: "Ativo",
+};
+
+const CONTRACT_STATUS_BADGE_CLASS: Record<ContractResponse["status"], string> = {
+  F: "bg-gray-100 text-gray-700",
+  C: "bg-red-100 text-red-700",
+  A: "bg-green-100 text-green-700",
+};
 
 interface DialogProps {
-  contract: Contract | null;
+  contract: ContractResponse | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogProps) {
+export function ContractDetailsDialog({
+  contract,
+  open,
+  onOpenChange,
+}: DialogProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const { customers } = useCustomers({ limit: "all" });
+  const { rooms } = useRooms();
+  const { changeContractStatus } = useChangeContractStatus();
 
   if (!contract) return null;
+
+  const cliente = customers.find(
+    (customer) => customer.id === contract.cliente_id,
+  );
+  const salasDetalhadas = contract.salas.map((sala) => {
+    const room = rooms.find((r) => r.id === sala.sala_id);
+    return {
+      ...sala,
+      capacidade: room?.capacidade,
+      localizacao: room?.localizacao,
+    };
+  });
 
   function handleOpenChange(nextOpen: boolean) {
     onOpenChange(nextOpen);
@@ -44,104 +82,151 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
       setIsGenerating(false);
     }
   }
+  
+  async function handleCancelConfirm(motivo: string) {
+    await changeContractStatus({
+      id: contract!.id,
+      status: "C",
+      motivo_cancelamento: motivo,
+    });
+    setConfirmCancel(false);
+    onOpenChange(false);
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[55vw] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-[55vw] max-h-[85vh] overflow-hidden grid grid-rows-[auto_minmax(0,1fr)_auto]">
         <DialogHeader>
-          <DialogTitle>
-            Número do contrato: {contract.id}
-          </DialogTitle>
+          <DialogTitle>Número do contrato: {contract.id}</DialogTitle>
 
-          <DialogDescription>
-            Informações do contrato
-          </DialogDescription>
+          <DialogDescription>Informações do contrato</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-row gap-6 mt-3">
-          <div className="flex flex-col gap-1 w-full min-w-0 truncate">
-            <h2>
-                Cliente:
-            </h2>
-            <hr className="mb-3 mr-5"/>
-            <p>Nome: {contract.cliente_id}</p>
-            <p>CPF/CNPJ: {contract.cliente_id}</p>
-            <p>E-Mail: {contract.cliente_id}</p>
-            <p>Cidade: {contract.cliente_id}</p>
-          </div>
-
-          <div className="flex flex-col gap-1 w-full min-w-0 truncate">
-            <h2>
-                Sala:
-            </h2>
-            <hr className="mb-3 mr-5"/>
-            <p>Nome: {contract.sala_id}</p>
-            <p>Valor: {contract.sala_id}</p>
-            <p>Capacidade: {contract.sala_id} pessoas</p>
-            <p>Localização: {contract.sala_id}</p>
-          </div>
-        </div>
-
-        <hr className="mt-3"/>
-
-        {contract.observacao !== null ? (
-          <>
-            <div className="flex flex-col gap-1 w-full min-w-0 truncate">
-              <h2>
-                  Observações:
-              </h2>
-              <p className="w-full max-h-17 break-words whitespace-normal line-clamp-3">{contract.observacao}</p>
+        <ScrollArea className="min-h-0">
+          <div className="flex flex-col gap-4 pr-4 mt-2">
+            <div className="flex flex-col gap-3 w-full min-w-0">
+              <h2 className="font-semibold">Cliente:</h2>
+              <hr />
+              <div className="grid grid-cols-2 gap-3">
+                <Field>
+                  <FieldLabel>Nome</FieldLabel>
+                  <Input readOnly value={cliente?.nome_empresa ?? "-"} />
+                </Field>
+                <Field>
+                  <FieldLabel>CPF/CNPJ</FieldLabel>
+                  <Input readOnly value={cliente?.cpf_cnpj_empresa ?? "-"} />
+                </Field>
+                <Field>
+                  <FieldLabel>E-mail</FieldLabel>
+                  <Input readOnly value={cliente?.email ?? "-"} />
+                </Field>
+                <Field>
+                  <FieldLabel>Cidade</FieldLabel>
+                  <Input readOnly value={cliente?.cidade_empresa ?? "-"} />
+                </Field>
+              </div>
             </div>
-            <hr className="mb-3"/>
-          </>
-        ) : null}
 
-        {contract.motivo_cancelamento !== null && contract.status === "C" ? (
-          <>
-            <div className="flex flex-col gap-1 w-full min-w-0 truncate">
-              <h2>
-                  Motivo de cancelamento:
-              </h2>
-              <p className="w-full max-h-17 break-words whitespace-normal line-clamp-3">{contract.observacao}</p>
+            <hr />
+
+            <div className="flex flex-col gap-3 w-full min-w-0">
+              <h2 className="font-semibold">Salas:</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {salasDetalhadas.map((sala) => (
+                  <div
+                    key={sala.sala_id}
+                    className="flex flex-col gap-3 border rounded-sm p-3"
+                  >
+                    <Field>
+                      <FieldLabel>Nome</FieldLabel>
+                      <Input readOnly value={sala.nome} />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Capacidade</FieldLabel>
+                      <Input
+                        readOnly
+                        value={`${sala.capacidade ?? "-"} pessoas`}
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Localização</FieldLabel>
+                      <Input readOnly value={sala.localizacao ?? "-"} />
+                    </Field>
+                  </div>
+                ))}
+              </div>
             </div>
-            <hr className="mb-3"/>
-          </>
-        ) : null}
 
-        <div className="flex flex-row gap-10">
-          <div>
-            <p>
-              Data de início: {contract.data_inicio.toLocaleDateString()}
-            </p>
-            <p>
-              Data de fim: {contract.data_fim.toLocaleDateString()}
-            </p>
-          </div>
+            <hr />
 
-          <div className="ml-auto">
-            <p>
-              Status do contrato:
-            </p>
-            <div className="h-8 mb-5">
-            {contract.status === "F" ? (
-                <div className="flex bg-[#59a123] w-30 h-6 mt-1 rounded-lg text-white justify-center ml-auto">
-                    Finalizado
-                </div>
-            ) : contract.status === "C" ? (
+            {contract.observacao ? (
               <>
-                <div className="flex bg-[#9F3C3C] w-30 h-6 mt-1 rounded-lg text-white justify-center ml-auto">
-                    Cancelado
-                </div>
-                <p className="text-end">dia {contract.data_cancelamento?.toLocaleDateString()}</p>
+                <Field>
+                  <FieldLabel>Observações</FieldLabel>
+                  <p className="w-full wrap-break-word whitespace-normal">
+                    {contract.observacao}
+                  </p>
+                </Field>
+                <hr />
               </>
-            ) : contract.status === "A" ? (
-                <div className="flex bg-[#bd8c2a] w-30 h-6 mt-1 rounded-lg text-white justify-center ml-auto">
-                    Ativo
-                </div>
             ) : null}
+
+            {contract.motivo_cancelamento !== null &&
+            contract.status === "C" ? (
+              <>
+                <Field>
+                  <FieldLabel>Motivo de cancelamento</FieldLabel>
+                  <p className="w-full wrap-break-word whitespace-normal">
+                    {contract.motivo_cancelamento}
+                  </p>
+                </Field>
+                <hr />
+              </>
+            ) : null}
+
+            <div className="flex flex-row gap-10">
+              <div className="grid grid-cols-2 gap-3">
+                <Field>
+                  <FieldLabel>Data de início</FieldLabel>
+                  <Input
+                    readOnly
+                    value={new Date(
+                      contract.data_inicio,
+                    ).toLocaleDateString()}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel>Data de fim</FieldLabel>
+                  <Input
+                    readOnly
+                    value={new Date(contract.data_fim).toLocaleDateString()}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel>Valor</FieldLabel>
+                  <Input readOnly value={contract.valor_base} />
+                </Field>
+              </div>
+
+              <div className="ml-auto flex flex-col items-end gap-2">
+                <FieldLabel>Status do contrato</FieldLabel>
+                <span
+                  className={cn(
+                    "px-2.5 py-2 text-xs font-semibold rounded-xs",
+                    CONTRACT_STATUS_BADGE_CLASS[contract.status],
+                  )}
+                >
+                  {CONTRACT_STATUS_LABEL[contract.status]}
+                </span>
+                {contract.status === "C" && contract.data_cancelamento ? (
+                  <p className="text-end text-sm">
+                    {`dia ${new Date(contract.data_cancelamento).toLocaleDateString()}`}
+                  </p>
+                ) : null}
+              </div>
             </div>
           </div>
-        </div>
+        </ScrollArea>
 
         {pdfError ? (
           <p className="mt-3 text-sm text-red-600" role="alert">
@@ -155,24 +240,30 @@ export function ContractDetailsDialog({ contract, open, onOpenChange }: DialogPr
           </Button>
 
           {contract.status === "A" ? (
-            <Button key="cancel" type="button" onClick={() => setConfirmCancel(true)}>
+            <Button
+              key="cancel"
+              type="button"
+              onClick={() => setConfirmCancel(true)}
+            >
               Cancelar contrato
             </Button>
           ) : null}
 
-          <Button key="close" type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            key="close"
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Fechar
           </Button>
-
         </DialogFooter>
       </DialogContent>
 
       <ContractCancelAlertDialog
-          open={confirmCancel}
-          onOpenChange={setConfirmCancel}
-          onConfirm={() => {
-              setConfirmCancel(false);
-          }}
+        open={confirmCancel}
+        onOpenChange={setConfirmCancel}
+        onConfirm={handleCancelConfirm}
       />
     </Dialog>
   );

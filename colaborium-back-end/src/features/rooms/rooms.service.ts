@@ -6,8 +6,15 @@ export async function cadastrarSala(data: RoomInput) {
   return repository.createRoom(data);
 }
 
-export async function listarSalas() {
-  return repository.listRooms();
+export async function listarSalas(incluirInativos: boolean) {
+  return repository.listRooms(incluirInativos);
+}
+
+export async function listarSalasDisponiveis(
+  dataInicio: string,
+  dataFim: string
+) {
+  return repository.listAvailableRooms(dataInicio, dataFim);
 }
 
 export async function buscarSala(id: number) {
@@ -26,4 +33,24 @@ export async function alterarSituacaoSala(
   ativo: boolean
 ) {
   return repository.updateRoomActive(id, ativo);
+}
+
+// EXCLUIR SALA
+export async function excluirSala(id: number) {
+  const sala = await repository.findRoomById(id);
+
+  if (!sala) {
+    return "NAO_ENCONTRADA";
+  }
+
+  // Bloqueia se a sala já esteve vinculada a qualquer contrato
+  const possuiContrato = await repository.hasAnyContract(id);
+
+  if (possuiContrato) {
+    return "POSSUI_CONTRATO";
+  }
+
+  await repository.deleteRoom(id);
+
+  return "EXCLUIDA";
 }

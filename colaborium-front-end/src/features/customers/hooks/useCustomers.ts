@@ -4,14 +4,15 @@ import type { CustomerResponse } from "../types/CustomerResponse";
 
 type CustomerFilters = {
   page?: number;
-  limit?: number;
+  limit?: number | "all";
+  incluirInativos?: boolean;
 };
 
 type PaginatedCustomers = {
   data: CustomerResponse[];
   pagination: {
     actual_page: number;
-    limit_per_page: number;
+    limit_per_page: number | "all";
     total: number;
     total_pages: number;
     has_next: boolean;
@@ -28,12 +29,7 @@ async function fetchCustomers(
 }
 
 export function useCustomers(filters: CustomerFilters = {}) {
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["customers", filters],
     queryFn: () => fetchCustomers(filters),
   });

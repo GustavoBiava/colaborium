@@ -37,7 +37,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import type { DialogProps } from "@/shared/interfaces/DialogProps";
 import { cn } from "cn";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Pencil } from "lucide-react";
 import type {
   Control,
   FieldErrors,
@@ -71,13 +71,14 @@ export function AppointmentDialog({
   errors,
   reset,
 }: AppointmentDialogProps) {
-  const [params, _setParams] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const { createAppointments } = useCreateAppointments();
   const { updateAppointment } = useUpdateAppointment();
 
   const { rooms } = useRooms();
   const { customers } = useCustomers();
   const updateMode = params.get("mode") === "update";
+  const viewMode = params.get("mode") === "view";
   const id = Number(params.get("id"));
 
   const onSubmit = (data: AppointmentFormData) => {
@@ -95,17 +96,23 @@ export function AppointmentDialog({
     }
   };
 
-  const dialogText = updateMode
+  const dialogText = viewMode
     ? {
-        title: "Editar reserva",
-        description: "Atualize os dados da reserva.",
+        title: "Detalhes da reserva",
+        description: "Visualize os dados da reserva.",
         button: "Salvar",
       }
-    : {
-        title: "Nova reserva",
-        description: "Preencha os dados da nova reserva.",
-        button: "Criar",
-      };
+    : updateMode
+      ? {
+          title: "Editar reserva",
+          description: "Atualize os dados da reserva.",
+          button: "Salvar",
+        }
+      : {
+          title: "Nova reserva",
+          description: "Preencha os dados da nova reserva.",
+          button: "Criar",
+        };
 
   return (
     <Dialog
@@ -140,6 +147,7 @@ export function AppointmentDialog({
                 <Field>
                   <FieldLabel>Cliente</FieldLabel>
                   <Select
+                    disabled={viewMode}
                     onValueChange={(value) => field.onChange(Number(value))}
                     value={field.value ? field.value.toString() : undefined}
                   >
@@ -168,6 +176,7 @@ export function AppointmentDialog({
                 <Field>
                   <FieldLabel>Sala</FieldLabel>
                   <Select
+                    disabled={viewMode}
                     onValueChange={(value) => field.onChange(Number(value))}
                     value={field.value ? field.value.toString() : undefined}
                   >
@@ -194,9 +203,10 @@ export function AppointmentDialog({
                   <FieldLabel>Data</FieldLabel>
 
                   <Popover>
-                    <PopoverTrigger asChild>
+                    <PopoverTrigger asChild disabled={viewMode}>
                       <Button
                         variant="outline"
+                        disabled={viewMode}
                         className="w-full justify-start text-left font-normal rounded-md h-9"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -225,12 +235,22 @@ export function AppointmentDialog({
             <FieldGroup className="grid grid-cols-2 gap-2">
               <Field>
                 <FieldLabel>Início</FieldLabel>
-                <Input id="inicio" type="time" {...register("inicio")} />
+                <Input
+                  id="inicio"
+                  type="time"
+                  disabled={viewMode}
+                  {...register("inicio")}
+                />
                 <FieldError>{errors?.inicio?.message}</FieldError>
               </Field>
               <Field>
                 <FieldLabel>Fim</FieldLabel>
-                <Input id="fim" type="time" {...register("fim")} />
+                <Input
+                  id="fim"
+                  type="time"
+                  disabled={viewMode}
+                  {...register("fim")}
+                />
                 <FieldError>{errors?.fim?.message}</FieldError>
               </Field>
             </FieldGroup>
@@ -241,7 +261,11 @@ export function AppointmentDialog({
               render={({ field }) => (
                 <Field>
                   <FieldLabel>Status</FieldLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    disabled={viewMode}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
                     <SelectTrigger id="status" className="w-full">
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
@@ -266,6 +290,7 @@ export function AppointmentDialog({
                 id="finalidade"
                 type="text"
                 placeholder="Ex: Reunião com cliente"
+                disabled={viewMode}
                 {...register("finalidade")}
               />
               <FieldError>{errors?.finalidade?.message}</FieldError>
@@ -276,6 +301,7 @@ export function AppointmentDialog({
               <Textarea
                 id="observacao"
                 placeholder="Observações adicionais"
+                disabled={viewMode}
                 {...register("observacao")}
               />
               <FieldError>{errors?.observacao?.message}</FieldError>
@@ -288,6 +314,7 @@ export function AppointmentDialog({
                 render={({ field }) => (
                   <Checkbox
                     checked={field.value}
+                    disabled={viewMode}
                     onCheckedChange={field.onChange}
                   />
                 )}
@@ -298,22 +325,19 @@ export function AppointmentDialog({
         </ScrollArea>
 
         <DialogFooter className="flex flex-row  justify-between items-center w-full">
-          {/* This button need to cancel the meetings, fix it later */}
-          {/* {updateMode && (
-            <div className="flex-1">
-              <Button
-                variant="ghost"
-                className="hover:bg-red-600/10"
-                onClick={() => ???(id)}
-              >
-                <Trash color={"#c10007"} />
-              </Button>
-            </div>
-          )} */}
           <div className="flex flex-row gap-3">
-            <Button form="reservation-form" type="submit" variant="outline">
-              {dialogText.button}
-            </Button>
+            {viewMode ? (
+              <Button
+                variant="outline"
+                onClick={() => setParams({ mode: "update", id: id.toString() })}
+              >
+                <Pencil />
+              </Button>
+            ) : (
+              <Button form="reservation-form" type="submit" variant="outline">
+                {dialogText.button}
+              </Button>
+            )}
             <Button variant="outline" onClick={() => setOpen(false)}>
               Fechar
             </Button>

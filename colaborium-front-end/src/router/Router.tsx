@@ -10,6 +10,7 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 import { CalendarPage } from "@/features/appointments/page";
+import { AccountsReceivablePage } from "@/features/accounts-receivable/page";
 
 export const Router = () => {
   const queryClient = new QueryClient();
@@ -26,6 +27,10 @@ export const Router = () => {
                 <Route path="/salas" element={<Rooms />} />
                 <Route path="/clientes" element={<CustomersPage />} />
                 <Route path="/contratos" element={<Contracts />} />
+                <Route
+                  path="/contas_receber"
+                  element={<AccountsReceivablePage />}
+                />
                 <Route path="/*" element={<CalendarPage />} />
               </Route>
             </Route>

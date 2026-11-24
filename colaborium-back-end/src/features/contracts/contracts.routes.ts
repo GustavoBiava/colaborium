@@ -26,7 +26,7 @@ const contractSchema = z.object({
   data_inicio: dateSchema,
   data_fim: dateSchema,
   valor_base: z.number().nonnegative(),
-  periodo: z.string().trim().min(1).max(50),
+  periodo: z.number().int().min(1).max(12),
 
   observacao: z.string().nullable().optional(),
 

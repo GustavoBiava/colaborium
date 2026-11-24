@@ -5,7 +5,7 @@ export type Contract = {
   data_inicio: Date;
   data_fim: Date;
   valor_base: number;
-  periodo: string;
+  periodo: number;
   status: "A" | "F" | "C";
   ativo: boolean;
   data_cancelamento: Date | null;

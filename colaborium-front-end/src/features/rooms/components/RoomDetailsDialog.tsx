@@ -1,5 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
-import { type Room } from "../types";
+import { useUpdateRoom } from "../hooks/useUpdateRoom";
+import { useDeleteRoom } from "../hooks/useDeleteRoom";
+import { isAxiosError } from "axios";
 
 import {
   Dialog,
@@ -24,12 +26,59 @@ interface DialogProps {
 export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const { updateRoom } = useUpdateRoom();
+  const { deleteRoom } = useDeleteRoom();
   if (!room) return null;
 
-  function handleSubmit(data: FormData) {
-    console.log(Object.fromEntries(data.entries()));
+  async function handleSubmit(data: FormData) {
+    if (!room) return;
 
-    setIsEditing(false);
+    try {
+      const furniture = JSON.parse(String(data.get("furniture") ?? "[]")) as {
+        id: string;
+        quantity: number;
+      }[];
+
+      const getQuantity = (id: string) =>
+        furniture.find((item) => item.id === id)?.quantity ?? 0;
+
+      const sala = {
+        nome: String(data.get("nome") ?? "").trim(),
+        descricao: String(data.get("descricao") ?? "").trim() || null,
+        capacidade: Number(data.get("capacidade")),
+        valor: Number(data.get("valor")),
+        localizacao: String(data.get("localizacao") ?? "").trim() || null,
+        qtd_arcondicionado: getQuantity("air-conditioners"),
+        qtd_cadeira: getQuantity("chairs"),
+        qtd_mesa: getQuantity("tables"),
+      };
+
+      await updateRoom({ id: room.id, data: sala });
+
+      setIsEditing(false);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Erro ao atualizar sala:", error);
+      alert("Não foi possível atualizar a sala.");
+    }
+  }
+
+  async function handleDelete() {
+    if (!room) return;
+
+    try {
+      await deleteRoom(room.id);
+
+      setConfirmCancel(false);
+      setIsEditing(false);
+      onOpenChange(false);
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        alert(error.response.data.message);
+      } else {
+        alert("Não foi possível excluir a sala.");
+      }
+    }
   }
 
   function handleCancel() {
@@ -119,9 +168,7 @@ export function RoomDetailsDialog({ room, open, onOpenChange }: DialogProps) {
           "Tem certeza de que deseja excluir esta sala? Essa ação não poderá ser desfeita."
         }
         onOpenChange={setConfirmCancel}
-        onConfirm={() => {
-          setConfirmCancel(false);
-        }}
+        onConfirm={handleDelete}
       />
     </>
   );

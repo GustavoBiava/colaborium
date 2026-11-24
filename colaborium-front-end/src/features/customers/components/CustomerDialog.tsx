@@ -24,28 +24,21 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { Label } from "@/shared/components/ui/label";
-import { cn } from "cn";
-import { useSearchParams } from "react-router";
-import { Controller, useForm, type FieldErrors } from "react-hook-form";
-import { clientSchema, type ClientFormData } from "../schema/clientSchema";
-import { useEffect, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import type { DialogProps } from "@/shared/interfaces/DialogProps";
 import { formatCep } from "@/shared/utils/formatCep";
 import { formatCpfCnpj } from "@/shared/utils/formatCpfCnpj";
 import { formatPhone } from "@/shared/utils/formatPhone";
 import { cn } from "cn";
+
 import type {
   Control,
-  FieldErrors,
   UseFormHandleSubmit,
   UseFormRegister,
+  UseFormReset,
 } from "react-hook-form";
-import { Controller } from "react-hook-form";
+import { Controller, type FieldErrors } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import type { CustomerFormData } from "../schema/customerSchema";
-import { useState } from "react";
 
 interface CustomerDialogProps extends DialogProps {
   register: UseFormRegister<CustomerFormData>;
@@ -53,6 +46,10 @@ interface CustomerDialogProps extends DialogProps {
   errors: FieldErrors<CustomerFormData>;
   handleSubmit: UseFormHandleSubmit<CustomerFormData>;
   onSubmit: (data: CustomerFormData) => void;
+  onInvalid: (errors: FieldErrors<CustomerFormData>) => void;
+  tab: "empresa" | "representante";
+  setTab: (value: "empresa" | "representante") => void;
+  reset: UseFormReset<CustomerFormData>;
 }
 
 export function CustomerDialog({
@@ -63,74 +60,44 @@ export function CustomerDialog({
   errors,
   handleSubmit,
   onSubmit,
+  onInvalid,
+  tab,
+  setTab,
+  reset,
 }: CustomerDialogProps) {
   const [params, _setParams] = useSearchParams();
-  const [tab, setTab] = useState<"empresa" | "representante">("empresa");
 
-  // ver como isso funciona para implementar junto as minhas mudanlas
-  // function onInvalid(errors: FieldErrors<ClientFormData>) {
-  //     const companyFields: (keyof ClientFormData)[] = [
-  //         "nome_empresa",
-  //         "cnpj_cpf_empresa",
-  //         "ie",
-  //         "email",
-  //         "telefone",
-  //         "endereco_empresa",
-  //         "numero_empresa",
-  //         "complemento_empresa",
-  //         "bairro_empresa",
-  //         "cidade_empresa",
-  //         "estado_empresa",
-  //         "cep_empresa",
-  //         "isento",
-  //     ];
-
-  //     const representativeFields: (keyof ClientFormData)[] = [
-  //         "nome_representante",
-  //         "cpf_representante",
-  //         "nacionalidade_representante",
-  //         "estado_civil_representante",
-  //         "cargo_representante",
-  //         "endereco_representante",
-  //         "numero_representante",
-  //         "complemento_representante",
-  //         "bairro_representante",
-  //         "cidade_representante",
-  //         "estado_representante",
-  //         "cep_representante",
-  //     ];
-
-  //     const hasCompanyErrors = companyFields.some(
-  //         (field) => errors[field]
-  //     );
-
-  //     const hasRepresentativeErrors = representativeFields.some(
-  //         (field) => errors[field]
-  //     );
-
-  //     if (hasCompanyErrors) {
-  //         setTab("empresa");
-  //     } else if (hasRepresentativeErrors) {
-  //         setTab("representante");
-  //     }
-  // }
-  const [isEnterprise, setIsEnterprise] = useState(true);
-
+  const mode = params.get("mode");
+  const id = params.get("id");
   const dialogText =
-    params.get("mode") === "update"
+    mode === "update"
       ? {
           title: "Editar cliente",
           description: "Atualize os dados do cliente.",
           button: "Salvar",
         }
-      : {
-          title: "Novo cliente",
-          description: "Preencha os dados do novo cliente.",
-          button: "Criar",
-        };
+      : id
+        ? {
+            title: "Visualizar cliente",
+            description: "Dados do cliente selecionado.",
+            button: "Fechar",
+          }
+        : {
+            title: "Novo cliente",
+            description: "Preencha os dados do novo cliente.",
+            button: "Criar",
+          };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) {
+          reset({});
+        }
+        setOpen(next);
+      }}
+    >
       <DialogContent
         className={cn(
           "rounded-xs min-w-[60%] max-h-[90%] overflow-hidden grid grid-rows-[auto_minmax(0,1fr)_auto]",
@@ -142,26 +109,11 @@ export function CustomerDialog({
         </DialogHeader>
 
         <ScrollArea className="min-h-0">
-          <Button
-            onClick={() => setIsEnterprise(true)}
-            className={cn(!isEnterprise ? "bg-gray-100" : "border-b-0")}
-            variant={"outline"}
-          >
-            Empresa
-          </Button>
-          <Button
-            onClick={() => setIsEnterprise(false)}
-            className={cn(isEnterprise ? "bg-gray-100" : "border-b-0")}
-            variant={"outline"}
-          >
-            Representante
-          </Button>
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
             id="customer-form"
-            className="grid grid-cols-2 gap-x-5 gap-y-4 mb-4 pr-4 mt-2 ml-1"
+            className="gap-x-5 gap-y-4 mb-4 pr-4 mt-2 ml-1"
           >
-            {/* onSubmit={handleSubmit(onSubmit, onInvalid)} */}
             <Tabs
               value={tab}
               onValueChange={(value) =>
@@ -177,7 +129,7 @@ export function CustomerDialog({
 
               <TabsContent value="empresa" className="grid grid-cols-2 gap-3">
                 <Field>
-                  <FieldLabel>Nome da Empresa</FieldLabel>
+                  <FieldLabel>Nome</FieldLabel>
                   <Input
                     id="nome_empresa"
                     type="text"
@@ -188,7 +140,7 @@ export function CustomerDialog({
                 </Field>
                 <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
                   <Field>
-                    <FieldLabel>Endereço da Empresa</FieldLabel>
+                    <FieldLabel>Endereço</FieldLabel>
                     <Input
                       id="endereco_empresa"
                       type="text"
@@ -198,7 +150,7 @@ export function CustomerDialog({
                     <FieldError>{errors?.endereco_empresa?.message}</FieldError>
                   </Field>
                   <Field>
-                    <FieldLabel>Número da Empresa</FieldLabel>
+                    <FieldLabel>Número</FieldLabel>
                     <Input
                       id="numero_empresa"
                       type="text"
@@ -210,7 +162,7 @@ export function CustomerDialog({
                 </FieldGroup>
 
                 <Field>
-                  <FieldLabel>E-mail da Empresa</FieldLabel>
+                  <FieldLabel>E-mail</FieldLabel>
                   <Input
                     id="email"
                     type="text"
@@ -220,7 +172,7 @@ export function CustomerDialog({
                   <FieldError>{errors?.email?.message}</FieldError>
                 </Field>
                 <Field>
-                  <FieldLabel>Bairro da Empresa</FieldLabel>
+                  <FieldLabel>Bairro</FieldLabel>
                   <Input
                     id="bairro_empresa"
                     type="text"
@@ -232,29 +184,29 @@ export function CustomerDialog({
 
                 <Controller
                   control={control}
-                  name="cnpj_cpf_empresa"
+                  name="cpf_cnpj_empresa"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel>CNPJ/CPF da Empresa</FieldLabel>
+                      <FieldLabel>CNPJ/CPF</FieldLabel>
                       <Input
-                        id="cnpj_cpf_empresa"
+                        id="cpf_cnpj_empresa"
                         type="text"
                         placeholder="000.000.000-00"
-                        maxLength={14 + 4} // 14 from the phone + special characters
+                        maxLength={14 + 4}
                         onChange={(e) => {
                           field.onChange(formatCpfCnpj(e.target.value));
                         }}
                         value={field.value}
                       />
                       <FieldError>
-                        {errors?.cnpj_cpf_empresa?.message}
+                        {errors?.cpf_cnpj_empresa?.message}
                       </FieldError>
                     </Field>
                   )}
                 />
 
                 <Field>
-                  <FieldLabel>Cidade da Empresa</FieldLabel>
+                  <FieldLabel>Cidade</FieldLabel>
                   <Input
                     id="cidade_empresa"
                     type="text"
@@ -268,11 +220,11 @@ export function CustomerDialog({
                   name="telefone"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel>Telefone da Empresa</FieldLabel>
+                      <FieldLabel>Telefone</FieldLabel>
                       <Input
                         id="telefone_empresa"
                         type="text"
-                        maxLength={11 + 4} // 11 from the phone + special characters
+                        maxLength={11 + 4}
                         placeholder="(00) 00000-0000"
                         onChange={(e) => {
                           field.onChange(formatPhone(e.target.value));
@@ -285,7 +237,7 @@ export function CustomerDialog({
                 />
 
                 <Field>
-                  <FieldLabel>Estado da Empresa</FieldLabel>
+                  <FieldLabel>Estado</FieldLabel>
                   <Input
                     id="estado_empresa"
                     type="text"
@@ -300,7 +252,7 @@ export function CustomerDialog({
                   name="cep_empresa"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel>CEP da Empresa</FieldLabel>
+                      <FieldLabel>CEP</FieldLabel>
 
                       <Input
                         id="cep_empresa"
@@ -317,7 +269,7 @@ export function CustomerDialog({
                   )}
                 />
                 <Field>
-                  <FieldLabel>Complemento da Empresa</FieldLabel>
+                  <FieldLabel>Complemento</FieldLabel>
                   <Input
                     id="complemento_empresa"
                     type="text"
@@ -360,7 +312,7 @@ export function CustomerDialog({
                 className="grid grid-cols-2  gap-3"
               >
                 <Field>
-                  <FieldLabel>Nome do Representante</FieldLabel>
+                  <FieldLabel>Nome</FieldLabel>
                   <Input
                     id="nome_representante"
                     type="text"
@@ -372,7 +324,7 @@ export function CustomerDialog({
 
                 <FieldGroup className="grid grid-cols-[1fr_30%] gap-2">
                   <Field>
-                    <FieldLabel>Endereço do Representante</FieldLabel>
+                    <FieldLabel>Endereço</FieldLabel>
                     <Input
                       id="endereco_representante"
                       type="text"
@@ -399,7 +351,7 @@ export function CustomerDialog({
                 </FieldGroup>
 
                 <Field>
-                  <FieldLabel>Nacionalidade do Representante</FieldLabel>
+                  <FieldLabel>Nacionalidade</FieldLabel>
                   <Input
                     id="nacionalidade_representante"
                     type="text"
@@ -412,7 +364,7 @@ export function CustomerDialog({
                 </Field>
 
                 <Field>
-                  <FieldLabel>Estado Civil do Representante</FieldLabel>
+                  <FieldLabel>Estado Civil</FieldLabel>
                   <Input
                     id="estado_civil_representante"
                     type="text"
@@ -425,7 +377,7 @@ export function CustomerDialog({
                 </Field>
 
                 <Field>
-                  <FieldLabel>Cargo do Representante</FieldLabel>
+                  <FieldLabel>Cargo</FieldLabel>
                   <Input
                     id="cargo_representante"
                     type="text"
@@ -438,7 +390,7 @@ export function CustomerDialog({
                 </Field>
 
                 <Field>
-                  <FieldLabel>Bairro do Representante</FieldLabel>
+                  <FieldLabel>Bairro</FieldLabel>
                   <Input
                     id="bairro_representante"
                     type="text"
@@ -455,7 +407,7 @@ export function CustomerDialog({
                   name="cpf_representante"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel>CPF do Representante</FieldLabel>
+                      <FieldLabel>CPF</FieldLabel>
                       <Input
                         id="cpf_representante"
                         type="text"
@@ -474,7 +426,7 @@ export function CustomerDialog({
                 />
 
                 <Field>
-                  <FieldLabel>Cidade do Representante</FieldLabel>
+                  <FieldLabel>Cidade</FieldLabel>
                   <Input
                     id="cidade_representante"
                     type="text"
@@ -487,7 +439,7 @@ export function CustomerDialog({
                 </Field>
 
                 <Field>
-                  <FieldLabel>Estado do Representante</FieldLabel>
+                  <FieldLabel>Estado</FieldLabel>
                   <Input
                     id="estado_representante"
                     type="text"
@@ -504,7 +456,7 @@ export function CustomerDialog({
                   name="cep_representante"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel>CEP do Representante</FieldLabel>
+                      <FieldLabel>CEP</FieldLabel>
 
                       <Input
                         id="cep_representante"
@@ -524,7 +476,7 @@ export function CustomerDialog({
                 />
 
                 <Field>
-                  <FieldLabel>Complemento do Representante</FieldLabel>
+                  <FieldLabel>Complemento</FieldLabel>
                   <Input
                     id="complemento_representante"
                     type="text"

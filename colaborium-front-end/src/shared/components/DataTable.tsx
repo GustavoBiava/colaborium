@@ -8,36 +8,26 @@ import {
 } from "@/shared/components/ui/table";
 import {
   flexRender,
-  sortFn_alphanumeric,
   type RowData,
   type Table as TanstackTable,
 } from "@tanstack/react-table";
 
-import {
-  createSortedRowModel,
-  rowSortingFeature,
-  tableFeatures,
-} from "@tanstack/react-table";
+import type { features } from "@/features/customers/page";
 
-const dataTableFeatures = tableFeatures({
-  rowSortingFeature,
-  sortedRowModel: createSortedRowModel(),
-  sortFns: { alphanumeric: sortFn_alphanumeric },
-});
-
-interface DataTableProps<TData extends RowData> {
-  table: TanstackTable<typeof dataTableFeatures, TData>;
+interface DataTableProps<TData extends RowData & { id: number }> {
+  table: TanstackTable<typeof features, TData>;
+  onRowClick: (id: number) => void;
 }
 
-export function DataTable<TData extends RowData>({
+export function DataTable<TData extends RowData & { id: number }>({
   table,
+  onRowClick,
 }: DataTableProps<TData>) {
   return (
     <Table>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
-            {/* here the header id is generated based on the helper.acessor. The id from column "email" is "email" */}
             {headerGroup.headers.map((header) => (
               <TableHead
                 key={header.id}
@@ -59,7 +49,13 @@ export function DataTable<TData extends RowData>({
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
+          <TableRow
+            onClick={(e) => {
+              e.stopPropagation();
+              onRowClick(row.original.id);
+            }}
+            key={row.id}
+          >
             {row.getAllCells().map((cell) => (
               <TableCell
                 className={

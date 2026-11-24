@@ -9,7 +9,7 @@ export type RoomInput = {
   qtd_arcondicionado: number;
   qtd_cadeira: number;
   qtd_mesa: number;
-  ocupada: boolean;
+  ocupada?: boolean;
 };
 
 export async function createRoom(data: RoomInput) {
@@ -37,8 +37,35 @@ export async function createRoom(data: RoomInput) {
   return result.rows[0];
 }
 
-export async function listRooms() {
-  const result = await db.query("SELECT * FROM sala ORDER BY id");
+export async function listRooms(incluirInativos: boolean) {
+  const result = incluirInativos
+    ? await db.query("SELECT * FROM sala ORDER BY id")
+    : await db.query("SELECT * FROM sala WHERE ativo = true ORDER BY id");
+
+  return result.rows;
+}
+
+// Lista salas ativas sem conflito de contrato no período informado.
+export async function listAvailableRooms(
+  dataInicio: string,
+  dataFim: string
+) {
+  const result = await db.query(
+    `SELECT s.*
+     FROM sala s
+     WHERE s.ativo = true
+       AND NOT EXISTS (
+         SELECT 1
+         FROM contrato c
+         JOIN contrato_sala cs ON cs.contrato_id = c.id
+         WHERE cs.sala_id = s.id
+           AND c.status = 'A'
+           AND c.data_inicio <= $2::date
+           AND COALESCE(c.data_fim, 'infinity'::date) >= $1::date
+       )
+     ORDER BY s.id`,
+    [dataInicio, dataFim]
+  );
 
   return result.rows;
 }
@@ -59,9 +86,8 @@ export async function updateRoom(id: number, data: RoomInput) {
       localizacao = $5,
       qtd_arcondicionado = $6,
       qtd_cadeira = $7,
-      qtd_mesa = $8,
-      ocupada = $9
-    WHERE id = $10
+      qtd_mesa = $8
+      WHERE id = $9
     RETURNING *`,
     [
       data.nome,
@@ -72,7 +98,6 @@ export async function updateRoom(id: number, data: RoomInput) {
       data.qtd_arcondicionado,
       data.qtd_cadeira,
       data.qtd_mesa,
-      data.ocupada ?? false,
       id,
     ],
   );
@@ -87,6 +112,31 @@ export async function updateRoomActive(id: number, ativo: boolean) {
      WHERE id = $2
      RETURNING *`,
     [ativo, id],
+  );
+
+  return result.rows[0] ?? null;
+}
+
+export async function hasAnyContract(id: number): Promise<boolean> {
+  const result = await db.query(
+    `SELECT EXISTS (
+       SELECT 1
+       FROM contrato_sala
+       WHERE sala_id = $1
+     ) AS possui_contrato`,
+    [id],
+  );
+
+  return result.rows[0].possui_contrato;
+}
+
+// EXCLUIR SALA
+export async function deleteRoom(id: number) {
+  const result = await db.query(
+    `DELETE FROM sala
+     WHERE id = $1
+     RETURNING id`,
+    [id],
   );
 
   return result.rows[0] ?? null;

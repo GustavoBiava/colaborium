@@ -27,6 +27,27 @@ const situacaoSchema = z.object({
   ativo: z.boolean(),
 });
 
+// Validação da querystring de listagem
+const listarSalasQuerySchema = z.object({
+  incluirInativos: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+});
+
+// Valida uma data real no formato AAAA-MM-DD.
+const dateSchema = z.string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Use AAAA-MM-DD")
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00.000Z`);
+
+    return !Number.isNaN(date.getTime())
+      && date.toISOString().slice(0, 10) === value;
+  }, "Data inválida");
+
+// Validação da querystring de disponibilidade
+const disponibilidadeQuerySchema = z.object({
+  data_inicio: dateSchema,
+  data_fim: dateSchema,
+});
+
 export async function roomsRoutes(instance: FastifyInstance) {
   const app = instance.withTypeProvider<ZodTypeProvider>();
 
@@ -46,9 +67,25 @@ export async function roomsRoutes(instance: FastifyInstance) {
     schema: {
       tags: ["Salas"],
       summary: "Listar todas as salas",
+      querystring: listarSalasQuerySchema,
     },
-  }, async (_request, reply) => {
-    return controller.listar(reply);
+  }, async (request, reply) => {
+    return controller.listar(request.query.incluirInativos, reply);
+  });
+
+  // LISTAR SALAS DISPONÍVEIS NO PERÍODO
+  app.get("/salas/disponiveis", {
+    schema: {
+      tags: ["Salas"],
+      summary: "Listar salas disponíveis em um período",
+      querystring: disponibilidadeQuerySchema,
+    },
+  }, async (request, reply) => {
+    return controller.listarDisponiveis(
+      request.query.data_inicio,
+      request.query.data_fim,
+      reply
+    );
   });
 
   // CONSULTAR SALA POR ID
@@ -93,4 +130,19 @@ export async function roomsRoutes(instance: FastifyInstance) {
       reply
     );
   });
+
+  // EXCLUIR SALA
+  app.delete("/salas/:id", {
+    schema: {
+      tags: ["Salas"],
+      summary: "Excluir sala",
+      params: idSchema,
+    },
+  }, async (request, reply) => {
+    return controller.excluir(
+      request.params.id,
+      reply
+    );
+  });
+
 }

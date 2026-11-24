@@ -1,10 +1,12 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from "fastify";
 import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas";
 import customerService from "./customers.service";
+import { CustomerError } from "./customers.repository";
 
 type CustomerQuery = {
   page: number;
-  limit: number;
+  limit: number | "all";
+  incluirInativos: boolean;
 };
 
 type CustomerParams = {
@@ -17,9 +19,9 @@ class CustomerController {
     reply: FastifyReply,
   ) {
     try {
-      const { page, limit } = request.query;
+      const { page, limit, incluirInativos } = request.query;
 
-      const result = await customerService.getCustomers(page, limit);
+      const result = await customerService.getCustomers(page, limit, incluirInativos);
 
       return reply.status(200).send(result);
     } catch (error) {
@@ -37,6 +39,10 @@ class CustomerController {
 
       return reply.status(201).send(result[0]);
     } catch (error) {
+      if (error instanceof CustomerError) {
+        return reply.status(error.statusCode).send({ message: error.message });
+      }
+
       request.log.error(error);
       return reply.status(500).send({ error });
     }
@@ -78,6 +84,10 @@ class CustomerController {
 
       return reply.status(200).send(result[0]);
     } catch (error) {
+      if (error instanceof CustomerError) {
+        return reply.status(error.statusCode).send({ message: error.message });
+      }
+
       request.log.error(error);
       return reply.status(500).send({ error });
     }

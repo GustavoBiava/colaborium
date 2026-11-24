@@ -14,7 +14,7 @@ export type CustomerResponse = {
   cep_empresa: string;
   nome_representante: string;
   cpf_representante: string;
-  nacionalidade_representante?: string | null;
+  nacionalidade_representante: string;
   estado_civil_representante: string;
   cargo_representante: string;
   endereco_representante: string;
