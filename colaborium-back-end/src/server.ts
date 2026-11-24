@@ -20,7 +20,6 @@ import { fastifyCors } from "@fastify/cors";
 import { fastifySwagger } from "@fastify/swagger";
 import { receivablesRoutes } from "./features/receivables/receivables.routes.js";
 
-// Especificador em variável: impede o bundler da Vercel de incluir o swagger-ui (@fastify/static quebra lá).
 const SWAGGER_UI_MODULE = "@fastify/swagger-ui";
 const API_PREFIX = process.env.API_PREFIX ?? (process.env.VERCEL ? "/api" : "");
 
@@ -32,9 +31,9 @@ app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
 
 app.register(fastifyCors, {
-  origin: ["http://localhost:5173"],
+  origin: ["https://colaborium-frontend.vercel.app"],
   methods: ["POST", "PUT", "PATCH", "OPTIONS", "GET", "DELETE"],
-  credentials: true,
+  credentials: true,  
 });
 
 app.register(fastifySwagger, {
@@ -53,7 +52,6 @@ await registerAuth(app);
 app.register(authRoutes, { prefix: API_PREFIX });
 
 if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-  // import dinâmico: @fastify/static (dep do swagger-ui) quebra no runtime da Vercel
   const { fastifySwaggerUi } = await import(/* @vite-ignore */ SWAGGER_UI_MODULE);
   app.register(fastifySwaggerUi, {
     routePrefix: `${API_PREFIX}/docs`,
