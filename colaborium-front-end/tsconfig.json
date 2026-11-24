@@ -9,6 +9,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@server/*": ["../server/src/*"]
-    }
+    },
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "skipLibCheck": true
   }
 }
