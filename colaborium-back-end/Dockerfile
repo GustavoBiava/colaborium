@@ -4,4 +4,4 @@ EXPOSE 3333
 COPY package.json bun.lock ./
 RUN bun install
 COPY . .
-CMD ["bun", "dev"]
+CMD ["bun", "run", "dev"]
