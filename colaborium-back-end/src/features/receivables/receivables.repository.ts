@@ -1,12 +1,12 @@
-import { db } from "../../config/database";
-import { withTransaction } from "../../utils/transaction";
+import { db } from "../../config/database.js";
+import { withTransaction } from "../../utils/transaction.js";
 import type {
   CreateReceivableDTO,
   ReceivableRow,
   ReceivableStatusFilter,
   ReceivableSummary,
   SettleReceivableDTO,
-} from "./receivables.schemas";
+} from "./receivables.schemas.js";
 
 export class ReceivableError extends Error {
   constructor(

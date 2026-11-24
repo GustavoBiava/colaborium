@@ -1,13 +1,13 @@
 import { fastify } from "fastify";
-import { db } from "./config/database";
-import { registerAuth } from "./config/auth";
-import { authRoutes } from "./features/auth/auth.routes";
+import { db } from "./config/database.js";
+import { registerAuth } from "./config/auth.js";
+import { authRoutes } from "./features/auth/auth.routes.js";
 
-import { roomsRoutes } from "./features/rooms/rooms.routes";
-import { contractsRoutes } from "./features/contracts/contracts.routes";
-import { appointmentsRoutes } from "./features/appointments/appointments.routes";
-import { usersRoutes } from "./features/users/users.routes";
-import { customerRoutes } from "./features/customers/customers.routes";
+import { roomsRoutes } from "./features/rooms/rooms.routes.js";
+import { contractsRoutes } from "./features/contracts/contracts.routes.js";
+import { appointmentsRoutes } from "./features/appointments/appointments.routes.js";
+import { usersRoutes } from "./features/users/users.routes.js";
+import { customerRoutes } from "./features/customers/customers.routes.js";
 
 import {
   serializerCompiler,
@@ -18,8 +18,11 @@ import {
 
 import { fastifyCors } from "@fastify/cors";
 import { fastifySwagger } from "@fastify/swagger";
-import { fastifySwaggerUi } from "@fastify/swagger-ui";
-import { receivablesRoutes } from "./features/receivables/receivables.routes";
+import { receivablesRoutes } from "./features/receivables/receivables.routes.js";
+
+// Especificador em variável: impede o bundler da Vercel de incluir o swagger-ui (@fastify/static quebra lá).
+const SWAGGER_UI_MODULE = "@fastify/swagger-ui";
+const API_PREFIX = process.env.API_PREFIX ?? (process.env.VERCEL ? "/api" : "");
 
 const app = fastify({
   logger: true,
@@ -47,11 +50,13 @@ app.register(fastifySwagger, {
 
 await registerAuth(app);
 
-app.register(authRoutes);
+app.register(authRoutes, { prefix: API_PREFIX });
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  // import dinâmico: @fastify/static (dep do swagger-ui) quebra no runtime da Vercel
+  const { fastifySwaggerUi } = await import(/* @vite-ignore */ SWAGGER_UI_MODULE);
   app.register(fastifySwaggerUi, {
-    routePrefix: "/docs",
+    routePrefix: `${API_PREFIX}/docs`,
   });
 }
 
@@ -64,10 +69,10 @@ app.register(async (protectedApp) => {
   protectedApp.register(usersRoutes);
   protectedApp.register(customerRoutes);
   protectedApp.register(receivablesRoutes);
-});
+}, { prefix: API_PREFIX });
 
 app.get(
-  "/health",
+  `${API_PREFIX}/health`,
   {
     schema: {
       tags: ["Sistema"],
@@ -84,7 +89,7 @@ app.get(
 );
 
 app.get(
-  "/health/database",
+  `${API_PREFIX}/health/database`,
   {
     schema: {
       tags: ["Sistema"],
@@ -127,4 +132,10 @@ async function start() {
   }
 }
 
-start();
+await app.ready();
+
+if (!process.env.VERCEL) {
+  start();
+}
+
+export default app;

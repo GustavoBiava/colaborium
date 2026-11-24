@@ -1,6 +1,6 @@
 
 import type { PoolClient } from "pg";
-import { db } from "../../config/database";
+import { db } from "../../config/database.js";
 
 export type ContractInput = {
   cliente_id: number;

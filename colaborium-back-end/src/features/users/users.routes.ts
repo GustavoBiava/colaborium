@@ -1,9 +1,9 @@
 
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { db } from "../../config/database";
-import userController from "./users.controller";
-import { createUserSchema, updateUserSchema } from "./users.schemas";
+import { db } from "../../config/database.js";
+import userController from "./users.controller.js";
+import { createUserSchema, updateUserSchema } from "./users.schemas.js";
 
 export async function usersRoutes(app: FastifyInstance) {
 

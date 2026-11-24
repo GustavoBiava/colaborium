@@ -1,7 +1,7 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
-import type { createUserDTO, updateUserDTO } from "./users.schemas";
-import userService from "./users.service";
+import type { createUserDTO, updateUserDTO } from "./users.schemas.js";
+import userService from "./users.service.js";
 
 type UserQuery = { page: number; limit: number };
 type UserParams = { id: number };

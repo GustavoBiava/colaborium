@@ -1,5 +1,5 @@
-import customerRepository, { CustomerError } from "./customers.repository";
-import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas";
+import customerRepository, { CustomerError } from "./customers.repository.js";
+import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas.js";
 
 class CustomerService {
   private buildDuplicateMessage(

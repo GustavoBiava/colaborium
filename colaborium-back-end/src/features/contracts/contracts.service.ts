@@ -1,11 +1,11 @@
 
-import * as repository from "./contracts.repository";
+import * as repository from "./contracts.repository.js";
 
 import {
   ContractError,
   type ContractInput,
   type ContractFilters,
-} from "./contracts.repository";
+} from "./contracts.repository.js";
 
 function validateContract(data: ContractInput) {
   // Impede que o contrato termine antes de começar.

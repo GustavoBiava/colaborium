@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import authRepository from "./auth.repository";
-import type { LoginDTO } from "./auth.schemas";
+import authRepository from "./auth.repository.js";
+import type { LoginDTO } from "./auth.schemas.js";
 
 class AuthService {
     async validateCredentials({ email, senha }: LoginDTO) {

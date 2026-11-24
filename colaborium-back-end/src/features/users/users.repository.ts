@@ -1,5 +1,5 @@
-import { db } from "../../config/database";
-import type { createUserDTO, updateUserDTO } from "./users.schemas";
+import { db } from "../../config/database.js";
+import type { createUserDTO, updateUserDTO } from "./users.schemas.js";
 import bcrypt from "bcryptjs";
 
 class UserRepository {

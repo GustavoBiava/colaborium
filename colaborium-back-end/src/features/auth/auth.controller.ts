@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import authService from "./auth.service";
-import type { LoginDTO } from "./auth.schemas";
+import authService from "./auth.service.js";
+import type { LoginDTO } from "./auth.schemas.js";
 
 class AuthController {
     async loginHandler(

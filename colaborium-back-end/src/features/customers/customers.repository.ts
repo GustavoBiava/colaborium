@@ -1,5 +1,5 @@
-import { db } from "../../config/database";
-import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas";
+import { db } from "../../config/database.js";
+import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas.js";
 
 export class CustomerError extends Error {
   constructor(

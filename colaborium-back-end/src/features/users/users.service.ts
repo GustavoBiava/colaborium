@@ -1,5 +1,5 @@
-import usersRepository from "./users.repository";
-import type { createUserDTO, updateUserDTO } from "./users.schemas";
+import usersRepository from "./users.repository.js";
+import type { createUserDTO, updateUserDTO } from "./users.schemas.js";
 
 class UserService {
 

@@ -1,7 +1,7 @@
 import { tokenStore } from "./tokenStore";
 import type { AuthUser } from "./types";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
+const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? "/api" : "http://localhost:3333");
 
 type LoginResponse = {
     accessToken: string;

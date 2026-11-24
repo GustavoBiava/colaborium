@@ -1,4 +1,4 @@
-import receivableRepository, { ReceivableError } from "./receivables.repository";
+import receivableRepository, { ReceivableError } from "./receivables.repository.js";
 import type {
   CreateReceivableDTO,
   ListReceivablesQuery,
@@ -6,7 +6,7 @@ import type {
   ReceivableRow,
   ReceivableSummary,
   SettleReceivableDTO,
-} from "./receivables.schemas";
+} from "./receivables.schemas.js";
 
 class ReceivableService {
   async getReceivables(

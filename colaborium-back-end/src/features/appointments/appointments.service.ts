@@ -1,12 +1,12 @@
 
-import * as repository from "./appointments.repository";
+import * as repository from "./appointments.repository.js";
 
 import {
   AppointmentError,
   type AppointmentInput,
   type AppointmentFilters,
   type AppointmentStatus,
-} from "./appointments.repository";
+} from "./appointments.repository.js";
 
 function validateAppointment(data: AppointmentInput) {
   if (data.fim <= data.inicio) {
