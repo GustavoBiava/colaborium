@@ -126,4 +126,17 @@ export async function contractsRoutes(
       reply
     );
   });
+
+  // GERAR DOCX DO CONTRATO
+  app.get("/contratos/:id/docx", {
+    schema: {
+      tags: ["Contratos"],
+      summary: "Gerar DOCX do contrato",
+      description:
+        "Retorna o DOCX preenchido para conversão em PDF no front-end.",
+      params: idSchema,
+    },
+  }, async (request, reply) => {
+    return controller.gerarDocx(request.params.id, reply);
+  });
 }

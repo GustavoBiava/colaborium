@@ -15,10 +15,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { generateContract, getPdfErrorMessage } from "../services/generateContract";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { generateContract } from "../services/generateContract";
 
 const CONTRACT_STATUS_LABEL: Record<ContractResponse["status"], string> = {
   F: "Finalizado",
@@ -44,6 +44,8 @@ export function ContractDetailsDialog({
   onOpenChange,
 }: DialogProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
   const { customers } = useCustomers({ limit: "all" });
   const { rooms } = useRooms();
   const { changeContractStatus } = useChangeContractStatus();
@@ -66,6 +68,21 @@ export function ContractDetailsDialog({
     onOpenChange(nextOpen);
   }
 
+  async function handleDownload() {
+    if (!contract) return;
+    setIsGenerating(true);
+    setPdfError(null);
+
+    try {
+      await generateContract(contract.id);
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      setPdfError(await getPdfErrorMessage(error));
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+  
   async function handleCancelConfirm(motivo: string) {
     await changeContractStatus({
       id: contract!.id,
@@ -211,15 +228,15 @@ export function ContractDetailsDialog({
           </div>
         </ScrollArea>
 
+        {pdfError ? (
+          <p className="mt-3 text-sm text-red-600" role="alert">
+            {pdfError}
+          </p>
+        ) : null}
+
         <DialogFooter>
-          <Button
-            key="download"
-            type="button"
-            variant="outline"
-            className="mr-auto"
-            onClick={() => generateContract(contract)}
-          >
-            Baixar PDF
+          <Button key="download" type="button" variant="outline" className="mr-auto" disabled={isGenerating} onClick={handleDownload}>
+            {isGenerating ? "Gerando PDF..." :  "Baixar PDF"}
           </Button>
 
           {contract.status === "A" ? (
