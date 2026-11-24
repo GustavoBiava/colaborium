@@ -59,6 +59,9 @@ const contractSelect = `
           json_build_object(
             'sala_id', cs.sala_id,
             'nome', s.nome,
+            'qtd_arcondicionado', s.qtd_arcondicionado,
+            'qtd_cadeira', s.qtd_cadeira,
+            'qtd_mesa', s.qtd_mesa,
             'valor_negociado', cs.valor_negociado
           )
           ORDER BY cs.sala_id

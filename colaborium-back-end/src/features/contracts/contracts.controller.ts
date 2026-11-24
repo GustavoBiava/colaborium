@@ -1,5 +1,5 @@
-
 import type { FastifyReply } from "fastify";
+import { generateContractDocx } from "./contractPdf.service";
 
 import * as service from "./contracts.service";
 
@@ -92,4 +92,24 @@ export async function alterarStatus(
       motivo
     )
   );
+}
+
+// GERAR DOCX DO CONTRATO
+export async function gerarDocx(id: number, reply: FastifyReply) {
+  try {
+    const docxBytes = await generateContractDocx(id);
+
+    return reply
+      .header("Content-Disposition", `attachment; filename="contrato-${id}.docx"`)
+      .type("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+      .send(Buffer.from(docxBytes));
+  } catch (error) {
+    if (error instanceof ContractError) {
+      return reply.status(error.statusCode).send({
+        message: error.message,
+      });
+    }
+
+    throw error;
+  }
 }
