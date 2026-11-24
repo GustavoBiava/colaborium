@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-import * as controller from "./appointments.controller";
+import * as controller from "./appointments.controller.js";
 
 const dateSchema = z.string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Use AAAA-MM-DD")

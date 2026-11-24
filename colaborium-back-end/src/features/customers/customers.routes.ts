@@ -1,8 +1,8 @@
 
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import customerController from "./customers.controller";
-import { createCustomerSchema, updateCustomerSchema } from "./customers.schemas";
+import customerController from "./customers.controller.js";
+import { createCustomerSchema, updateCustomerSchema } from "./customers.schemas.js";
 
 export async function customerRoutes(app: FastifyInstance) {
 

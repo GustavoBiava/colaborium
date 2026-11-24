@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-import * as controller from "./contracts.controller";
+import * as controller from "./contracts.controller.js";
 
 // Valida uma data real no formato AAAA-MM-DD.
 const dateSchema = z.string()

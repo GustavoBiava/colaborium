@@ -1,13 +1,13 @@
 import type { FastifyReply } from "fastify";
-import { generateContractDocx } from "./contractPdf.service";
+import { generateContractDocx } from "./contractPdf.service.js";
 
-import * as service from "./contracts.service";
+import * as service from "./contracts.service.js";
 
 import {
   ContractError,
   type ContractInput,
   type ContractFilters,
-} from "./contracts.repository";
+} from "./contracts.repository.js";
 
 // Centraliza o tratamento de erros conhecidos.
 async function execute(

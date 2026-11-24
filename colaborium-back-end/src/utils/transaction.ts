@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { db } from "../config/database";
+import { db } from "../config/database.js";
 
 export async function withTransaction<T>(
   operation: (client: PoolClient) => Promise<T>,

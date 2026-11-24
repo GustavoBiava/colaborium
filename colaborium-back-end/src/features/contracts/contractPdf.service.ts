@@ -5,8 +5,8 @@ import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import extenso from "extenso";
 
-import customerRepository from "../customers/customers.repository";
-import { buscarContrato } from "./contracts.service";
+import customerRepository from "../customers/customers.repository.js";
+import { buscarContrato } from "./contracts.service.js";
 
 const TEMPLATE_PATH = join(process.cwd(), "templates", "template.docx");
 

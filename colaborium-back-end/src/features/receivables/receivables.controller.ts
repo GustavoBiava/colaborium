@@ -1,11 +1,11 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import receivableService from "./receivables.service";
-import { ReceivableError } from "./receivables.repository";
+import receivableService from "./receivables.service.js";
+import { ReceivableError } from "./receivables.repository.js";
 import type {
   CreateReceivableDTO,
   ListReceivablesQuery,
   SettleReceivableDTO,
-} from "./receivables.schemas";
+} from "./receivables.schemas.js";
 
 type ReceivableParams = {
   id: number;

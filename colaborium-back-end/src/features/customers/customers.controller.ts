@@ -1,7 +1,7 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
-import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas";
-import customerService from "./customers.service";
-import { CustomerError } from "./customers.repository";
+import type { createCustomerDTO, updateCustomerDTO } from "./customers.schemas.js";
+import customerService from "./customers.service.js";
+import { CustomerError } from "./customers.repository.js";
 
 type CustomerQuery = {
   page: number;

@@ -1,11 +1,11 @@
 import type { FastifyInstance } from "fastify";
-import receivableController from "./receivables.controller";
+import receivableController from "./receivables.controller.js";
 import {
   createReceivableSchema,
   listReceivablesQuerySchema,
   receivableIdParamsSchema,
   settleReceivableSchema,
-} from "./receivables.schemas";
+} from "./receivables.schemas.js";
 
 export async function receivablesRoutes(app: FastifyInstance) {
   // LISTAR CONTAS A RECEBER

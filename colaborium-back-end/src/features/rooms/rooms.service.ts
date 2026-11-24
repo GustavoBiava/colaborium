@@ -1,6 +1,6 @@
 
-import * as repository from "./rooms.repository";
-import type { RoomInput } from "./rooms.repository";
+import * as repository from "./rooms.repository.js";
+import type { RoomInput } from "./rooms.repository.js";
 
 export async function cadastrarSala(data: RoomInput) {
   return repository.createRoom(data);

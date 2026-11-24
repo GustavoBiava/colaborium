@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { db } from "../../config/database";
+import { db } from "../../config/database.js";
 
 export type AppointmentInput = {
   cliente_id: number;

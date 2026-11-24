@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-import * as controller from "./rooms.controller";
+import * as controller from "./rooms.controller.js";
 
 // Validação dos dados da sala
 const salaSchema = z.object({

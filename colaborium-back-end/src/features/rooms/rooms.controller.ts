@@ -1,7 +1,7 @@
 
 import type { FastifyReply } from "fastify";
-import * as service from "./rooms.service";
-import type { RoomInput } from "./rooms.repository";
+import * as service from "./rooms.service.js";
+import type { RoomInput } from "./rooms.repository.js";
 
 // CADASTRAR
 export async function cadastrar(

@@ -1,13 +1,13 @@
 
 import type { FastifyReply } from "fastify";
-import * as service from "./appointments.service";
+import * as service from "./appointments.service.js";
 
 import {
   AppointmentError,
   type AppointmentInput,
   type AppointmentFilters,
   type AppointmentStatus,
-} from "./appointments.repository";
+} from "./appointments.repository.js";
 
 async function execute(
   reply: FastifyReply,
